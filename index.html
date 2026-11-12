@@ -66,6 +66,15 @@
     .barra { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
     .fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
     .fila > .crece { flex: 1; min-width: 170px; }
+    .fila > div { min-width: 0; }
+    /* Fechas: en el celular (sobre todo iPhone) la casilla nativa ignora el ancho y se monta sobre la de al lado. */
+    input[type=date], input[type=month], input[type=time] { -webkit-appearance: none; appearance: none; display: block;
+      min-width: 0; max-width: 100%; min-height: 42px; line-height: 1.3; }
+    input::-webkit-date-and-time-value { text-align: left; }
+    @media (max-width: 600px) {
+      .fila > div:not(.crece) { flex: 1 1 140px; }
+      .tarjeta { padding: 16px 14px; }
+    }
     .cuadro { background: var(--g50); border: 1px solid var(--g200); border-radius: 10px; padding: 16px; margin-top: 16px; }
     .cuadro > h3:first-child { margin-top: 0; }
     .ayuda { font-size: 13px; color: var(--g500); margin-top: 6px; }
