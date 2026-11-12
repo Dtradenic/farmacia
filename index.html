@@ -144,7 +144,8 @@
     #hoy .kpi { display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 16px; border-radius: 12px; border-color: var(--g200); box-shadow: var(--sombra); transition: border-color .15s, box-shadow .15s; }
     #hoy button.kpi:hover { box-shadow: var(--sombra-alta); }
     #hoy .kpi small { font-size: 13px; font-weight: 500; color: var(--g500); }
-    #hoy .kpi b { display: block; font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin-top: 4px; line-height: 1.2; }
+    #hoy .kpi b { display: block; font-size: 22px; font-weight: 700; letter-spacing: -.01em; margin-top: 4px; line-height: 1.25; white-space: nowrap; }
+    #hoy .kpi b .moneda { font-size: .62em; font-weight: 600; color: var(--g500); margin-right: 3px; letter-spacing: 0; }
     #hoy .kpi .sub { font-size: 13px; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
     #hoy .kpi.alerta { background: #fffbeb; border-color: #fde68a; }
     #hoy .kpi.alerta small, #hoy .kpi.alerta .sub { color: #b45309; }
@@ -155,7 +156,7 @@
     #hoy .kpi.naranja b { color: #7c2d12; }
     #hoy button.kpi.naranja:hover { background: #fff7ed; border-color: #f97316; }
     #hoy .kpi.fuerte small, #hoy .kpi.fuerte .sub { color: var(--verde-osc); }
-    @media (max-width: 520px) { #hoy { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } #hoy .kpi { padding: 12px; } #hoy .kpi b { font-size: 20px; }
+    @media (max-width: 520px) { #hoy { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } #hoy .kpi { padding: 12px; } #hoy .kpi b { font-size: 19px; }
       #hoy .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 
     /* Pestañas */
@@ -1266,7 +1267,7 @@
         // ===== Inicio: cómo va el día =====
         /** Cuadro del panel «Hoy»; con accion es un botón que lleva a esa pantalla. */
         const cuadroHoy = (texto, valor, sub, clase, accion) => '<' + (accion ? 'button onclick="' + accion + '"' : 'div') + ' class="kpi' + (clase ? ' ' + clase : '') + '">' +
-          '<small>' + texto + '</small><b>' + valor + '</b>' + (sub ? '<span class="sub">' + sub + '</span>' : '') + '</' + (accion ? 'button' : 'div') + '>';
+          '<small>' + texto + '</small><b>' + String(valor).replace(/^C\$\s*/, '<span class="moneda">C$</span>') + '</b>' + (sub ? '<span class="sub">' + sub + '</span>' : '') + '</' + (accion ? 'button' : 'div') + '>';
         function cargarInicio() {
           llamar('resumenInicio', [], r => {
             pintarAsistencia(r.asistencia);
