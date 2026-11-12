@@ -4,21 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Farmacia Dr. Alduvin</title>
-  <meta name="theme-color" content="#047857">
+  <meta name="theme-color" content="#157a5e">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
   <link rel="apple-touch-icon" href="icono-apple-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Farmacia">
   <base target="_top">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <style>
     :root {
-      --verde: #047857; --verde-osc: #065f46; --verde-claro: #ecfdf5; --rojo: #be123c; --rojo-claro: #fff1f2;
-      --ambar: #92400e; --ambar-claro: #fef3c7; --g50: #f9fafb; --g100: #f3f4f6; --g200: #e5e7eb; --g300: #d1d5db;
-      --g500: #6b7280; --g700: #374151; --g900: #111827; --sombra: 0 1px 2px rgba(17, 24, 39, .06);
+      --verde: #157a5e; --verde-osc: #0f5c47; --verde-claro: #ecfdf5; --verde-vivo: #10b981; --rojo: #be123c; --rojo-claro: #fff1f2;
+      --ambar: #92400e; --ambar-claro: #fef3c7; --g50: #f8fafc; --g100: #f1f5f9; --g200: #e2e8f0; --g300: #cbd5e1;
+      --g500: #64748b; --g700: #334155; --g900: #0f172a; --sombra: 0 1px 2px rgba(15, 23, 42, .05);
+      --sombra-alta: 0 8px 24px rgba(15, 23, 42, .08);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; background: var(--g50); color: var(--g900); }
+    body { margin: 0; font: 16px/1.5 Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; background: var(--g50); color: var(--g900); }
+    svg.ico { width: 1em; height: 1em; flex: none; vertical-align: -.125em; }
     .oculto, .vendedor .soloAdmin { display: none !important; }
 
     /* Encabezado */
@@ -29,9 +34,15 @@
     .logoEntrada { display: block; width: 100%; max-width: 300px; height: auto; margin: 0 auto 18px; }
     .logoImpreso { display: block; height: 70px; width: auto; margin: 0 auto 4px; }
     #recibo .rLogo { display: block; width: 100%; max-width: 230px; height: auto; margin: 0 auto 6px; filter: grayscale(1) contrast(1.2); }
-    header h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; flex: 1; }
-    .quien { font-size: 13px; color: var(--g500); text-align: right; line-height: 1.3; }
-    .quien b { color: var(--g900); font-weight: 600; display: block; }
+    header h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quien { font-size: 12px; color: var(--g500); text-align: right; line-height: 1.3; }
+    .quien b { color: var(--g900); font-weight: 600; font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cuenta summary.quien { display: flex; align-items: center; gap: 10px; padding: 4px 8px 4px 4px; }
+    .cuenta summary.quien > span:not(.avatar) { min-width: 0; max-width: 200px; }
+    .cuenta summary span.avatar { width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--verde); color: #fff;
+      font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+    .flechita { color: var(--g500); font-size: 16px; }
+    @media (max-width: 480px) { .cuenta summary.quien > span:not(.avatar) { display: none; } .cuenta summary.quien { gap: 4px; } }
     main { max-width: 980px; margin: 0 auto; padding: 16px; }
 
     /* Barra de carga, aviso de conexión y menú fijo */
@@ -103,13 +114,49 @@
     .formulario { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 16px; margin-top: 12px; align-items: end; }
 
     /* Inicio */
-    .modulos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 14px; }
-    .modulo { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-height: 0; padding: 16px 14px; text-align: left;
-      background: #fff; color: var(--g900); border-color: var(--g200); border-radius: 12px; font-size: 15px; line-height: 1.3; }
-    .modulo:hover { background: #fff; border-color: var(--verde); box-shadow: 0 4px 12px rgba(4, 120, 87, .12); }
-    .modulo:disabled { box-shadow: none; border-color: var(--g200); }
-    .modulo i { width: 40px; height: 40px; border-radius: 10px; background: var(--verde-claro); display: grid; place-items: center; font-style: normal; font-size: 20px; }
-    .modulo small { display: block; font-weight: 400; font-size: 13px; color: var(--g500); margin-top: 2px; }
+    .modulos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+    .modulo { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-height: 0; padding: 18px 16px; text-align: left;
+      background: #fff; color: var(--g900); border-color: var(--g200); border-radius: 14px; font-size: 15px; line-height: 1.3;
+      transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .modulo:hover { background: #fff; border-color: var(--verde); box-shadow: var(--sombra-alta); transform: translateY(-2px); }
+    .modulo:active { transform: none; }
+    .modulo:disabled { box-shadow: none; border-color: var(--g200); transform: none; }
+    .modulo i { width: 44px; height: 44px; border-radius: 12px; background: var(--verde-claro); color: var(--verde); display: grid; place-items: center;
+      font-style: normal; font-size: 22px; transition: background .15s, color .15s; }
+    .modulo:hover i { background: var(--verde); color: #fff; }
+    .modulo b { font-weight: 600; }
+    .modulo small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      font-weight: 400; font-size: 13px; color: var(--g500); margin-top: 3px; line-height: 1.4; }
+    @media (max-width: 760px) { .modulos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .modulos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .modulo { padding: 14px 12px; } }
+    @media (prefers-reduced-motion: reduce) { .modulo, .modulo:hover { transition: none; transform: none; } }
+
+    /* Panel «Hoy» de Inicio */
+    .cabezaHoy h2 { font-size: 20px; }
+    button.conIcono { display: inline-flex; align-items: center; gap: 6px; }
+    #inicioHoy .asistencia { padding: 10px 10px 10px 16px; margin-top: 16px; }
+    #inicioHoy .asistencia.dentro { background: #ecfdf5; border-color: #a7f3d0; }
+    #inicioHoy .asistencia.dentro .punto { background: var(--verde-vivo); box-shadow: 0 0 0 4px rgba(16, 185, 129, .18); }
+    #inicioHoy button.peligro { color: #dc2626; border-color: #fca5a5; }
+    #inicioHoy button.peligro:hover { background: #fef2f2; border-color: #ef4444; }
+    #hoy { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 16px; }
+    #inicioHoy .asistencia #estado { min-width: 0; }
+    #hoy .kpi { display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 16px; border-radius: 12px; border-color: var(--g200); box-shadow: var(--sombra); transition: border-color .15s, box-shadow .15s; }
+    #hoy button.kpi:hover { box-shadow: var(--sombra-alta); }
+    #hoy .kpi small { font-size: 13px; font-weight: 500; color: var(--g500); }
+    #hoy .kpi b { display: block; font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin-top: 4px; line-height: 1.2; }
+    #hoy .kpi .sub { font-size: 13px; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+    #hoy .kpi.alerta { background: #fffbeb; border-color: #fde68a; }
+    #hoy .kpi.alerta small, #hoy .kpi.alerta .sub { color: #b45309; }
+    #hoy .kpi.alerta b { color: #78350f; }
+    #hoy button.kpi.alerta:hover { background: #fffbeb; border-color: #f59e0b; }
+    #hoy .kpi.naranja { background: #fff7ed; border-color: #fed7aa; }
+    #hoy .kpi.naranja small, #hoy .kpi.naranja .sub { color: #c2410c; }
+    #hoy .kpi.naranja b { color: #7c2d12; }
+    #hoy button.kpi.naranja:hover { background: #fff7ed; border-color: #f97316; }
+    #hoy .kpi.fuerte small, #hoy .kpi.fuerte .sub { color: var(--verde-osc); }
+    @media (max-width: 520px) { #hoy { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } #hoy .kpi { padding: 12px; } #hoy .kpi b { font-size: 20px; }
+      #hoy .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 
     /* Pestañas */
     .pestanas { display: flex; gap: 4px; padding: 4px; margin-bottom: 4px; background: var(--g100); border-radius: 10px; overflow-x: auto; }
@@ -248,7 +295,7 @@
       <svg class="marca" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="-30 158 668 668"><defs><linearGradient id="gCruz" gradientUnits="userSpaceOnUse" x1="90" y1="170" x2="520" y2="600"><stop offset="0" stop-color="#63C82A"/><stop offset="0.25" stop-color="#43AE0D"/><stop offset="0.5" stop-color="#1F9304"/><stop offset="0.75" stop-color="#0B8A02"/><stop offset="1" stop-color="#056E02"/></linearGradient><linearGradient id="gCruzS" gradientUnits="userSpaceOnUse" x1="0" y1="430" x2="0" y2="560"><stop offset="0" stop-color="#034800" stop-opacity="0"/><stop offset="1" stop-color="#034800" stop-opacity="0.6"/></linearGradient><linearGradient id="gH2" gradientUnits="userSpaceOnUse" x1="300" y1="650" x2="400" y2="740"><stop offset="0" stop-color="#52BE0A"/><stop offset="0.5" stop-color="#2E9A05"/><stop offset="1" stop-color="#157A03"/></linearGradient><linearGradient id="gH1" gradientUnits="userSpaceOnUse" x1="170" y1="560" x2="290" y2="690"><stop offset="0" stop-color="#6FD215"/><stop offset="0.45" stop-color="#3FAE08"/><stop offset="1" stop-color="#1C8504"/></linearGradient><linearGradient id="gH1b" gradientUnits="userSpaceOnUse" x1="250" y1="560" x2="290" y2="680"><stop offset="0" stop-color="#3FA808"/><stop offset="1" stop-color="#6BD012"/></linearGradient><linearGradient id="gPO" gradientUnits="userSpaceOnUse" x1="200" y1="690" x2="250" y2="800"><stop offset="0" stop-color="#1265D6"/><stop offset="1" stop-color="#0A3399"/></linearGradient><linearGradient id="gPB" gradientUnits="userSpaceOnUse" x1="190" y1="690" x2="165" y2="775"><stop offset="0" stop-color="#1C7BE8"/><stop offset="0.45" stop-color="#0A46B4"/><stop offset="1" stop-color="#062A80"/></linearGradient><linearGradient id="gPW" gradientUnits="userSpaceOnUse" x1="290" y1="715" x2="262" y2="800"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.6" stop-color="#F3F5F6"/><stop offset="1" stop-color="#D5DADF"/></linearGradient><clipPath id="cPL"><path d="M100 640L262 640L196 840L100 840Z"/></clipPath><clipPath id="cPR"><path d="M360 640L262 640L196 840L360 840Z"/></clipPath></defs><g id="cruz_verde"><path d="M202 206C202 182.8 220.8 164 244 164L393 164C416.2 164 435 182.8 435 206L435 302C435 308.6 440.4 314 447 314L506 314C529.2 314 548 332.8 548 356L548 486C548 509.2 529.2 528 506 528L447 528C440.4 528 435 533.4 435 540L435 654C435 659.5 430.5 664 425 664L212 664C206.5 664 202 659.5 202 654L202 540C202 533.4 196.6 528 190 528L102 528C78.8 528 60 509.2 60 486L60 356C60 332.8 78.8 314 102 314L190 314C196.6 314 202 308.6 202 302Z" fill="url(#gCruz)"/><path d="M202 206C202 182.8 220.8 164 244 164L393 164C416.2 164 435 182.8 435 206L435 302C435 308.6 440.4 314 447 314L506 314C529.2 314 548 332.8 548 356L548 486C548 509.2 529.2 528 506 528L447 528C440.4 528 435 533.4 435 540L435 654C435 659.5 430.5 664 425 664L212 664C206.5 664 202 659.5 202 654L202 540C202 533.4 196.6 528 190 528L102 528C78.8 528 60 509.2 60 486L60 356C60 332.8 78.8 314 102 314L190 314C196.6 314 202 308.6 202 302Z" fill="url(#gCruzS)"/></g><path id="cruz_blanca" d="M242 220C242 211.2 249.2 204 258 204L378 204C386.8 204 394 211.2 394 220L394 348C394 350.8 396.2 353 399 353L492 353C500.8 353 508 360.2 508 369L508 472C508 480.8 500.8 488 492 488L399 488C396.2 488 394 490.2 394 493L394 654C394 656.2 392.2 658 390 658L246 658C243.8 658 242 656.2 242 654L242 493C242 490.2 239.8 488 237 488L116 488C107.2 488 100 480.8 100 472L100 369C100 360.2 107.2 353 116 353L237 353C239.8 353 242 350.8 242 348Z" fill="#FAFBF9"/><path id="serpiente" d="M287 376.5L289.8 376.2L293.4 375.8L297.6 375.4L302.1 375L306.5 374.7L310.5 374.5L314.3 374.4L318.1 374.3L321.9 374.3L325.9 374.4L330.1 374.4L334.8 374.5L340.2 374.5L345.8 374.5L351.3 374.4L356.7 374.5L361.7 374.8L365.9 375.3L370.6 376.2L374.9 377.1L379 378.3L382.6 379.5L385.5 380.9L387.8 382.2L389.9 383.9L391.9 386L393.7 388.3L395.2 390.7L396.2 392.9L396.8 394.8L397.1 396.7L397.1 399L396.8 401.5L396.2 404.1L395.3 406.5L394.3 408.6L393 410.3L391.1 412.4L388.6 414.6L385.6 416.9L382.3 419.1L378.8 421.2L375.7 422.7L371.9 424.3L367.8 425.8L363.3 427.2L358.7 428.7L354 430.1L350.2 431.4L346.4 432.5L342.5 433.6L338.6 434.7L334.5 435.8L330.3 437.1L326.4 438.3L322.2 439.5L317.8 440.8L313.4 442.2L309 443.8L304.6 445.7L301 447.5L297.4 449.5L293.9 451.6L290.4 454.1L287.1 457L284.1 460.4L281.7 464L279.7 467.9L278.3 472L277.5 476.3L277.2 480.9L277.8 485.5L279.2 489.9L281.1 493.9L283.5 497.5L286.3 500.8L289.3 503.8L292.7 506.5L296.5 509.1L300.5 511.2L304.6 513L308.7 514.7L312.8 516.2L316.8 517.7L322 519.4L327.2 520.9L332.3 522.3L337.1 523.6L341.3 524.8L344.4 526L347.3 527.3L349.7 528.6L351.8 529.9L353.4 531.1L354.6 532.2L355.4 533.1L355.9 533.6L356.2 534.2L356.4 534.9L356.5 535.5L356.6 536.2L356.5 537L356.2 537.9L355.7 539L354.9 540.2L353.9 541.5L352.6 542.7L351 543.9L349.2 544.9L346.3 546.1L342.6 547.4L338.7 548.7L334.6 550.1L330.5 551.7L327.5 553L324.5 554.4L321.5 555.8L318.4 557.4L315.5 559.2L312.6 561.5L310.1 563.8L307.9 566.4L306 569.1L304.4 572L303.1 575L302.2 578.1L301.8 581.5L301.8 584.8L302.2 587.9L303 590.9L304 593.8L305.4 596.5L307 598.9L308.9 601.2L311 603.4L313.4 605.3L316 607.1L318.8 608.6L322.4 610L326 611L329.5 611.6L332.8 612.2L335.6 612.8L337.7 613.4L339.9 614.4L341.9 615.3L343.7 616.3L345.3 617.4L346.8 618.6L348.1 619.9L349.2 621.4L350.3 623.6L351.2 626.1L352.1 628.6L352.8 630.8L353.6 632.4L356.4 631.6L356.4 630.1L356.4 627.8L356.1 625L355.7 622L355.1 619L353.9 616.1L352.5 613.8L350.9 611.6L349 609.7L347 607.9L344.7 606.2L342.3 604.6L339 602.9L335.7 601.6L332.4 600.5L329.3 599.4L326.8 598.3L325.2 597.4L323.6 596.1L322.2 594.8L321 593.5L320 592.2L319.2 590.9L318.6 589.5L318.1 588.2L317.8 586.8L317.5 585.4L317.5 584L317.6 582.8L317.8 581.9L318.2 580.8L318.9 579.6L319.7 578.3L320.8 576.9L322.1 575.7L323.4 574.5L324.8 573.6L326.6 572.7L328.8 571.7L331.4 570.7L334.3 569.5L337.5 568.3L340.4 567.3L344 566.2L348.1 565.1L352.4 563.8L356.7 562.2L361 560.1L364.4 557.8L367.5 555.2L370.1 552.4L372.3 549.5L374.1 546.3L375.5 543L376.5 539.5L376.9 535.8L376.7 532L376 528.2L374.6 524.5L372.6 520.9L370.2 517.9L367.5 515.1L364.5 512.6L361.2 510.2L357.5 508.1L353.6 506L348.7 504L343.6 502.2L338.4 500.6L333.4 499.1L328.9 497.7L325.2 496.3L321.2 494.6L317.5 493.1L314.2 491.6L311.3 490.1L309 488.8L307.3 487.5L305.8 486.1L304.4 484.6L303.4 483.1L302.7 481.9L302.3 480.9L302.2 480.5L302.2 480.2L302.3 479.5L302.4 478.6L302.8 477.6L303.3 476.5L303.9 475.6L304.6 474.8L305.9 473.8L307.6 472.5L309.9 471.1L312.5 469.7L315.4 468.3L318.1 467.1L321.4 465.9L325.2 464.7L329.3 463.5L333.5 462.2L337.7 460.9L341.4 459.8L345.2 458.8L349.1 457.7L353.2 456.5L357.5 455.3L362 453.9L366.1 452.5L370.8 451.1L375.7 449.5L380.9 447.6L386.1 445.5L391.2 442.8L395.6 440.2L400 437.3L404.3 434L408.5 430.4L412.3 426.2L415.7 421.4L418.3 416.4L420.2 411.2L421.4 405.9L422.1 400.4L422 394.8L421.2 389.2L419.5 383.8L417.1 378.7L414.2 374L410.7 369.5L406.7 365.4L402.2 361.8L397.1 358.7L391.8 356.3L386.4 354.4L380.9 352.9L375.4 351.7L370.1 350.7L363.8 349.9L357.6 349.5L351.4 349.4L345.5 349.5L340 349.5L335.2 349.5L330.6 349.4L326.2 349.4L322 349.3L317.9 349.3L313.7 349.4L309.5 349.5L304.8 349.8L300 350.1L295.3 350.6L291 351L287.4 351.3L285 351.5Z" fill="#0A2463"/><path id="serpiente_cabeza" d="M219.5 387C226 380 232 377 237 374C245 364 251 361 257 358.5C266 355 276 353 286 352L292 351.5L292 377C287 383 284 386 280 388.5C275 392 269 394.5 263 395.7C256 397.3 249 397.5 243 397C240 396.9 238 396.8 236 396C240 394 244 392 247 390C241 391.5 233 393.5 226 394C222 393.5 219.5 391 219.5 387Z" fill="#0A2463"/><path id="serpiente_ojo" d="M256.5 374.2C256 372.3 258.5 370.6 262 370.4C265.5 370.2 268.3 371.6 268.4 373.4C268.5 375.2 266 376.6 262.6 376.8C259.4 377 257 376 256.5 374.2Z" fill="#FFFFFF"/><path id="baston_borde" d="M317.7 318L352.3 318L348.1 430L346.7 550L345.3 600L344.5 643L325.5 643L324.7 600L323.3 550L321.9 430Z" fill="#FAFBF9"/><path id="baston" d="M336 258.5C341 258.5 362 271 363.5 286C364.5 297 357 306 348.5 310L322.5 310C314.5 306 307.5 297 308.5 286C310 271 331 258.5 336 258.5ZM322.2 309L347.8 309L343.6 430L342.2 550L340.8 600L340 643L330 643L329.2 600L327.8 550L326.4 430Z" fill="#0A2463"/><path id="serpiente_frente_borde" d="M355.5 424.9L351.2 426.3L347.5 427.5L343.8 428.6L340 429.6L336 430.7L331.9 431.9L327.8 433.1L323.9 434.3L319.7 435.5L315.3 436.9L310.8 438.4L306.3 440.1L301.9 442L298.2 443.9L314 474L316.7 472.7L319.1 471.6L322.1 470.4L325.6 469.3L329.4 468.1L333.5 466.9L337.8 465.6L341.5 464.5L345.2 463.4L349 462.4L352.9 461.3L357.1 460.1L361.6 458.7L365.8 457.4ZM343.5 542.4L339.6 543.7L335.4 545.1L331 546.6L327.2 548.3L324.1 549.6L320.8 551.1L317.5 552.8L314.1 554.7L310.7 557.2L326.6 577.8L327.7 577.2L329.4 576.3L331.6 575.4L334.3 574.3L337.5 573.1L340.4 572L343.6 571L347.6 569.9L352.1 568.6Z" fill="#FAFBF9"/><path id="serpiente_frente" d="M362.4 427.5L357.7 429L353.2 430.4L349.3 431.6L345.4 432.8L341.5 433.9L337.5 435L333.3 436.2L329.1 437.4L325.1 438.6L320.8 439.9L316.3 441.3L311.8 442.8L307.4 444.5L303.3 446.4L299.6 448.2L296 450.3L308.9 471.7L311.4 470.3L314.2 468.8L317 467.6L320.2 466.3L323.9 465.1L327.9 463.9L332.1 462.6L336.4 461.3L340.4 460.1L344.2 459L348.1 458L352.2 456.8L356.4 455.6L360.9 454.2L365.2 452.8L369.8 451.4ZM347.8 545.5L344.5 546.8L340.6 548.1L336.5 549.4L332.4 550.9L328.9 552.4L325.8 553.8L322.8 555.2L319.7 556.7L316.7 558.4L313.7 560.5L311.1 562.9L322.6 575.2L324 574.2L325.5 573.2L327.5 572.3L329.9 571.2L332.6 570.2L335.7 569L338.7 567.9L342 566.8L345.9 565.7L350.2 564.5L354.6 563Z" fill="#0A2463"/><g id="hoja_derecha"><path d="M286 694C296 672 322 652 357 645.7C380 642 402 644 420 649.5C420 668 416 684 408.6 697C400 712 390 722 380 728.6C366 738 352 742 338 744C316 738 296 720 286 694Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="17" stroke-linejoin="round"/><path d="M286 694C296 672 322 652 357 645.7C380 642 402 644 420 649.5C420 668 416 684 408.6 697C400 712 390 722 380 728.6C366 738 352 742 338 744C316 738 296 720 286 694Z" fill="url(#gH2)"/><path d="M336 716C352 710 370 698 384 684C374 702 358 714 336 716Z" fill="#5CC80F" opacity="0.55"/><path d="M300 712C330 700 362 682 392 663C366 686 338 706 306 720Z" fill="#FFFFFF"/></g><g id="hoja_izquierda"><path d="M155.7 548.6C195 546 240 556 266 580C288 600 300 626 300 649C300 665 292 680 280 692C245 694 205 682 186 660C166 636 158 590 155.7 548.6Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="17" stroke-linejoin="round"/><path d="M155.7 548.6C195 546 240 556 266 580C288 600 300 626 300 649C300 665 292 680 280 692C245 694 205 682 186 660C166 636 158 590 155.7 548.6Z" fill="url(#gH1)"/><path d="M196 610C212 618 232 634 246 656C228 646 208 632 196 610Z" fill="#7ADB1C" opacity="0.6"/><path d="M163 555C192 566 222 596 242 626C256 648 266 668 272 690L263 691C258 670 249 651 236 631C217 602 192 574 163 555Z" fill="#FFFFFF"/><path d="M262 606C270 624 273 646 271 664C268 648 265 628 262 606Z" fill="#D9F5B8"/></g><g id="capsula"><path d="M190.5 668L299.6 701.3C331.2 711 349.1 744.5 339.4 776.2C329.7 807.9 296.2 825.7 264.5 816L155.4 782.7C123.8 773 105.9 739.5 115.6 707.8C125.3 676.1 158.8 658.3 190.5 668Z" fill="#FFFFFF"/><path d="M187.9 676.6L296.9 709.9C323.9 718.1 339 746.6 330.8 773.6C322.5 800.5 294 815.7 267.1 807.4L158.1 774.1C131.1 765.9 116 737.4 124.2 710.4C132.5 683.5 161 668.3 187.9 676.6Z" fill="url(#gPO)"/><path d="M184.4 688L293.4 721.4C314 727.7 325.6 749.5 319.3 770.1C313 790.7 291.2 802.3 270.6 796L161.6 762.6C141 756.3 129.4 734.5 135.7 713.9C142 693.3 163.8 681.7 184.4 688Z" fill="url(#gPB)" clip-path="url(#cPL)"/><path d="M184.4 688L293.4 721.4C314 727.7 325.6 749.5 319.3 770.1C313 790.7 291.2 802.3 270.6 796L161.6 762.6C141 756.3 129.4 734.5 135.7 713.9C142 693.3 163.8 681.7 184.4 688Z" fill="url(#gPW)" clip-path="url(#cPR)"/><path d="M170.4 690.1L221 705.6C225 706.8 227.2 711 226 714.9C224.8 718.9 220.6 721.1 216.6 719.9L166 704.4C162 703.2 159.8 699 161 695.1C162.2 691.1 166.4 688.9 170.4 690.1Z" fill="#BFE4FF" opacity="0.9"/></g></svg>
       <h1>Farmacia Dr. Alduvin</h1>
       <details class="cuenta noImprimir conSesion" id="menuCuenta">
-        <summary class="quien"><b id="quienNombre"></b><span id="quienRol"></span></summary>
+        <summary class="quien"><span class="avatar" id="quienIniciales"></span><span><b id="quienNombre"></b><span id="quienRol"></span></span><svg class="ico flechita" data-ico="abajo"></svg></summary>
         <div class="menuCuenta">
           <button class="sec soloAdmin" onclick="vistaVendedor(true)">Ver como vendedor</button>
           <button class="sec" onclick="pedirCambioClave(false)">Cambiar mi clave</button>
@@ -307,10 +354,10 @@
 
       <!-- Inicio -->
       <div data-vista="inicio" class="oculto">
-        <div class="tarjeta">
-          <div class="barra" style="margin-bottom:0">
+        <div class="tarjeta" id="inicioHoy">
+          <div class="barra cabezaHoy" style="margin-bottom:0">
             <h2 style="flex:1">Hoy</h2>
-            <button class="mini sec" id="btnHoy" onclick="cargarInicio()">Actualizar</button>
+            <button class="mini sec conIcono" id="btnHoy" onclick="cargarInicio()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button>
           </div>
           <div class="asistencia" id="asistencia">
             <span class="punto"></span>
@@ -323,13 +370,13 @@
         <div class="tarjeta">
           <h2>¿Qué vas a hacer?</h2>
           <div class="modulos">
-            <button class="modulo" onclick="abrirVenta('vender')"><i>🛒</i><span>Vender<small>Cobrar y dar recibo</small></span></button>
-            <button class="modulo" onclick="abrirVenta('caja')"><i>💵</i><span>Caja y créditos<small>Abrir, cerrar, abonos</small></span></button>
-            <button class="modulo" onclick="abrirProductos()"><i>💊</i><span>Productos<small>Catálogo y precios</small></span></button>
-            <button class="modulo" onclick="abrirInventario()"><i>📦</i><span>Inventario<small>Existencias y compras</small></span></button>
-            <button class="modulo" onclick="abrirConta()"><i>📒</i><span>Gastos y contabilidad<small>Gastos, libros, balances</small></span></button>
-            <button class="modulo soloAdmin" onclick="abrirNomina()"><i>👥</i><span>Empleados y nómina<small>Planilla y colillas</small></span></button>
-            <button class="modulo soloAdmin" onclick="abrirReportes()"><i>📊</i><span>Reportes<small>Tablero, cajas, controlados, respaldos</small></span></button>
+            <button class="modulo" onclick="abrirVenta('vender')"><i><svg class="ico" data-ico="carrito"></svg></i><span><b>Vender</b><small>Cobrar y dar recibo</small></span></button>
+            <button class="modulo" onclick="abrirVenta('caja')"><i><svg class="ico" data-ico="billetera"></svg></i><span><b>Caja y créditos</b><small>Abrir, cerrar, abonos</small></span></button>
+            <button class="modulo" onclick="abrirProductos()"><i><svg class="ico" data-ico="pastilla"></svg></i><span><b>Productos</b><small>Catálogo y precios</small></span></button>
+            <button class="modulo" onclick="abrirInventario()"><i><svg class="ico" data-ico="paquete"></svg></i><span><b>Inventario</b><small>Existencias y compras</small></span></button>
+            <button class="modulo" onclick="abrirConta()"><i><svg class="ico" data-ico="calculadora"></svg></i><span><b>Gastos y contabilidad</b><small>Gastos, libros, balances</small></span></button>
+            <button class="modulo soloAdmin" onclick="abrirNomina()"><i><svg class="ico" data-ico="personas"></svg></i><span><b>Empleados y nómina</b><small>Planilla y colillas</small></span></button>
+            <button class="modulo soloAdmin" onclick="abrirReportes()"><i><svg class="ico" data-ico="grafica"></svg></i><span><b>Reportes</b><small>Tablero, cajas, controlados, respaldos</small></span></button>
           </div>
         </div>
       </div>
@@ -873,6 +920,28 @@
 
         // ===== Ayudantes generales =====
         const el = id => document.getElementById(id);
+        // Iconos de línea (trazos de Lucide, licencia ISC). En el HTML: <svg class="ico" data-ico="nombre"></svg>.
+        const ICONOS = {
+          carrito: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+          billetera: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+          pastilla: '<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>',
+          paquete: '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
+          calculadora: '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+          personas: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+          grafica: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+          recargar: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+          candado: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+          flecha: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+          salida: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+          entrada: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+          abajo: '<path d="m6 9 6 6 6-6"/>'
+        };
+        const ico = nombre => '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
+        document.querySelectorAll('svg[data-ico]').forEach(s => {
+          ['viewBox|0 0 24 24', 'fill|none', 'stroke|currentColor', 'stroke-width|2', 'stroke-linecap|round', 'stroke-linejoin|round', 'aria-hidden|true']
+            .forEach(par => s.setAttribute(par.split('|')[0], par.split('|')[1]));
+          s.innerHTML = ICONOS[s.dataset.ico] || '';
+        });
         // El logo va una sola vez en la página (pantalla de entrada); recibos y reportes lo reutilizan.
         const LOGO_SRC = el('logoEntrada').getAttribute('src');
         const LOGO_IMPRESO = '<img class="logoImpreso" alt="Farmacia Dr. Alduvin" src="' + LOGO_SRC + '">';
@@ -1103,8 +1172,9 @@
           document.body.classList.remove('sinSesion');
           document.body.classList.toggle('admin', ES_ADMIN);
           document.body.classList.toggle('vendedor', !ES_ADMIN);
-          el('quienNombre').textContent = usuario.nombre + ' ▾';
-          el('quienRol').textContent = usuario.rol;
+          el('quienNombre').textContent = usuario.nombre;
+          el('quienRol').textContent = usuario.rol === 'Admin' ? 'Administrador' : usuario.rol;
+          el('quienIniciales').textContent = String(usuario.nombre || '?').trim().split(/\s+/).slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('');
           if (cambiarClave) pedirCambioClave(true); else ver('inicio');
         }
         function pedirCambioClave(obligatorio) {
@@ -1163,8 +1233,8 @@
           enTurno = !!e.entrada && !e.salida;
           el('estado').innerHTML = !e.entrada ? 'Hoy no has marcado entrada'
             : enTurno ? '<b>En turno</b> desde las ' + esc(e.entrada) : 'Turno de hoy: ' + esc(e.entrada) + ' a ' + esc(e.salida);
-          el('btnAsistencia').textContent = enTurno ? 'Marcar salida' : 'Marcar entrada';
-          el('btnAsistencia').className = 'mini' + (enTurno ? ' peligro' : '');
+          el('btnAsistencia').innerHTML = enTurno ? ico('salida') + 'Marcar salida' : ico('entrada') + 'Marcar entrada';
+          el('btnAsistencia').className = 'mini conIcono' + (enTurno ? ' peligro' : '');
           el('btnAsistencia').disabled = false;
           el('asistencia').classList.toggle('dentro', enTurno);
         }
@@ -1204,9 +1274,9 @@
             const detalle = [a.vencidos && a.vencidos + ' lote(s) vencido(s)', a.por_vencer && a.por_vencer + ' por vencer', a.bajo_minimo && a.bajo_minimo + ' bajo el mínimo',
               a.agotados && a.agotados + ' sin existencia'].filter(Boolean).join(' · ');
             el('hoy').innerHTML =
-              cuadroHoy('Mi caja', r.caja ? 'Abierta' : 'Cerrada', r.caja ? 'Desde ' + esc(r.caja.desde) : 'Ábrela para vender', r.caja ? 'fuerte' : 'alerta', 'abrirVenta(\'caja\')') +
+              cuadroHoy('Mi caja', r.caja ? 'Abierta' : 'Cerrada', r.caja ? 'Desde ' + esc(r.caja.desde) : ico('candado') + 'Ábrela para vender', r.caja ? 'fuerte' : 'alerta', 'abrirVenta(\'caja\')') +
               cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)', '', 'abrirVenta(\'historial\')') +
-              cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'alerta' : '', 'abrirInventario(\'alertas\')') +
+              cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')') +
               (r.por_cobrar ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')') +
                 cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')') : '');
           }, { boton: 'btnHoy', falla: e => { el('estado').textContent = el('hoy').textContent = e.message || String(e); } });
