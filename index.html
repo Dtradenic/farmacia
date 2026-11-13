@@ -346,6 +346,27 @@
     }
     .soloImpreso { display: none; }
     input:disabled, select:disabled { background-color: var(--g100); color: var(--g500); cursor: not-allowed; }
+    /* Conteo del cajón al cerrar la caja */
+    .conteo { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 4px 24px; margin-top: 12px; }
+    .conteo h4 { margin: 10px 0 4px; font-size: 13px; font-weight: 600; color: var(--g500); text-transform: uppercase; letter-spacing: .04em; }
+    .denom { display: grid; grid-template-columns: minmax(0, 1fr) 84px 96px; align-items: center; gap: 10px; margin: 0; padding: 4px 0;
+      border-bottom: 1px solid var(--g100); font-size: 15px; font-weight: 500; color: var(--g900); }
+    .denom small { color: var(--g500); font-weight: 400; font-size: 12px; }
+    .denom input:not([type=checkbox]) { height: 38px; text-align: center; padding: 6px; }
+    .denom em { font-style: normal; text-align: right; color: var(--g500); font-variant-numeric: tabular-nums; font-size: 14px; }
+    .denom > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 520px) {
+      .denom { grid-template-columns: minmax(0, 1fr) 64px 80px; gap: 8px; font-size: 14px; }
+      .denom em { font-size: 13px; }
+      .denom small { display: none; }
+    }
+    .conteoTotal { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+    .conteoTotal > div { flex: 1 1 200px; background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 12px 14px; }
+    .conteoTotal small { display: block; font-size: 13px; color: var(--g500); }
+    .conteoTotal b { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .cuadreEstado.bien { background: var(--verde-claro); border-color: #a7f3d0; color: var(--verde-osc); }
+    .cuadreEstado.sobra { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+    .cuadreEstado.falta { background: var(--rojo-claro); border-color: #fecdd3; color: var(--rojo); }
     /* Gastos por aprobar */
     .porAprobar { background: #fffbeb; border-color: #fde68a; }
     .pendiente { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 14px; margin-top: 12px; box-shadow: var(--sombra); }
@@ -819,10 +840,16 @@
           <div data-panel="venta:caja" class="oculto">
             <div id="cj_resumen"></div>
             <div id="cj_cerrar" class="cuadro oculto">
-              <h3>Cerrar caja</h3>
+              <h3>Cerrar caja: cuenta el cajón</h3>
+              <div class="ayuda">Escribe cuántos billetes y monedas hay de cada uno. El sistema va sumando solo.</div>
+              <div class="conteo" id="cj_conteo"></div>
+              <div class="conteoTotal">
+                <div><small>Total contado</small><b id="cj_totalTexto">C$ 0.00</b></div>
+                <div id="cj_cuadre" class="cuadreEstado"></div>
+              </div>
+              <input id="cj_contado" type="hidden">
               <div class="formulario">
-                <div><label>Efectivo contado en el cajón (C$; dólares pasados a córdobas)</label><input id="cj_contado" type="number" min="0" step="0.01"></div>
-                <div><label>Nota</label><input id="cj_nota"></div>
+                <div><label>Nota</label><input id="cj_nota" placeholder="Ej.: faltó porque di vuelto de más"></div>
               </div>
               <div class="fila"><button id="btnCerrarCaja" class="peligro" onclick="cerrarMiCaja()">Cerrar caja</button></div>
             </div>
@@ -1815,6 +1842,8 @@
           mostrar('v_zonaVenta', abierta);
           mostrar('cj_cerrar', abierta);
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
+          pintarConteo();
+          sumarConteo();
           const f = (t, n) => tr([td(t), num(cs(n))]);
           el('cj_resumen').innerHTML = '<div class="cuadro"><b>Caja ' + c.id + '</b> · abierta ' + esc(c.apertura) + ' · ' + c.num_ventas + ' ventas' +
             '<div class="kpis"><div class="kpi fuerte"><small>Debe haber en el cajón</small><b>' + cs(c.esperado) + '</b></div>' +
@@ -1829,14 +1858,62 @@
           llamar('abrirCaja', [el('v_montoInicial').value || 0], () => cargarVenta(() => aviso('avisoVenta', 'Caja abierta.')),
             { aviso: 'avisoVenta', espera: 'Abriendo caja…', boton: 'btnAbrirCaja' });
         }
+        // Conteo del cajón por billetes y monedas (córdobas) y dólares.
+        const BILLETES = [1000, 500, 200, 100, 50, 20, 10], MONEDAS = [5, 1, 0.5, 0.25, 0.1];
+        const textoDenom = d => d >= 1 ? 'C$ ' + d : (d * 100) + ' centavos';
+        function pintarConteo() {
+          if (el('cj_conteo').dataset.listo) return;
+          const fila = (d, tipo) => '<label class="denom"><span>' + textoDenom(d) + (d === 10 ? ' <small>(billete o moneda)</small>' : '') + '</span>' +
+            '<input type="number" min="0" step="1" inputmode="numeric" data-denom="' + d + '" oninput="sumarConteo()" placeholder="0">' +
+            '<em id="cj_sub_' + String(d).replace('.', '_') + '">—</em></label>';
+          el('cj_conteo').innerHTML = '<div><h4>Billetes</h4>' + BILLETES.map(d => fila(d)).join('') + '</div>' +
+            '<div><h4>Monedas</h4>' + MONEDAS.map(d => fila(d)).join('') +
+            '<h4>Dólares</h4><label class="denom"><span>US$ <small id="cj_tc"></small></span>' +
+            '<input type="number" min="0" step="1" inputmode="numeric" id="cj_usd" oninput="sumarConteo()" placeholder="0"><em id="cj_sub_usd">—</em></label></div>';
+          el('cj_conteo').dataset.listo = '1';
+        }
+        function leerConteo() {
+          const c = {};
+          document.querySelectorAll('#cj_conteo input[data-denom]').forEach(i => { if (i.value !== '') c[i.dataset.denom] = Number(i.value); });
+          if (el('cj_usd').value !== '') c.usd = Number(el('cj_usd').value);
+          return c;
+        }
+        function sumarConteo() {
+          if (!dv || !dv.caja) return;
+          const tc = Number(dv.tipo_cambio) || 0;
+          el('cj_tc').textContent = tc ? '(a C$ ' + tc + ')' : '';
+          let total = 0;
+          document.querySelectorAll('#cj_conteo input[data-denom]').forEach(i => {
+            const n = Number(i.value) || 0, sub = n * Number(i.dataset.denom);
+            total += sub;
+            el('cj_sub_' + i.dataset.denom.replace('.', '_')).textContent = n ? cs(sub) : '—';
+          });
+          const usd = Number(el('cj_usd').value) || 0;
+          total += usd * tc;
+          el('cj_sub_usd').textContent = usd ? cs(usd * tc) : '—';
+          total = r2(total);
+          el('cj_contado').value = total;
+          el('cj_totalTexto').textContent = cs(total);
+          const d = r2(total - dv.caja.esperado);
+          el('cj_cuadre').className = 'cuadreEstado ' + (d === 0 ? 'bien' : d > 0 ? 'sobra' : 'falta');
+          el('cj_cuadre').innerHTML = '<small>Debe haber ' + cs(dv.caja.esperado) + '</small><b>' +
+            (d === 0 ? 'Cuadra exacto' : d > 0 ? 'Sobran ' + cs(d) : 'Faltan ' + cs(-d)) + '</b>';
+        }
+        function limpiarConteo() {
+          document.querySelectorAll('#cj_conteo input').forEach(i => { i.value = ''; });
+          sumarConteo();
+        }
         function cerrarMiCaja() {
-          if (el('cj_contado').value === '') return aviso('avisoCaja', 'Escribe cuánto efectivo contaste.', true);
+          const conteo = leerConteo();
+          if (!Object.keys(conteo).length) return aviso('avisoCaja', 'Escribe cuántos billetes y monedas contaste.', true);
+          sumarConteo();
           const contado = Number(el('cj_contado').value), d = r2(contado - dv.caja.esperado);
           preguntar({ titulo: '¿Cerrar la caja ahora?', si: 'Cerrar caja', peligro: true,
             texto: 'Contaste ' + cs(contado) + '. ' + (d === 0 ? 'Cuadra exacto con lo esperado.' : d > 0 ? 'Sobran ' + cs(d) + '.' : 'Faltan ' + cs(-d) + '. Si puedes, vuelve a contar antes de cerrar.')
-          }, () => llamar('cerrarCaja', [el('cj_contado').value, el('cj_nota').value], r => {
+          }, () => llamar('cerrarCaja', [el('cj_contado').value, el('cj_nota').value, conteo], r => {
             const d = r.diferencia;
             limpiar(['cj_contado', 'cj_nota']);
+            limpiarConteo();
             cargarVenta(() => aviso('avisoCaja', 'Caja ' + r.id + ' cerrada. Debía haber ' + cs(r.esperado) + ', contaste ' + cs(r.contado) +
               (d === 0 ? '. Cuadra exacto.' : d > 0 ? '. Sobran ' + cs(d) + '.' : '. Faltan ' + cs(-d) + '.'), d < 0));
           }, { aviso: 'avisoCaja', espera: 'Cerrando caja…', boton: 'btnCerrarCaja' }));
