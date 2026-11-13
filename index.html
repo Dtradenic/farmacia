@@ -325,14 +325,27 @@
     .nombres button { min-height: 56px; background: #fff; color: var(--g900); border-color: var(--g300); font-weight: 600; }
     .nombres button:hover { background: var(--g50); border-color: var(--verde); }
     /* Indicadores */
-    .indGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 12px; margin-top: 14px; }
-    .indK { background: #fff; border: 1px solid var(--g200); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; box-shadow: var(--sombra); }
-    .indK .n { font-size: 11px; font-weight: 700; color: var(--g500); letter-spacing: .05em; text-transform: uppercase; }
-    .indK h3 { margin: 3px 0 6px; font-size: 15px; line-height: 1.25; }
-    .indK .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
-    .indK .meta { font-size: 12.5px; color: var(--g500); }
-    .indK .que { margin-top: auto; border-top: 1px dashed var(--g200); padding-top: 8px; font-size: 12.5px; color: var(--g700); }
-    .indK .meses, .indBarra + .meses { display: flex; justify-content: space-between; font-size: 10px; color: var(--g500); margin-bottom: 8px; }
+    /* Las 5 tarjetas en una fila; cada parte tiene alto fijo para que todas se vean iguales, con o sin datos.
+       En pantallas angostas la fila se desliza de lado. */
+    .indGrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .indK { background: #fff; border: 1px solid var(--g200); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; box-shadow: var(--sombra); min-width: 0; }
+    .indK .n { font-size: 11px; font-weight: 700; color: var(--g500); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .indK h3 { margin: 3px 0 6px; font-size: 15px; line-height: 1.25; min-height: 2.5em; }
+    .indK .v { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .indK .semafInd { margin: 8px 0 8px; }
+    .indK .meta { font-size: 12.5px; color: var(--g700); font-weight: 600; }
+    .indK .det { font-size: 12.5px; color: var(--g500); min-height: 3.1em; line-height: 1.3; margin-top: 2px; }
+    .indGraf { height: 74px; margin: 8px 0 10px; display: flex; flex-direction: column; justify-content: center; }
+    .indGraf svg.indSp { margin: 0 0 4px; }
+    .indVacio { height: 100%; border: 1px dashed var(--g300); border-radius: 10px; display: grid; place-items: center; text-align: center;
+      font-size: 12px; color: var(--g500); padding: 0 10px; background: var(--g50); }
+    .indK .que { border-top: 1px dashed var(--g200); padding-top: 8px; font-size: 12.5px; color: var(--g700); flex: 1; }
+    .indK .meses, .indBarra + .meses { display: flex; justify-content: space-between; font-size: 10px; color: var(--g500); }
+    @media (max-width: 900px) {
+      .indGrid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(210px, 72%); overflow-x: auto;
+        scroll-snap-type: x mandatory; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+      .indK, .indChico { scroll-snap-align: start; }
+    }
     .semafInd { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 3px 10px; margin: 8px 0 6px; align-self: flex-start; }
     .semafInd i { width: 8px; height: 8px; border-radius: 50%; display: block; }
     .semafInd.ok { background: var(--verde-claro); color: var(--verde-osc); } .semafInd.ok i { background: #10b981; }
@@ -340,17 +353,21 @@
     .semafInd.ro { background: var(--rojo-claro); color: var(--rojo); } .semafInd.ro i { background: #e11d48; }
     .semafInd.gr { background: var(--g100); color: var(--g500); } .semafInd.gr i { background: var(--g300); }
     svg.indSp { width: 100%; height: 46px; margin: 8px 0 2px; overflow: visible; }
-    .indBarra { position: relative; height: 12px; background: var(--g100); border-radius: 999px; margin: 18px 0 4px; }
+    .indBarra { position: relative; height: 12px; background: var(--g100); border-radius: 999px; margin: 0 0 6px; }
     .indBarra > div { height: 100%; border-radius: 999px; }
     .indBarra i { position: absolute; top: -4px; width: 2px; height: 20px; background: var(--g500); }
     .indFila2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
     .indHacer { margin: 0; padding-left: 18px; color: var(--g700); } .indHacer li { margin-bottom: 6px; }
     #ind_metas input { height: 36px; max-width: 90px; display: inline-block; }
-    .indMini { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+    .indMini { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
     .indChico { text-align: left; background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 10px 12px; color: var(--g900); min-height: 0; display: flex; flex-direction: column; }
     .indChico small { font-size: 12px; color: var(--g500); font-weight: 500; }
     .indChico b { font-size: 20px; margin-top: 2px; }
     .indChico .semafInd { margin: 6px 0 0; font-size: 11.5px; padding: 2px 8px; }
+    .indChico small { min-height: 2.6em; line-height: 1.3; }
+    @media (max-width: 900px) {
+      .indMini { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 45%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+    }
     /* Recargas */
     .ciasRec { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; max-width: 520px; }
     .ciasRec button { text-align: left; padding: 10px 14px; min-height: 60px; background: #fff; border: 1px solid var(--g300); border-radius: 12px; color: var(--g900); }
@@ -3204,7 +3221,7 @@
         /** Línea de tendencia de 6 meses con la meta punteada. */
         function lineaInd(valores, meta, color) {
           const nums = valores.filter(v => v !== null);
-          if (nums.length < 2) return '<div class="ayuda" style="margin:12px 0">La tendencia aparece cuando haya 2 meses con ventas.</div>';
+          if (nums.length < 2) return '<div class="indVacio">La tendencia aparece cuando haya 2 meses con datos</div>';
           const todos2 = nums.concat(meta !== null ? [meta] : []);
           let min = Math.min.apply(null, todos2), max = Math.max.apply(null, todos2);
           if (max === min) { max += 1; min -= 1; }
@@ -3218,7 +3235,7 @@
         }
         /** Barra de 0 al doble de la meta amarilla, con marcas de verde y amarillo (indicadores 4 y 5). */
         function barraInd(v, meta, color) {
-          if (v === null) return '<div class="ayuda" style="margin:12px 0">Aparece cuando haya ventas con costo.</div>';
+          if (v === null) return '<div class="indVacio">Aparece cuando haya ventas con costo</div>';
           const tope = Math.max(meta[1] * 1.5, v * 1.1, 1), p = x => Math.min(100, x / tope * 100).toFixed(1);
           return '<div class="indBarra"><div style="width:' + p(v) + '%;background:' + color + '"></div>' +
             '<i style="left:' + p(meta[0]) + '%" title="verde"></i><i style="left:' + p(meta[1]) + '%" title="amarillo"></i></div>' +
@@ -3247,13 +3264,16 @@
             promedio: r.tendencia.map(t => t.numero ? t.promedio : null) };
           el('ind_grid').innerHTML = r.indicadores.map(k => {
             const e = ESTADO_IND[k.estado], color = COLOR_IND[e[0]], det = detalleInd(k, r);
-            const grafica = serieDe[k.clave] ? lineaInd(serieDe[k.clave], k.clave === 'crecimiento' ? null : k.meta[0], color) +
-              '<div class="meses">' + meses.map(m => '<span>' + m + '</span>').join('') + '</div>' : barraInd(k.valor, k.meta, color);
+            const serie = serieDe[k.clave], linea = serie && lineaInd(serie, k.clave === 'crecimiento' ? null : k.meta[0], color);
+            const grafica = !serie ? barraInd(k.valor, k.meta, color) :
+              linea + (linea.indexOf('indVacio') === -1 ? '<div class="meses">' + meses.map(m => '<span>' + m + '</span>').join('') + '</div>' : '');
             return '<div class="indK"><div class="n">' + ETIQUETA_IND[k.clave] + '</div><h3>' + esc(k.nombre) + '</h3>' +
               '<div class="v">' + valorInd(k, k.valor) + '</div>' +
               '<span class="semafInd ' + e[0] + '"><i></i>' + e[1] + '</span>' +
-              '<div class="meta">Meta: ' + (k.mayor_mejor ? '' : 'como máximo ') + metaTxt(k, k.meta[0]) + ' · ' + det[0] + '</div>' +
-              grafica + '<div class="que">' + det[1] + '<br>' + det[2] + '</div></div>';
+              '<div class="meta">Meta: ' + (k.mayor_mejor ? '' : 'máximo ') + metaTxt(k, k.meta[0]) + '</div>' +
+              '<div class="det">' + det[0] + '</div>' +
+              '<div class="indGraf">' + grafica + '</div>' +
+              '<div class="que">' + det[1] + '<br>' + det[2] + '</div></div>';
           }).join('');
           el('ind_hacer').innerHTML = r.hacer.map(h => '<li><b>' + esc(h.tema) + ':</b> ' + esc(h.texto) + '</li>').join('') ||
             '<li>Todo en orden. Siga así.</li>';
