@@ -1095,7 +1095,7 @@
             <div class="tabla"><table>
               <thead><tr><th>Nombre</th><th>Usuario o correo</th><th>Rol</th><th>Clave</th><th>Estado</th><th></th></tr></thead>
               <tbody id="u_cuerpo"></tbody></table></div>
-            <div class="ayuda">El Vendedor entra con un PIN de 4 a 6 números; el Admin, con una contraseña de 8 o más caracteres con letras y números. Si alguien olvida su clave o queda bloqueado, toca «Clave nueva»: le sale una clave temporal que debe cambiar al entrar.</div>
+            <div class="ayuda">El Vendedor entra con un PIN de 6 números; el Admin, con una contraseña de 8 o más caracteres con letras y números. Si alguien olvida su clave o queda bloqueado, toca «Clave nueva»: le sale una clave temporal que debe cambiar al entrar.</div>
             <div id="u_form" class="cuadro oculto">
               <h3 id="u_titulo">Nuevo usuario</h3>
               <div class="formulario">
@@ -1597,7 +1597,7 @@
           el('menuCuenta').open = false;
           limpiar(['cc_actual', 'cc_nueva', 'cc_repite']);
           el('cl_regla').textContent = (obligatorio ? 'Estás usando una clave temporal: crea la tuya para seguir. ' : '') +
-            (ES_ADMIN_REAL ? 'Usa al menos 8 caracteres, con letras y números.' : 'Usa un PIN de 4 a 6 números que solo tú conozcas.');
+            (ES_ADMIN_REAL ? 'Usa al menos 8 caracteres, con letras y números.' : 'Usa un PIN de 6 números que solo tú conozcas (no repetidos ni seguidos).');
           todos('#cc_nueva, #cc_repite').forEach(x => x.setAttribute('inputmode', ES_ADMIN_REAL ? 'text' : 'numeric'));
           mostrar('btnClaveCancelar', !obligatorio);
           aviso('avisoClave', '');
