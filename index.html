@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmacia Dr. Alduvin</title>
+  <meta name="theme-color" content="#157a5e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+  <link rel="apple-touch-icon" href="icono-apple-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Farmacia">
   <base target="_top">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,13 +50,71 @@
     #cargando::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40%; background: var(--verde); animation: corre 1s linear infinite; }
     @keyframes corre { from { left: -40%; } to { left: 100%; } }
     #sinRed { background: var(--rojo); color: #fff; text-align: center; font-size: 14px; font-weight: 600; padding: 8px 12px; }
-    nav { background: #fff; border-bottom: 1px solid var(--g200); }
-    nav div { display: flex; gap: 2px; max-width: 980px; margin: 0 auto; padding: 0 10px; overflow-x: auto; scrollbar-width: none; }
-    nav div::-webkit-scrollbar { display: none; }
-    nav button { background: none; color: var(--g500); min-height: 42px; padding: 0 12px; font-size: 14px; font-weight: 500; white-space: nowrap;
-      border: 0; border-bottom: 3px solid transparent; border-radius: 0; }
-    nav button:hover { background: var(--g50); color: var(--g900); }
-    nav button.activa { color: var(--verde-osc); border-bottom-color: var(--verde); font-weight: 600; }
+
+    /* Menú lateral en cascada (solo con sesión). Se contrae a íconos en pantalla grande; en celular se abre encima con ☰. */
+    :root { --lat: 264px; --latMin: 72px; }
+    body:not(.sinSesion) { padding-left: var(--lat); }
+    #lateral { position: fixed; top: 0; bottom: 0; left: 0; z-index: 18; width: var(--lat); background: #fff; border-right: 1px solid var(--g200);
+      display: flex; flex-direction: column; transition: width .18s ease, transform .2s ease; }
+    .latMarca { display: flex; align-items: center; gap: 10px; height: 64px; padding: 0 16px; border-bottom: 1px solid var(--g100); flex: none; }
+    .latMarca .marca { width: 38px; height: 38px; }
+    .latMarca b { font-size: 15px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .latLista { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+    #lateral button { background: none; border: 0; color: var(--g700); width: 100%; text-align: left; font-family: inherit; }
+    #lateral .secc { display: flex; align-items: center; gap: 11px; min-height: 42px; padding: 0 12px; border-radius: 10px; font-size: 14.5px; font-weight: 500; }
+    #lateral .secc > svg.ico { font-size: 19px; color: var(--g500); }
+    #lateral .secc span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #lateral .secc .giro { font-size: 16px; transition: transform .15s; }
+    #lateral .grupo.abierta .giro { transform: rotate(180deg); }
+    #lateral .secc:hover { background: var(--g100); color: var(--g900); }
+    #lateral .grupo.activa > .secc { background: var(--verde); color: #fff; font-weight: 600; }
+    #lateral .grupo.activa > .secc > svg.ico { color: #fff; }
+    #lateral .subs { display: none; flex-direction: column; gap: 1px; margin: 4px 0 8px 21px; padding-left: 10px; border-left: 2px solid var(--g100); }
+    #lateral .grupo.abierta .subs { display: flex; }
+    #lateral .subTitulo { display: none; }
+    #lateral .subs button { min-height: 36px; padding: 0 10px; border-radius: 8px; font-size: 14px; font-weight: 400; color: var(--g500); white-space: nowrap; }
+    #lateral .subs button:hover { background: var(--g100); color: var(--g900); }
+    #lateral .grupo.activa .subs button.activa { background: var(--verde-claro); color: var(--verde-osc); font-weight: 600; box-shadow: inset 3px 0 0 var(--verde); }
+    #velo { display: none; }
+    /* Resumen de «Ventas del día»: cantidad a la izquierda, total a la derecha; «C$» y la cifra siempre juntos */
+    .resumenDia { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px;
+      padding: 10px 14px; background: var(--g50); border: 1px solid var(--g200); border-radius: 12px; font-size: 14px; color: var(--g500); }
+    .resumenDia:empty { display: none; }
+    .resumenDia b { color: var(--g900); font-size: 18px; font-weight: 700; white-space: nowrap; margin-left: 6px; font-variant-numeric: tabular-nums; }
+    .resumenDia b small { font-size: 12px; font-weight: 600; color: var(--g500); margin-right: 3px; }
+    body:not(.sinSesion) main { max-width: 1100px; }
+    #btnMenu { background: none; border: 0; color: var(--g700); width: 40px; height: 40px; min-height: 0; padding: 0; display: grid; place-items: center;
+      border-radius: 10px; font-size: 21px; flex: none; }
+    #btnMenu:hover { background: var(--g100); }
+    #ruta { flex: 1; min-width: 0; font-size: 15px; color: var(--g500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #ruta b { color: var(--g900); font-weight: 600; }
+    #ruta .sep { margin: 0 8px; color: var(--g300); }
+    body:not(.sinSesion) header .marca, body:not(.sinSesion) header h1 { display: none; }
+    body:not(.sinSesion) header { min-height: 64px; flex-wrap: nowrap; }
+    @media (min-width: 861px) {
+      body { transition: padding-left .18s ease; }
+      body.menuContraido:not(.sinSesion) { padding-left: var(--latMin); }
+      .menuContraido #lateral { width: var(--latMin); }
+      .menuContraido .latMarca { justify-content: center; padding: 0; }
+      .menuContraido .latMarca b, .menuContraido #lateral .secc span, .menuContraido #lateral .giro { display: none; }
+      .menuContraido #lateral .secc { justify-content: center; padding: 0; }
+      .menuContraido .latLista { overflow: visible; }
+      .menuContraido #lateral .grupo { position: relative; }
+      .menuContraido #lateral .grupo .subs { display: none; }
+      /* Contraído: al pasar el mouse sobre un ícono, sus submenús salen al lado */
+      .menuContraido #lateral .grupo:hover .subs { display: flex; position: absolute; left: 100%; top: 0; margin: 0 0 0 4px; padding: 8px; min-width: 210px;
+        background: #fff; border: 1px solid var(--g200); border-radius: 12px; box-shadow: 0 10px 30px rgba(17, 24, 39, .15); z-index: 19; }
+      .menuContraido #lateral .grupo:hover .subs::before { content: ''; position: absolute; left: -8px; top: 0; bottom: 0; width: 8px; }
+      .menuContraido #lateral .subTitulo { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--g500); padding: 4px 10px 6px; }
+    }
+    @media (max-width: 860px) {
+      body:not(.sinSesion) { padding-left: 0; }
+      #lateral { width: min(290px, 86vw); transform: translateX(-102%); }
+      .menuAbierto #lateral { transform: none; box-shadow: 0 20px 50px rgba(17, 24, 39, .3); }
+      .menuAbierto #velo { display: block; position: fixed; inset: 0; z-index: 17; background: rgba(17, 24, 39, .45); }
+      #ruta { font-size: 14px; }
+      body:not(.sinSesion) header { padding: 10px 12px; gap: 8px; }
+    }
 
     /* Avisos flotantes y ventanas de confirmación */
     #tostadas { position: fixed; left: 0; right: 0; bottom: 16px; z-index: 40; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 12px; }
@@ -269,7 +336,8 @@
       #recibo { position: absolute; left: 0; top: 0; width: 72mm; padding: 0; }
       #recibo * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .noImprimir { display: none !important; }
-      nav, #tostadas, #cargando, #sinRed { display: none !important; }
+      #lateral, #velo, #tostadas, #cargando, #sinRed { display: none !important; }
+      body:not(.sinSesion) { padding-left: 0 !important; }
       body.modoReporte .aImprimir, body.modoReporte .aImprimir * { visibility: visible; }
       body.modoReporte .aImprimir { position: absolute; left: 0; top: 0; width: 100%; }
       .soloImpreso { display: block !important; }
@@ -286,8 +354,6 @@
     .barra .titulos h2 { font-size: 20px; line-height: 1.25; }
     .barra .titulos small { display: block; font-size: 13px; color: var(--g500); margin-top: 2px; }
     .barra .volver { flex: none; }
-    nav button { display: inline-flex; align-items: center; gap: 7px; }
-    nav button svg.ico { font-size: 16px; }
     h3 { color: var(--g900); }
     button.sec:hover { border-color: #94a3b8; }
     input:not([type=checkbox]):not([type=radio]):not([type=file]), select { height: 44px; min-height: 0; transition: border-color .15s, box-shadow .15s; }
@@ -333,6 +399,8 @@
     <header>
       <svg class="marca" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="-30 158 668 668"><defs><linearGradient id="gCruz" gradientUnits="userSpaceOnUse" x1="90" y1="170" x2="520" y2="600"><stop offset="0" stop-color="#63C82A"/><stop offset="0.25" stop-color="#43AE0D"/><stop offset="0.5" stop-color="#1F9304"/><stop offset="0.75" stop-color="#0B8A02"/><stop offset="1" stop-color="#056E02"/></linearGradient><linearGradient id="gCruzS" gradientUnits="userSpaceOnUse" x1="0" y1="430" x2="0" y2="560"><stop offset="0" stop-color="#034800" stop-opacity="0"/><stop offset="1" stop-color="#034800" stop-opacity="0.6"/></linearGradient><linearGradient id="gH2" gradientUnits="userSpaceOnUse" x1="300" y1="650" x2="400" y2="740"><stop offset="0" stop-color="#52BE0A"/><stop offset="0.5" stop-color="#2E9A05"/><stop offset="1" stop-color="#157A03"/></linearGradient><linearGradient id="gH1" gradientUnits="userSpaceOnUse" x1="170" y1="560" x2="290" y2="690"><stop offset="0" stop-color="#6FD215"/><stop offset="0.45" stop-color="#3FAE08"/><stop offset="1" stop-color="#1C8504"/></linearGradient><linearGradient id="gH1b" gradientUnits="userSpaceOnUse" x1="250" y1="560" x2="290" y2="680"><stop offset="0" stop-color="#3FA808"/><stop offset="1" stop-color="#6BD012"/></linearGradient><linearGradient id="gPO" gradientUnits="userSpaceOnUse" x1="200" y1="690" x2="250" y2="800"><stop offset="0" stop-color="#1265D6"/><stop offset="1" stop-color="#0A3399"/></linearGradient><linearGradient id="gPB" gradientUnits="userSpaceOnUse" x1="190" y1="690" x2="165" y2="775"><stop offset="0" stop-color="#1C7BE8"/><stop offset="0.45" stop-color="#0A46B4"/><stop offset="1" stop-color="#062A80"/></linearGradient><linearGradient id="gPW" gradientUnits="userSpaceOnUse" x1="290" y1="715" x2="262" y2="800"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.6" stop-color="#F3F5F6"/><stop offset="1" stop-color="#D5DADF"/></linearGradient><clipPath id="cPL"><path d="M100 640L262 640L196 840L100 840Z"/></clipPath><clipPath id="cPR"><path d="M360 640L262 640L196 840L360 840Z"/></clipPath></defs><g id="cruz_verde"><path d="M202 206C202 182.8 220.8 164 244 164L393 164C416.2 164 435 182.8 435 206L435 302C435 308.6 440.4 314 447 314L506 314C529.2 314 548 332.8 548 356L548 486C548 509.2 529.2 528 506 528L447 528C440.4 528 435 533.4 435 540L435 654C435 659.5 430.5 664 425 664L212 664C206.5 664 202 659.5 202 654L202 540C202 533.4 196.6 528 190 528L102 528C78.8 528 60 509.2 60 486L60 356C60 332.8 78.8 314 102 314L190 314C196.6 314 202 308.6 202 302Z" fill="url(#gCruz)"/><path d="M202 206C202 182.8 220.8 164 244 164L393 164C416.2 164 435 182.8 435 206L435 302C435 308.6 440.4 314 447 314L506 314C529.2 314 548 332.8 548 356L548 486C548 509.2 529.2 528 506 528L447 528C440.4 528 435 533.4 435 540L435 654C435 659.5 430.5 664 425 664L212 664C206.5 664 202 659.5 202 654L202 540C202 533.4 196.6 528 190 528L102 528C78.8 528 60 509.2 60 486L60 356C60 332.8 78.8 314 102 314L190 314C196.6 314 202 308.6 202 302Z" fill="url(#gCruzS)"/></g><path id="cruz_blanca" d="M242 220C242 211.2 249.2 204 258 204L378 204C386.8 204 394 211.2 394 220L394 348C394 350.8 396.2 353 399 353L492 353C500.8 353 508 360.2 508 369L508 472C508 480.8 500.8 488 492 488L399 488C396.2 488 394 490.2 394 493L394 654C394 656.2 392.2 658 390 658L246 658C243.8 658 242 656.2 242 654L242 493C242 490.2 239.8 488 237 488L116 488C107.2 488 100 480.8 100 472L100 369C100 360.2 107.2 353 116 353L237 353C239.8 353 242 350.8 242 348Z" fill="#FAFBF9"/><path id="serpiente" d="M287 376.5L289.8 376.2L293.4 375.8L297.6 375.4L302.1 375L306.5 374.7L310.5 374.5L314.3 374.4L318.1 374.3L321.9 374.3L325.9 374.4L330.1 374.4L334.8 374.5L340.2 374.5L345.8 374.5L351.3 374.4L356.7 374.5L361.7 374.8L365.9 375.3L370.6 376.2L374.9 377.1L379 378.3L382.6 379.5L385.5 380.9L387.8 382.2L389.9 383.9L391.9 386L393.7 388.3L395.2 390.7L396.2 392.9L396.8 394.8L397.1 396.7L397.1 399L396.8 401.5L396.2 404.1L395.3 406.5L394.3 408.6L393 410.3L391.1 412.4L388.6 414.6L385.6 416.9L382.3 419.1L378.8 421.2L375.7 422.7L371.9 424.3L367.8 425.8L363.3 427.2L358.7 428.7L354 430.1L350.2 431.4L346.4 432.5L342.5 433.6L338.6 434.7L334.5 435.8L330.3 437.1L326.4 438.3L322.2 439.5L317.8 440.8L313.4 442.2L309 443.8L304.6 445.7L301 447.5L297.4 449.5L293.9 451.6L290.4 454.1L287.1 457L284.1 460.4L281.7 464L279.7 467.9L278.3 472L277.5 476.3L277.2 480.9L277.8 485.5L279.2 489.9L281.1 493.9L283.5 497.5L286.3 500.8L289.3 503.8L292.7 506.5L296.5 509.1L300.5 511.2L304.6 513L308.7 514.7L312.8 516.2L316.8 517.7L322 519.4L327.2 520.9L332.3 522.3L337.1 523.6L341.3 524.8L344.4 526L347.3 527.3L349.7 528.6L351.8 529.9L353.4 531.1L354.6 532.2L355.4 533.1L355.9 533.6L356.2 534.2L356.4 534.9L356.5 535.5L356.6 536.2L356.5 537L356.2 537.9L355.7 539L354.9 540.2L353.9 541.5L352.6 542.7L351 543.9L349.2 544.9L346.3 546.1L342.6 547.4L338.7 548.7L334.6 550.1L330.5 551.7L327.5 553L324.5 554.4L321.5 555.8L318.4 557.4L315.5 559.2L312.6 561.5L310.1 563.8L307.9 566.4L306 569.1L304.4 572L303.1 575L302.2 578.1L301.8 581.5L301.8 584.8L302.2 587.9L303 590.9L304 593.8L305.4 596.5L307 598.9L308.9 601.2L311 603.4L313.4 605.3L316 607.1L318.8 608.6L322.4 610L326 611L329.5 611.6L332.8 612.2L335.6 612.8L337.7 613.4L339.9 614.4L341.9 615.3L343.7 616.3L345.3 617.4L346.8 618.6L348.1 619.9L349.2 621.4L350.3 623.6L351.2 626.1L352.1 628.6L352.8 630.8L353.6 632.4L356.4 631.6L356.4 630.1L356.4 627.8L356.1 625L355.7 622L355.1 619L353.9 616.1L352.5 613.8L350.9 611.6L349 609.7L347 607.9L344.7 606.2L342.3 604.6L339 602.9L335.7 601.6L332.4 600.5L329.3 599.4L326.8 598.3L325.2 597.4L323.6 596.1L322.2 594.8L321 593.5L320 592.2L319.2 590.9L318.6 589.5L318.1 588.2L317.8 586.8L317.5 585.4L317.5 584L317.6 582.8L317.8 581.9L318.2 580.8L318.9 579.6L319.7 578.3L320.8 576.9L322.1 575.7L323.4 574.5L324.8 573.6L326.6 572.7L328.8 571.7L331.4 570.7L334.3 569.5L337.5 568.3L340.4 567.3L344 566.2L348.1 565.1L352.4 563.8L356.7 562.2L361 560.1L364.4 557.8L367.5 555.2L370.1 552.4L372.3 549.5L374.1 546.3L375.5 543L376.5 539.5L376.9 535.8L376.7 532L376 528.2L374.6 524.5L372.6 520.9L370.2 517.9L367.5 515.1L364.5 512.6L361.2 510.2L357.5 508.1L353.6 506L348.7 504L343.6 502.2L338.4 500.6L333.4 499.1L328.9 497.7L325.2 496.3L321.2 494.6L317.5 493.1L314.2 491.6L311.3 490.1L309 488.8L307.3 487.5L305.8 486.1L304.4 484.6L303.4 483.1L302.7 481.9L302.3 480.9L302.2 480.5L302.2 480.2L302.3 479.5L302.4 478.6L302.8 477.6L303.3 476.5L303.9 475.6L304.6 474.8L305.9 473.8L307.6 472.5L309.9 471.1L312.5 469.7L315.4 468.3L318.1 467.1L321.4 465.9L325.2 464.7L329.3 463.5L333.5 462.2L337.7 460.9L341.4 459.8L345.2 458.8L349.1 457.7L353.2 456.5L357.5 455.3L362 453.9L366.1 452.5L370.8 451.1L375.7 449.5L380.9 447.6L386.1 445.5L391.2 442.8L395.6 440.2L400 437.3L404.3 434L408.5 430.4L412.3 426.2L415.7 421.4L418.3 416.4L420.2 411.2L421.4 405.9L422.1 400.4L422 394.8L421.2 389.2L419.5 383.8L417.1 378.7L414.2 374L410.7 369.5L406.7 365.4L402.2 361.8L397.1 358.7L391.8 356.3L386.4 354.4L380.9 352.9L375.4 351.7L370.1 350.7L363.8 349.9L357.6 349.5L351.4 349.4L345.5 349.5L340 349.5L335.2 349.5L330.6 349.4L326.2 349.4L322 349.3L317.9 349.3L313.7 349.4L309.5 349.5L304.8 349.8L300 350.1L295.3 350.6L291 351L287.4 351.3L285 351.5Z" fill="#0A2463"/><path id="serpiente_cabeza" d="M219.5 387C226 380 232 377 237 374C245 364 251 361 257 358.5C266 355 276 353 286 352L292 351.5L292 377C287 383 284 386 280 388.5C275 392 269 394.5 263 395.7C256 397.3 249 397.5 243 397C240 396.9 238 396.8 236 396C240 394 244 392 247 390C241 391.5 233 393.5 226 394C222 393.5 219.5 391 219.5 387Z" fill="#0A2463"/><path id="serpiente_ojo" d="M256.5 374.2C256 372.3 258.5 370.6 262 370.4C265.5 370.2 268.3 371.6 268.4 373.4C268.5 375.2 266 376.6 262.6 376.8C259.4 377 257 376 256.5 374.2Z" fill="#FFFFFF"/><path id="baston_borde" d="M317.7 318L352.3 318L348.1 430L346.7 550L345.3 600L344.5 643L325.5 643L324.7 600L323.3 550L321.9 430Z" fill="#FAFBF9"/><path id="baston" d="M336 258.5C341 258.5 362 271 363.5 286C364.5 297 357 306 348.5 310L322.5 310C314.5 306 307.5 297 308.5 286C310 271 331 258.5 336 258.5ZM322.2 309L347.8 309L343.6 430L342.2 550L340.8 600L340 643L330 643L329.2 600L327.8 550L326.4 430Z" fill="#0A2463"/><path id="serpiente_frente_borde" d="M355.5 424.9L351.2 426.3L347.5 427.5L343.8 428.6L340 429.6L336 430.7L331.9 431.9L327.8 433.1L323.9 434.3L319.7 435.5L315.3 436.9L310.8 438.4L306.3 440.1L301.9 442L298.2 443.9L314 474L316.7 472.7L319.1 471.6L322.1 470.4L325.6 469.3L329.4 468.1L333.5 466.9L337.8 465.6L341.5 464.5L345.2 463.4L349 462.4L352.9 461.3L357.1 460.1L361.6 458.7L365.8 457.4ZM343.5 542.4L339.6 543.7L335.4 545.1L331 546.6L327.2 548.3L324.1 549.6L320.8 551.1L317.5 552.8L314.1 554.7L310.7 557.2L326.6 577.8L327.7 577.2L329.4 576.3L331.6 575.4L334.3 574.3L337.5 573.1L340.4 572L343.6 571L347.6 569.9L352.1 568.6Z" fill="#FAFBF9"/><path id="serpiente_frente" d="M362.4 427.5L357.7 429L353.2 430.4L349.3 431.6L345.4 432.8L341.5 433.9L337.5 435L333.3 436.2L329.1 437.4L325.1 438.6L320.8 439.9L316.3 441.3L311.8 442.8L307.4 444.5L303.3 446.4L299.6 448.2L296 450.3L308.9 471.7L311.4 470.3L314.2 468.8L317 467.6L320.2 466.3L323.9 465.1L327.9 463.9L332.1 462.6L336.4 461.3L340.4 460.1L344.2 459L348.1 458L352.2 456.8L356.4 455.6L360.9 454.2L365.2 452.8L369.8 451.4ZM347.8 545.5L344.5 546.8L340.6 548.1L336.5 549.4L332.4 550.9L328.9 552.4L325.8 553.8L322.8 555.2L319.7 556.7L316.7 558.4L313.7 560.5L311.1 562.9L322.6 575.2L324 574.2L325.5 573.2L327.5 572.3L329.9 571.2L332.6 570.2L335.7 569L338.7 567.9L342 566.8L345.9 565.7L350.2 564.5L354.6 563Z" fill="#0A2463"/><g id="hoja_derecha"><path d="M286 694C296 672 322 652 357 645.7C380 642 402 644 420 649.5C420 668 416 684 408.6 697C400 712 390 722 380 728.6C366 738 352 742 338 744C316 738 296 720 286 694Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="17" stroke-linejoin="round"/><path d="M286 694C296 672 322 652 357 645.7C380 642 402 644 420 649.5C420 668 416 684 408.6 697C400 712 390 722 380 728.6C366 738 352 742 338 744C316 738 296 720 286 694Z" fill="url(#gH2)"/><path d="M336 716C352 710 370 698 384 684C374 702 358 714 336 716Z" fill="#5CC80F" opacity="0.55"/><path d="M300 712C330 700 362 682 392 663C366 686 338 706 306 720Z" fill="#FFFFFF"/></g><g id="hoja_izquierda"><path d="M155.7 548.6C195 546 240 556 266 580C288 600 300 626 300 649C300 665 292 680 280 692C245 694 205 682 186 660C166 636 158 590 155.7 548.6Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="17" stroke-linejoin="round"/><path d="M155.7 548.6C195 546 240 556 266 580C288 600 300 626 300 649C300 665 292 680 280 692C245 694 205 682 186 660C166 636 158 590 155.7 548.6Z" fill="url(#gH1)"/><path d="M196 610C212 618 232 634 246 656C228 646 208 632 196 610Z" fill="#7ADB1C" opacity="0.6"/><path d="M163 555C192 566 222 596 242 626C256 648 266 668 272 690L263 691C258 670 249 651 236 631C217 602 192 574 163 555Z" fill="#FFFFFF"/><path d="M262 606C270 624 273 646 271 664C268 648 265 628 262 606Z" fill="#D9F5B8"/></g><g id="capsula"><path d="M190.5 668L299.6 701.3C331.2 711 349.1 744.5 339.4 776.2C329.7 807.9 296.2 825.7 264.5 816L155.4 782.7C123.8 773 105.9 739.5 115.6 707.8C125.3 676.1 158.8 658.3 190.5 668Z" fill="#FFFFFF"/><path d="M187.9 676.6L296.9 709.9C323.9 718.1 339 746.6 330.8 773.6C322.5 800.5 294 815.7 267.1 807.4L158.1 774.1C131.1 765.9 116 737.4 124.2 710.4C132.5 683.5 161 668.3 187.9 676.6Z" fill="url(#gPO)"/><path d="M184.4 688L293.4 721.4C314 727.7 325.6 749.5 319.3 770.1C313 790.7 291.2 802.3 270.6 796L161.6 762.6C141 756.3 129.4 734.5 135.7 713.9C142 693.3 163.8 681.7 184.4 688Z" fill="url(#gPB)" clip-path="url(#cPL)"/><path d="M184.4 688L293.4 721.4C314 727.7 325.6 749.5 319.3 770.1C313 790.7 291.2 802.3 270.6 796L161.6 762.6C141 756.3 129.4 734.5 135.7 713.9C142 693.3 163.8 681.7 184.4 688Z" fill="url(#gPW)" clip-path="url(#cPR)"/><path d="M170.4 690.1L221 705.6C225 706.8 227.2 711 226 714.9C224.8 718.9 220.6 721.1 216.6 719.9L166 704.4C162 703.2 159.8 699 161 695.1C162.2 691.1 166.4 688.9 170.4 690.1Z" fill="#BFE4FF" opacity="0.9"/></g></svg>
       <h1>Farmacia Dr. Alduvin</h1>
+      <button id="btnMenu" class="noImprimir conSesion" onclick="alternarMenu()" title="Mostrar u ocultar el menú" aria-label="Menú"><svg class="ico" data-ico="menu"></svg></button>
+      <div id="ruta" class="conSesion"></div>
       <details class="cuenta noImprimir conSesion" id="menuCuenta">
         <summary class="quien"><span class="avatar" id="quienIniciales"></span><span><b id="quienNombre"></b><span id="quienRol"></span></span><svg class="ico flechita" data-ico="abajo"></svg></summary>
         <div class="menuCuenta">
@@ -344,16 +412,69 @@
     </header>
     <div id="bannerVista" class="oculto noImprimir">Estás viendo la pantalla como la ve un vendedor. Lo que hagas se guarda a tu nombre, como Admin.
       <button class="mini sec" onclick="vistaVendedor(false)">Volver a vista Admin</button></div>
-    <nav class="noImprimir conSesion"><div>
-      <button data-ir="inicio" onclick="ver('inicio')"><svg class="ico" data-ico="casa"></svg>Inicio</button>
-      <button data-ir="venta" onclick="abrirVenta('vender')"><svg class="ico" data-ico="carrito"></svg>Vender</button>
-      <button data-ir="productos" onclick="abrirProductos()"><svg class="ico" data-ico="pastilla"></svg>Productos</button>
-      <button data-ir="inventario" onclick="abrirInventario()"><svg class="ico" data-ico="paquete"></svg>Inventario</button>
-      <button data-ir="conta" onclick="abrirConta()"><svg class="ico" data-ico="calculadora"></svg>Gastos y contabilidad</button>
-      <button data-ir="nomina" class="soloAdmin" onclick="abrirNomina()"><svg class="ico" data-ico="personas"></svg>Personal</button>
-      <button data-ir="reportes" class="soloAdmin" onclick="abrirReportes()"><svg class="ico" data-ico="grafica"></svg>Reportes</button>
-    </div></nav>
   </div>
+  <!-- Menú lateral en cascada: secciones (data-ir) y sus submenús (data-tab = las pestañas de cada pantalla) -->
+  <aside id="lateral" class="noImprimir conSesion" aria-label="Menú principal">
+    <div class="latMarca"><span id="latLogo"></span><b>Farmacia Dr. Alduvin</b></div>
+    <div class="latLista">
+      <div class="grupo" data-ir="inicio">
+        <button class="secc" onclick="irSeccion('inicio')" title="Inicio"><svg class="ico" data-ico="casa"></svg><span>Inicio</span></button>
+      </div>
+      <div class="grupo" data-ir="venta">
+        <button class="secc" onclick="irSeccion('venta')" title="Ventas"><svg class="ico" data-ico="carrito"></svg><span>Ventas</span><svg class="ico giro" data-ico="abajo"></svg></button>
+        <div class="subs"><b class="subTitulo">Ventas</b>
+          <button data-tab="venta:vender">Vender</button>
+          <button data-tab="venta:historial">Ventas del día</button>
+          <button data-tab="venta:creditos">Clientes y créditos</button>
+          <button data-tab="venta:caja">Caja</button>
+        </div>
+      </div>
+      <div class="grupo" data-ir="productos">
+        <button class="secc" onclick="irSeccion('productos')" title="Productos"><svg class="ico" data-ico="pastilla"></svg><span>Productos</span></button>
+      </div>
+      <div class="grupo" data-ir="inventario">
+        <button class="secc" onclick="irSeccion('inventario')" title="Inventario"><svg class="ico" data-ico="paquete"></svg><span>Inventario</span><svg class="ico giro" data-ico="abajo"></svg></button>
+        <div class="subs"><b class="subTitulo">Inventario</b>
+          <button data-tab="inv:existencias">Existencias</button>
+          <button data-tab="inv:alertas">Alertas</button>
+          <button data-tab="inv:pedido" class="soloAdmin">Qué comprar</button>
+          <button data-tab="inv:compra" class="soloAdmin">Registrar compra</button>
+          <button data-tab="inv:ajuste" class="soloAdmin">Conteo y ajustes</button>
+        </div>
+      </div>
+      <div class="grupo" data-ir="conta">
+        <button class="secc" onclick="irSeccion('conta')" title="Gastos y contabilidad"><svg class="ico" data-ico="calculadora"></svg><span>Gastos y contabilidad</span><svg class="ico giro soloAdmin" data-ico="abajo"></svg></button>
+        <div class="subs soloAdmin"><b class="subTitulo">Gastos y contabilidad</b>
+          <button data-tab="conta:gastos">Gastos</button>
+          <button data-tab="conta:asientos">Asientos</button>
+          <button data-tab="conta:diario">Libro Diario</button>
+          <button data-tab="conta:mayor">Libro Mayor</button>
+          <button data-tab="conta:balanza">Balanza</button>
+          <button data-tab="conta:resultados">Estado de resultados</button>
+          <button data-tab="conta:balance">Balance general</button>
+        </div>
+      </div>
+      <div class="grupo soloAdmin" data-ir="nomina">
+        <button class="secc" onclick="irSeccion('nomina')" title="Personal"><svg class="ico" data-ico="personas"></svg><span>Personal</span><svg class="ico giro" data-ico="abajo"></svg></button>
+        <div class="subs"><b class="subTitulo">Personal</b>
+          <button data-tab="nom:planilla">Nómina del mes</button>
+          <button data-tab="nom:empleados">Empleados</button>
+          <button data-tab="nom:usuarios">Usuarios y claves</button>
+        </div>
+      </div>
+      <div class="grupo soloAdmin" data-ir="reportes">
+        <button class="secc" onclick="irSeccion('reportes')" title="Reportes"><svg class="ico" data-ico="grafica"></svg><span>Reportes</span><svg class="ico giro" data-ico="abajo"></svg></button>
+        <div class="subs"><b class="subTitulo">Reportes</b>
+          <button data-tab="rep:resumen">Resumen</button>
+          <button data-tab="rep:productos">Ventas por producto</button>
+          <button data-tab="rep:cajas">Cierres de caja</button>
+          <button data-tab="rep:controlados">Libro de controlados</button>
+          <button data-tab="rep:respaldos">Respaldos</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div id="velo" class="noImprimir" onclick="cerrarMenuCel()"></div>
   <div id="tostadas" aria-live="polite"></div>
   <main>
       <!-- Entrada: elegir nombre y escribir la clave -->
@@ -425,9 +546,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="pastilla"></svg></i>
-            <div class="titulos"><h2>Productos</h2><small>Catálogo y precios</small></div>
-            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
-          </div>
+            <div class="titulos"><h2>Productos</h2><small>Catálogo y precios</small></div>          </div>
           <div class="fila">
             <input id="buscar" class="crece" type="search" placeholder="Buscar por nombre, principio activo o código" oninput="pintarProductos()">
             <select id="p_categoria" style="width:auto;max-width:220px" onchange="pintarProductos()" aria-label="Categoría"></select>
@@ -477,16 +596,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="paquete"></svg></i>
-            <div class="titulos"><h2>Inventario</h2><small>Existencias, alertas y compras</small></div>
-            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
-          </div>
-          <div class="pestanas">
-            <button data-tab="inv:existencias">Existencias</button>
-            <button data-tab="inv:alertas">Alertas</button>
-            <button data-tab="inv:pedido" class="soloAdmin">Qué comprar</button>
-            <button data-tab="inv:compra" class="soloAdmin">Registrar compra</button>
-            <button data-tab="inv:ajuste" class="soloAdmin">Conteo y ajustes</button>
-          </div>
+            <div class="titulos"><h2>Inventario</h2><small>Existencias, alertas y compras</small></div>          </div>
           <div class="aviso" id="avisoInv"></div>
 
           <div data-panel="inv:existencias">
@@ -606,15 +716,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="carrito"></svg></i>
-            <div class="titulos"><h2>Ventas</h2><small>Cobrar, caja y créditos</small></div>
-            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
-          </div>
-          <div class="pestanas">
-            <button data-tab="venta:vender">Vender</button>
-            <button data-tab="venta:historial">Ventas del día</button>
-            <button data-tab="venta:creditos">Clientes y créditos</button>
-            <button data-tab="venta:caja">Caja</button>
-          </div>
+            <div class="titulos"><h2>Ventas</h2><small>Cobrar, caja y créditos</small></div>          </div>
           <div class="aviso" id="avisoVenta"></div>
 
           <!-- Abrir caja (aparece en Vender y en Caja si no hay caja abierta) -->
@@ -675,7 +777,7 @@
             <div class="tabla"><table>
               <thead><tr><th>#</th><th>Hora</th><th>Cliente</th><th>Pago</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
               <tbody id="h_cuerpo"></tbody></table></div>
-            <div class="total" id="h_total"></div>
+            <div class="resumenDia" id="h_total"></div>
           </div>
 
           <div data-panel="venta:creditos" class="oculto">
@@ -728,18 +830,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="calculadora"></svg></i>
-            <div class="titulos"><h2>Gastos y contabilidad</h2><small>Gastos, libros y balances</small></div>
-            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
-          </div>
-          <div class="pestanas">
-            <button data-tab="conta:gastos">Gastos</button>
-            <button data-tab="conta:asientos" class="soloAdmin">Asientos</button>
-            <button data-tab="conta:diario" class="soloAdmin">Libro Diario</button>
-            <button data-tab="conta:mayor" class="soloAdmin">Libro Mayor</button>
-            <button data-tab="conta:balanza" class="soloAdmin">Balanza</button>
-            <button data-tab="conta:resultados" class="soloAdmin">Estado de resultados</button>
-            <button data-tab="conta:balance" class="soloAdmin">Balance general</button>
-          </div>
+            <div class="titulos"><h2>Gastos y contabilidad</h2><small>Gastos, libros y balances</small></div>          </div>
           <div class="aviso" id="avisoConta"></div>
 
           <div data-panel="conta:gastos">
@@ -808,14 +899,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="personas"></svg></i>
-            <div class="titulos"><h2>Personal</h2><small>Empleados, asistencia y nómina</small></div>
-            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
-          </div>
-          <div class="pestanas">
-            <button data-tab="nom:planilla">Nómina del mes</button>
-            <button data-tab="nom:empleados">Empleados</button>
-            <button data-tab="nom:usuarios">Usuarios y claves</button>
-          </div>
+            <div class="titulos"><h2>Personal</h2><small>Empleados, asistencia y nómina</small></div>          </div>
           <div class="aviso" id="avisoNomina"></div>
 
           <div data-panel="nom:usuarios" class="oculto">
@@ -890,16 +974,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="grafica"></svg></i>
-            <div class="titulos"><h2>Reportes</h2><small>Tablero, cajas, controlados y respaldos</small></div>
-            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
-          </div>
-          <div class="pestanas">
-            <button data-tab="rep:resumen">Resumen</button>
-            <button data-tab="rep:productos">Ventas por producto</button>
-            <button data-tab="rep:cajas">Cierres de caja</button>
-            <button data-tab="rep:controlados">Libro de controlados</button>
-            <button data-tab="rep:respaldos">Respaldos</button>
-          </div>
+            <div class="titulos"><h2>Reportes</h2><small>Tablero, cajas, controlados y respaldos</small></div>          </div>
           <div class="aviso" id="avisoRep"></div>
 
           <div data-panel="rep:resumen productos cajas controlados">
@@ -988,7 +1063,8 @@
           atras: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
           casa: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
           lista: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
-          mas: '<path d="M5 12h14"/><path d="M12 5v14"/>'
+          mas: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+          menu: '<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>'
         };
         // Montos de las tarjetas: el «C$» va pequeño y gris al lado de la cifra (en todas las pantallas).
         const marcarMoneda = raiz => raiz.querySelectorAll('.kpi > b').forEach(b => {
@@ -1042,13 +1118,68 @@
           setTimeout(() => t.remove(), esError ? 7000 : 3500);
         }
         function mostrar(id, visible) { el(id).classList.toggle('oculto', !visible); }
-        const MENU = { formulario: 'productos', kardex: 'inventario' };   // vistas que pertenecen a otro botón del menú
+        const MENU = { formulario: 'productos', kardex: 'inventario' };   // vistas que pertenecen a otra sección del menú
+        let vistaActual = '';
         function ver(vista) {
+          vistaActual = vista;
           todos('[data-vista]').forEach(v => v.classList.toggle('oculto', v.dataset.vista !== vista));
-          todos('nav [data-ir]').forEach(b => b.classList.toggle('activa', b.dataset.ir === (MENU[vista] || vista)));
+          todos('#lateral .grupo').forEach(g => {
+            const es = g.dataset.ir === (MENU[vista] || vista);
+            g.classList.toggle('activa', es);
+            g.classList.toggle('abierta', es);
+          });
+          pintarRuta();
           window.scrollTo(0, 0);
           if (vista === 'inicio') cargarInicio();
         }
+
+        // ===== Menú lateral =====
+        // Sección (data-ir del menú) → cómo se abre; el argumento es el submenú (pestaña) a mostrar.
+        const SECCION = { inicio: () => ver('inicio'), venta: t => abrirVenta(t), productos: () => abrirProductos(), inventario: t => abrirInventario(t),
+          conta: t => abrirConta(t), nomina: t => abrirNomina(t), reportes: t => abrirReportes(t) };
+        const GRUPO_VISTA = { venta: 'venta', inv: 'inventario', conta: 'conta', nom: 'nomina', rep: 'reportes' };   // grupo de pestañas → pantalla
+        const RUTA_EXTRA = { formulario: 'Ficha del producto', kardex: 'Kardex', clave: 'Cambiar mi clave' };
+        const esCelular = () => window.matchMedia('(max-width: 860px)').matches;
+        /** Toca una sección: la abre en su primer submenú. Si ya está abierta, solo muestra u oculta sus submenús. */
+        function irSeccion(s) {
+          const g = document.querySelector('#lateral .grupo[data-ir="' + s + '"]');
+          const tieneSubs = Array.prototype.some.call(g.querySelectorAll('.subs button'), b => ES_ADMIN || !b.closest('.soloAdmin'));
+          if (g.classList.contains('activa') && tieneSubs) return g.classList.toggle('abierta');
+          if (!tieneSubs) cerrarMenuCel();
+          SECCION[s]();
+        }
+        /** Toca un submenú: abre su pantalla (si no está abierta) en esa pestaña. */
+        function irSub(grupo, nombre) {
+          cerrarMenuCel();
+          const vista = GRUPO_VISTA[grupo];
+          if (vistaActual === vista) pestana(grupo, nombre); else SECCION[vista](nombre);
+        }
+        /** Arriba del contenido: «Ventas › Vender». */
+        function pintarRuta() {
+          const g = document.querySelector('#lateral .grupo[data-ir="' + (MENU[vistaActual] || vistaActual) + '"]');
+          const partes = g ? [g.querySelector('.secc span').textContent] : [];
+          const sub = g && g.querySelector('.subs button.activa');
+          if (RUTA_EXTRA[vistaActual]) partes.push(RUTA_EXTRA[vistaActual]);
+          else if (sub) partes.push(sub.textContent.replace(/\s*\(\d+\)$/, ''));
+          el('ruta').innerHTML = partes.map((p, i) => i === partes.length - 1 ? '<b>' + esc(p) + '</b>' : esc(p)).join('<span class="sep">›</span>');
+        }
+        /** Botón ☰: en pantalla grande contrae el menú a íconos (y lo recuerda); en celular lo abre encima. */
+        function alternarMenu() {
+          if (esCelular()) return document.body.classList.toggle('menuAbierto');
+          document.body.classList.toggle('menuContraido');
+          try { localStorage.setItem('menuContraido', document.body.classList.contains('menuContraido') ? '1' : ''); } catch (e) { /* sin almacenamiento */ }
+        }
+        function cerrarMenuCel() { document.body.classList.remove('menuAbierto'); }
+        try { if (localStorage.getItem('menuContraido')) document.body.classList.add('menuContraido'); } catch (e) { /* sin almacenamiento */ }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenuCel(); });
+        // Logo arriba del menú: copia del logo del encabezado, con sus ids renombrados para que no choquen.
+        (function () {
+          let h = document.querySelector('header .marca').outerHTML;
+          const ids = [];
+          h.replace(/\sid="([^"]+)"/g, (m, id) => { ids.push(id); return m; });
+          ids.forEach(id => { h = h.split('id="' + id + '"').join('id="lat_' + id + '"').replace(new RegExp('#' + id + '\\b', 'g'), '#lat_' + id); });
+          el('latLogo').outerHTML = h;
+        })();
 
         /**
          * Ventana de confirmación. o = {titulo, texto, si: texto del botón, peligro: botón rojo,
@@ -1281,11 +1412,14 @@
             p.classList.toggle('oculto', p.dataset.panel.split(':')[1].split(' ').indexOf(nombre) === -1);
           });
           actual[grupo] = nombre;
+          pintarRuta();
           if (AL_ABRIR[grupo]) AL_ABRIR[grupo](nombre);
         }
         document.addEventListener('click', e => {
           const b = e.target.closest ? e.target.closest('[data-tab]') : null;
-          if (b) pestana.apply(null, b.dataset.tab.split(':'));
+          if (!b) return;
+          if (b.closest('#lateral')) irSub.apply(null, b.dataset.tab.split(':'));
+          else pestana.apply(null, b.dataset.tab.split(':'));
         });
 
         // ===== Asistencia =====
@@ -1995,7 +2129,9 @@
                   (ES_ADMIN && !anulada ? ' <button class="mini peligro" onclick="anular(' + v.id + ')">Anular</button>' : ''), 'num')
               ], anulada ? ' class="inactivo"' : '');
             }).join('');
-            el('h_total').textContent = lista.length + ' ventas · Total (sin anuladas): ' + cs(total);
+            const anuladas = lista.filter(v => v.estado === 'ANULADA').length;
+            el('h_total').innerHTML = '<span>' + lista.length + (lista.length === 1 ? ' venta' : ' ventas') + (anuladas ? ' (' + anuladas + ' anulada' + (anuladas === 1 ? '' : 's') + ')' : '') + '</span>' +
+              '<span>' + (anuladas ? 'Total sin anuladas' : 'Total') + ' <b><small>C$</small>' + dinero(total) + '</b></span>';
           }, { aviso: 'avisoVenta', espera: 'Cargando…' });
         }
         function verRecibo(id) { llamar('reciboVenta', [id], mostrarRecibo, { aviso: 'avisoVenta' }); }
@@ -2071,7 +2207,7 @@
         const lineaVacia = () => ({ cuenta: '', debe: '', haber: '' });
         const cuentaTexto = c => c.codigo + ' ' + c.nombre;
 
-        function abrirConta() {
+        function abrirConta(tab) {
           ver('conta');
           el('g_forma_pago').innerHTML = '<option value="Efectivo">Efectivo del cajón</option>' +
             (ES_ADMIN ? '<option value="Transferencia">Banco o transferencia</option>' : '');
@@ -2080,7 +2216,7 @@
             el('c_desde').value = primeroDelMes();
             el('as_mes').value = hoyTexto().slice(0, 7);
           }
-          pestana('conta', 'gastos');
+          pestana('conta', tab || 'gastos');
           llamar('catalogoCuentas', [], r => {
             cat = r;
             opciones('g_cuenta', r.cuentas_gasto, c => c.codigo, cuentaTexto);
@@ -2209,10 +2345,10 @@
         const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         const nombreMes = m => MESES[Number(m.slice(5, 7)) - 1] + ' de ' + m.slice(0, 4);
 
-        function abrirNomina() {
+        function abrirNomina(tab) {
           ver('nomina');
           if (!el('n_mes').value) el('n_mes').value = hoyTexto().slice(0, 7);
-          pestana('nom', 'planilla');
+          pestana('nom', tab || 'planilla');
         }
         AL_ABRIR.nom = nombre => {
           aviso('avisoNomina', '');
@@ -2533,5 +2669,9 @@
         }
       </script>
   </main>
+<script>
+  // App instalable: registra el trabajador (sw.js). Si falla, la pagina funciona igual.
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+</script>
 </body>
 </html>
