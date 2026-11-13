@@ -324,6 +324,33 @@
     .nombres { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 14px 0; }
     .nombres button { min-height: 56px; background: #fff; color: var(--g900); border-color: var(--g300); font-weight: 600; }
     .nombres button:hover { background: var(--g50); border-color: var(--verde); }
+    /* Recargas */
+    .ciasRec { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; max-width: 520px; }
+    .ciasRec button { text-align: left; padding: 10px 14px; min-height: 60px; background: #fff; border: 1px solid var(--g300); border-radius: 12px; color: var(--g900); }
+    .ciasRec button b { display: block; font-size: 16px; }
+    .ciasRec button small { color: var(--g500); font-size: 12.5px; font-weight: 500; }
+    .ciasRec button.claro b { color: #da291c; } .ciasRec button.tigo b { color: #00377b; }
+    .ciasRec button.claro.activa { border-color: #da291c; box-shadow: 0 0 0 2px #da291c inset; background: #fff5f4; }
+    .ciasRec button.tigo.activa { border-color: #00377b; box-shadow: 0 0 0 2px #00377b inset; background: #f2f6fc; }
+    .grupoRec { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; color: var(--g500); text-transform: uppercase; margin: 14px 0 6px; }
+    .paqsRec { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+    .paqsRec button { text-align: left; padding: 8px 10px; min-height: 64px; background: #fff; border: 1px solid var(--g200); border-radius: 10px; color: var(--g900); line-height: 1.25; }
+    .paqsRec button b { display: block; font-size: 14px; }
+    .paqsRec button small { display: block; font-size: 11.5px; color: var(--g500); font-weight: 500; }
+    .paqsRec button i { font-style: normal; font-weight: 700; font-size: 14px; display: block; margin-top: 2px; }
+    .paqsRec button:hover { border-color: var(--verde); }
+    .paqsRec button.activa { border-color: var(--verde); box-shadow: 0 0 0 2px var(--verde) inset; background: var(--verde-claro); }
+    .paqsRec button.otro { display: grid; place-items: center; text-align: center; color: var(--verde); font-weight: 600; border-style: dashed; }
+    .paqsRec button:disabled { opacity: .4; }
+    .lineaRec { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; color: var(--g700); font-variant-numeric: tabular-nums; }
+    .lineaRec > span:last-child { white-space: nowrap; }
+    .lineaRec.total { font-size: 20px; font-weight: 700; color: var(--g900); border-top: 1px solid var(--g200); margin-top: 6px; padding-top: 8px; }
+    .marcarRec { background: var(--g900); color: #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-top: 10px; font-size: 13px; }
+    .marcarRec code { display: block; color: #6ee7b7; font-size: 19px; font-family: Consolas, 'Courier New', monospace; margin-top: 2px; word-break: break-all; }
+    .okRec, .malRec { border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-top: 10px; }
+    .okRec { background: var(--verde-claro); color: var(--verde-osc); }
+    .malRec { background: var(--ambar-claro); color: var(--ambar); }
+    #rk_cargos input { height: 38px; max-width: 120px; }
     .chipPrivado { display: inline-flex; align-items: center; gap: 6px; background: var(--verde-claro); color: var(--verde-osc); border-radius: 20px;
       font-size: 12.5px; font-weight: 600; padding: 3px 12px; margin-bottom: 10px; }
     button.enlaceSimple { background: none; border: 0; color: var(--verde); font-weight: 600; font-size: 14px; margin-top: 12px; padding: 6px; min-height: 0; box-shadow: none; }
@@ -463,6 +490,7 @@
         <div class="subs"><b class="subTitulo">Ventas</b>
           <button data-tab="venta:vender">Vender</button>
           <button data-tab="venta:historial">Ventas del día</button>
+          <button data-tab="venta:recargas">Recargas</button>
           <button data-tab="venta:creditos">Clientes y créditos</button>
           <button data-tab="venta:caja">Caja</button>
         </div>
@@ -818,6 +846,83 @@
                   <button class="sec" onclick="vaciarCarrito()">Vaciar</button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Recargas Claro y Tigo: vender, comprar saldo y control -->
+          <div data-panel="venta:recargas" class="oculto">
+            <div class="filtros">
+              <button data-tab="rec:vender" class="activa">Vender recarga</button>
+              <button data-tab="rec:comprar">Comprar saldo</button>
+              <button data-tab="rec:control" class="soloAdmin">Control y cargos</button>
+            </div>
+            <div class="ciasRec" id="rc_cias"></div>
+
+            <div data-panel="rec:vender">
+              <div id="rc_sinCaja" class="ayuda oculto" style="margin-top:12px">Abra su caja (arriba) para vender recargas.</div>
+              <div id="rc_zona">
+                <div class="fila">
+                  <div class="crece"><label for="rc_tel">Teléfono del cliente</label>
+                    <input id="rc_tel" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="8 números" oninput="pintarResumenRecarga()"></div>
+                </div>
+                <div id="rc_paquetes"></div>
+                <div id="rc_otroCaja" class="fila oculto">
+                  <div class="crece"><label for="rc_monto">Monto de la recarga (C$)</label>
+                    <input id="rc_monto" type="number" min="10" step="1" oninput="pintarResumenRecarga()"></div>
+                </div>
+                <div class="cuadro">
+                  <div id="rc_resumen"></div>
+                  <div class="fila">
+                    <div><label for="rc_forma">El cliente paga con</label><select id="rc_forma"><option>Efectivo</option><option>Transferencia</option></select></div>
+                    <button id="btnRecarga" class="grande crece" onclick="cobrarRecarga()">Cobrar</button>
+                  </div>
+                </div>
+              </div>
+              <div id="rc_hecha" class="cuadro oculto"></div>
+            </div>
+
+            <div data-panel="rec:comprar" class="oculto">
+              <div class="formulario">
+                <div><label for="cs_pagado">Pagó (C$)</label><input id="cs_pagado" type="number" min="0" step="0.01" oninput="pintarCompraSaldo()"></div>
+                <div><label for="cs_recibido">Saldo recibido (C$)</label><input id="cs_recibido" type="number" min="0" step="0.01" oninput="pintarCompraSaldo()"></div>
+                <div><label for="cs_forma">Pagado con</label><select id="cs_forma">
+                  <option value="Efectivo">Efectivo de la caja</option><option value="Transferencia">Transferencia</option><option value="Dueño">Dinero del dueño</option></select></div>
+                <div><label for="cs_ref">N.º de transacción (del mensaje)</label><input id="cs_ref" autocomplete="off"></div>
+                <div><label for="cs_tel">Saldo nuevo según el mensaje (C$)</label><input id="cs_tel" type="number" min="0" step="0.01" oninput="pintarCompraSaldo()"></div>
+              </div>
+              <div id="cs_cuadre"></div>
+              <div class="fila"><button id="btnCompraSaldo" class="grande" onclick="guardarCompraSaldo()">Guardar compra de saldo</button></div>
+              <div class="ayuda">No es un gasto: es saldo para vender, como mercadería. La ganancia se ve cuando se venden las recargas.</div>
+            </div>
+
+            <div data-panel="rec:control" class="oculto">
+              <div class="kpis" id="rk_kpis"></div>
+              <div class="cuadro">
+                <h3>¿Cuadra con el teléfono?</h3>
+                <div class="fila">
+                  <div><label>Según el sistema</label><input id="rk_sistema" disabled></div>
+                  <div><label for="rk_tel">Según el teléfono (C$)</label><input id="rk_tel" type="number" min="0" step="0.01" oninput="pintarCuadreSaldo()"></div>
+                </div>
+                <div id="rk_cuadre"></div>
+                <div id="rk_ajusteCaja" class="fila oculto">
+                  <div class="crece"><label for="rk_nota">¿Por qué no cuadra?</label><input id="rk_nota" placeholder="Ej.: recarga vendida sin anotar"></div>
+                  <button id="btnAjusteSaldo" class="sec" onclick="ajustarSaldo()">Igualar al teléfono</button>
+                </div>
+              </div>
+              <div class="cuadro">
+                <h3>Cargo por recarga</h3>
+                <div class="tabla"><table>
+                  <thead><tr><th>Desde (C$)</th><th>Hasta</th><th class="num">Se cobra extra (C$)</th><th></th></tr></thead>
+                  <tbody id="rk_cargos"></tbody></table></div>
+                <div class="fila">
+                  <button class="sec conIcono" onclick="agregarRangoCargo()"><svg class="ico" data-ico="mas"></svg>Agregar rango</button>
+                  <button id="btnCargos" onclick="guardarCargos()">Guardar cargos</button>
+                </div>
+              </div>
+              <h3 style="margin-top:18px">Movimientos</h3>
+              <div class="tabla"><table>
+                <thead><tr><th>Fecha</th><th>Compañía</th><th>Detalle</th><th>Quién</th><th class="num">Saldo</th><th class="num">Cobrado / pagado</th><th class="num">Ganancia</th><th></th></tr></thead>
+                <tbody id="rk_movs"></tbody></table></div>
             </div>
           </div>
 
@@ -1907,7 +2012,8 @@
           }, { aviso: 'avisoVenta', espera: 'Cargando…' });
         }
         const TITULOS_VENTA = { vender: ['Vender', 'Cobrar y dar recibo'], historial: ['Ventas del día', 'Recibos y anulaciones'],
-          creditos: ['Clientes y créditos', 'Quién nos debe, cuánto y desde cuándo'], caja: ['Caja', 'Abrir, contar y cerrar el cajón'] };
+          creditos: ['Clientes y créditos', 'Quién nos debe, cuánto y desde cuándo'], caja: ['Caja', 'Abrir, contar y cerrar el cajón'],
+          recargas: ['Recargas', 'Claro y Tigo: vender, comprar saldo y cuadrar'] };
         AL_ABRIR.venta = nombre => {
           aviso('avisoVenta', '');
           const t = TITULOS_VENTA[nombre] || ['Ventas', 'Cobrar, caja y créditos'];
@@ -1915,14 +2021,211 @@
           if (nombre === 'historial') cargarHistorial();
           if (nombre === 'creditos') volverListaClientes();
           if (nombre === 'caja') cargarCajasTodas();
+          if (nombre === 'recargas') cargarRecargas();
           pintarCaja();
         };
+
+        // ===== Recargas Claro y Tigo =====
+        let dr = null;                                // respuesta de datosRecargas()
+        const rc = { cia: 'Claro', paquete: null };   // paquete: índice en dr.paquetes, 'otro' o null
+        function cargarRecargas(despues) {
+          llamar('datosRecargas', [], r => { dr = r; pintarRecargas(); if (despues) despues(); },
+            { aviso: 'avisoVenta', espera: 'Cargando recargas…' });
+        }
+        const cargoDe = m => { let c = 0; (dr ? dr.cargos : []).forEach(r => { if (m >= r.desde) c = r.cargo; }); return c; };
+        function rangoDe(m) {
+          const l = dr.cargos;
+          for (let i = l.length - 1; i >= 0; i--) if (m >= l[i].desde) return l[i + 1] ? 'de ' + l[i].desde + ' a ' + (l[i + 1].desde - 1) : 'de ' + l[i].desde + ' en adelante';
+          return '';
+        }
+        function pintarRecargas() {
+          if (!dr) return;
+          el('rc_cias').innerHTML = dr.companias.map(c => '<button class="' + c.toLowerCase() + (c === rc.cia ? ' activa' : '') +
+            '" onclick="elegirCia(\'' + c + '\')"><b>' + c + '</b><small>Saldo: ' + cs(dr.saldos[c] || 0) + '</small></button>').join('');
+          const conCaja = !!(dv && dv.caja);
+          mostrar('rc_sinCaja', !conCaja);
+          if (!conCaja) { mostrar('rc_zona', false); mostrar('rc_hecha', false); }
+          else if (el('rc_hecha').classList.contains('oculto')) mostrar('rc_zona', true);
+          const grupos = {};
+          dr.paquetes.forEach((p, i) => { if (p.compania === rc.cia) (grupos[p.grupo] = grupos[p.grupo] || []).push(i); });
+          const saldo = dr.saldos[rc.cia] || 0;
+          el('rc_paquetes').innerHTML = Object.keys(grupos).map((g, k, todosG) => '<div class="grupoRec">' + esc(g) + '</div><div class="paqsRec">' +
+            grupos[g].map(i => { const p = dr.paquetes[i];
+              return '<button class="' + (rc.paquete === i ? 'activa' : '') + '"' + (p.monto > saldo ? ' disabled title="No alcanza el saldo"' : '') +
+                ' onclick="elegirPaquete(' + i + ')"><b>' + esc(p.nombre) + '</b><small>' + esc(p.vigencia) + '</small><i>' + cs(p.monto) + '</i></button>'; }).join('') +
+            (k === todosG.length - 1 ? '<button class="otro' + (rc.paquete === 'otro' ? ' activa' : '') + '" onclick="elegirPaquete(\'otro\')">Recarga de saldo<br>(otro monto)</button>' : '') +
+            '</div>').join('') || '<div class="paqsRec"><button class="otro activa" onclick="elegirPaquete(\'otro\')">Recarga de saldo</button></div>';
+          mostrar('rc_otroCaja', rc.paquete === 'otro');
+          pintarResumenRecarga();
+          pintarCompraSaldo();
+          if (dr.es_admin) pintarControlRecargas();
+        }
+        function elegirCia(c) {
+          rc.cia = c; rc.paquete = null;
+          pintarRecargas();
+          if (actual.rec === 'control') { el('rk_tel').value = ''; pintarCuadreSaldo(); }
+        }
+        function elegirPaquete(i) {
+          rc.paquete = i;
+          pintarRecargas();
+          if (i === 'otro') el('rc_monto').focus();
+        }
+        function montoRecarga() {
+          if (rc.paquete === 'otro') return Number(el('rc_monto').value) || 0;
+          return rc.paquete === null ? 0 : dr.paquetes[rc.paquete].monto;
+        }
+        function pintarResumenRecarga() {
+          if (!dr) return;
+          const m = montoRecarga(), saldo = dr.saldos[rc.cia] || 0;
+          if (!m) {
+            el('rc_resumen').innerHTML = '<div class="ayuda">Toque un paquete o «Recarga de saldo» para ver cuánto cobrar.</div>';
+            el('btnRecarga').textContent = 'Cobrar'; el('btnRecarga').disabled = true; return;
+          }
+          const cargo = cargoDe(m), nombre = rc.paquete === 'otro' ? 'Recarga de saldo' : 'Paquete ' + dr.paquetes[rc.paquete].nombre;
+          const falta = m > saldo, menor = rc.paquete === 'otro' && m < 10;
+          el('rc_resumen').innerHTML = '<div class="lineaRec"><span>' + esc(nombre) + ' · ' + rc.cia + '</span><span>' + cs(m) + '</span></div>' +
+            '<div class="lineaRec"><span>Cargo por recarga <span class="chip ambar">' + rangoDe(m) + '</span></span><span>' + cs(cargo) + '</span></div>' +
+            '<div class="lineaRec total"><span>Cobrar</span><span>' + cs(m + cargo) + '</span></div>' +
+            (falta ? '<div class="malRec">No alcanza el saldo de ' + rc.cia + ' (quedan ' + cs(saldo) + '). Compre saldo primero.</div>' :
+              menor ? '<div class="malRec">La recarga mínima es de C$ 10.</div>' :
+              '<div class="ayuda">El saldo de ' + rc.cia + ' queda en ' + cs(saldo - m) + '.</div>');
+          el('btnRecarga').textContent = 'Cobrar ' + cs(m + cargo);
+          el('btnRecarga').disabled = falta || menor;
+        }
+        function cobrarRecarga() {
+          const tel = el('rc_tel').value.replace(/\D/g, '');
+          if (tel.length !== 8) { aviso('avisoVenta', 'Escriba el teléfono del cliente: 8 números.', true); return el('rc_tel').focus(); }
+          const m = montoRecarga();
+          if (!m) return aviso('avisoVenta', 'Elija un paquete o escriba el monto.', true);
+          const p = rc.paquete === 'otro' ? '' : dr.paquetes[rc.paquete].nombre;
+          llamar('venderRecarga', [{ compania: rc.cia, paquete: p, monto: m, telefono: tel, forma_pago: el('rc_forma').value }], r => {
+            el('rc_hecha').innerHTML = '<h3 style="margin-top:0">✓ Recarga guardada · cobre ' + cs(r.cobrado) + '</h3>' +
+              '<div class="lineaRec"><span>' + esc(r.compania) + ' · ' + esc(r.paquete || 'Recarga de saldo') + ' al ' + esc(r.telefono) + '</span><span>' + cs(r.monto) + '</span></div>' +
+              '<div class="lineaRec"><span>Cargo</span><span>' + cs(r.cargo) + '</span></div>' +
+              '<div class="lineaRec total"><span>Cobrado (' + esc(r.forma_pago) + ')</span><span>' + cs(r.cobrado) + '</span></div>' +
+              '<div class="marcarRec">Marque en el celular de la farmacia (cambie PIN por su clave):<code>' + esc(r.marcacion) + '</code></div>' +
+              '<div class="ayuda">Saldo de ' + esc(r.compania) + ' que queda: ' + cs(r.saldo_queda) + '.</div>' +
+              '<div class="fila"><button class="grande" onclick="nuevaRecarga()">Nueva recarga</button></div>';
+            mostrar('rc_zona', false); mostrar('rc_hecha', true);
+            tostada('Recarga guardada: cobre ' + cs(r.cobrado) + '.');
+            cargarRecargas(); cargarVenta();
+          }, { aviso: 'avisoVenta', espera: 'Guardando recarga…', boton: 'btnRecarga' });
+        }
+        function nuevaRecarga() {
+          el('rc_tel').value = ''; el('rc_monto').value = ''; rc.paquete = null;
+          mostrar('rc_hecha', false); mostrar('rc_zona', true);
+          pintarRecargas(); el('rc_tel').focus();
+        }
+
+        // Compra de saldo
+        function pintarCompraSaldo() {
+          if (!dr) return;
+          const pag = Number(el('cs_pagado').value) || 0, rec = Number(el('cs_recibido').value) || 0, telV = el('cs_tel').value;
+          const antes = dr.saldos[rc.cia] || 0, partes = [];
+          partes.push('<div class="lineaRec"><span>Saldo de ' + rc.cia + ' antes de la compra</span><span>' + cs(antes) + '</span></div>');
+          if (pag && rec) {
+            const com = rec - pag;
+            partes.push('<div class="lineaRec"><span>Comisión que le dio ' + rc.cia + '</span><span><b>' + cs(com) + '</b> (' + (com / pag * 100).toFixed(1) + '%)</span></div>' +
+              '<div class="lineaRec"><span>Costo de cada C$ 1 de saldo</span><span>C$ ' + (pag / rec).toFixed(4) + '</span></div>');
+            if (rec < pag) partes.push('<div class="malRec">El saldo recibido no puede ser menor que lo pagado.</div>');
+          }
+          if (rec && telV !== '') {
+            const deberia = Math.round((antes + rec) * 100) / 100, tel = Number(telV);
+            partes.push(Math.abs(tel - deberia) < 0.01 ?
+              '<div class="okRec">✓ <b>Cuadra:</b> ' + dinero(antes) + ' que había + ' + dinero(rec) + ' recibido = ' + dinero(deberia) + ', igual que el mensaje.</div>' :
+              '<div class="malRec">No cuadra: el sistema esperaba ' + cs(deberia) + ' y el mensaje dice ' + cs(tel) + '. Puede guardarla igual; luego un Admin la cuadra en «Control».</div>');
+          }
+          el('cs_cuadre').innerHTML = '<div class="cuadro">' + partes.join('') + '</div>';
+        }
+        function guardarCompraSaldo() {
+          const c = { compania: rc.cia, pagado: el('cs_pagado').value, recibido: el('cs_recibido').value, forma_pago: el('cs_forma').value,
+            referencia: el('cs_ref').value.trim(), saldo_telefono: el('cs_tel').value };
+          if (!c.pagado || !c.recibido) return aviso('avisoVenta', 'Escriba cuánto pagó y cuánto saldo recibió.', true);
+          llamar('comprarSaldo', [c], r => {
+            limpiar(['cs_pagado', 'cs_recibido', 'cs_ref', 'cs_tel']);
+            tostada('Compra de saldo ' + r.compania + ' guardada. Comisión ' + cs(r.comision) + '. Saldo ahora: ' + cs(r.saldo_sistema) +
+              (r.cuadra === false ? ' · No cuadra con el mensaje (' + cs(r.saldo_telefono) + ').' : '.'), r.cuadra === false);
+            cargarRecargas(); cargarVenta();
+          }, { aviso: 'avisoVenta', espera: 'Guardando compra…', boton: 'btnCompraSaldo' });
+        }
+
+        // Control (solo Admin)
+        function pintarControlRecargas() {
+          const k = (t, v, c) => '<div class="kpi' + (c ? ' ' + c : '') + '"><small>' + t + '</small><b>' + v + '</b></div>';
+          el('rk_kpis').innerHTML = dr.companias.map(c => k('Saldo ' + c, cs(dr.saldos[c] || 0))).join('') +
+            k('Recargas de hoy', dr.hoy.num) + k('Cobrado hoy', cs(dr.hoy.vendido)) + k('Ganancia de hoy', cs(dr.hoy.ganancia), 'fuerte');
+          el('rk_sistema').value = cs(dr.saldos[rc.cia] || 0) + ' (' + rc.cia + ')';
+          pintarCuadreSaldo();
+          pintarCargos(dr.cargos);
+          const nombreTipo = { VENTA: 'Recarga', COMPRA: 'Compra de saldo', INICIAL: 'Saldo inicial', AJUSTE: 'Ajuste' };
+          el('rk_movs').innerHTML = dr.movimientos.map(m => {
+            const anulada = m.estado === 'ANULADA';
+            const det = nombreTipo[m.tipo] + (m.tipo === 'VENTA' ? ' · ' + (m.paquete || 'saldo') + ' · ' + m.telefono : '') +
+              (m.referencia ? ' · ' + m.referencia : '') + (m.nota ? ' · ' + m.nota : '') + (anulada ? ' <span class="chip rojo">Anulada</span>' : '');
+            const signo = m.tipo === 'VENTA' ? -m.monto : m.monto;
+            const dinTxt = m.tipo === 'VENTA' ? cs(m.cobrado) + ' <small>' + esc(m.forma_pago) + '</small>' : m.tipo === 'COMPRA' ? cs(m.pagado) + ' <small>' + esc(m.forma_pago) + '</small>' : '';
+            const gan = m.tipo === 'VENTA' && !anulada ? cs(m.cobrado - m.costo) : '';
+            return tr([td(esc(m.fecha)), td(esc(m.compania)), td(det), td(esc(m.usuario)), num((signo > 0 ? '+' : '') + dinero(signo)), num(dinTxt), num(gan),
+              td(anulada || m.tipo === 'AJUSTE' ? '' : '<button class="sec mini" onclick="anularMovRecarga(' + m.id + ')">Anular</button>')], anulada ? ' style="opacity:.55"' : '');
+          }).join('') || '<tr><td colspan="8" class="vacio">Todavía no hay movimientos.</td></tr>';
+        }
+        function pintarCuadreSaldo() {
+          const v = el('rk_tel').value, sis = dr.saldos[rc.cia] || 0;
+          const consulta = '<div class="ayuda">Consulte el saldo en el celular de la farmacia: <b>' + esc(dr.consulta_saldo[rc.cia]) + '</b></div>';
+          if (v === '') { el('rk_cuadre').innerHTML = consulta; mostrar('rk_ajusteCaja', false); return; }
+          const dif = Math.round((Number(v) - sis) * 100) / 100;
+          el('rk_cuadre').innerHTML = !dif ? '<div class="okRec">✓ Cuadra.</div>' :
+            '<div class="malRec">' + (dif < 0 ? 'Faltan ' : 'Sobran ') + cs(Math.abs(dif)) + ' de saldo en ' + rc.cia + '.' +
+            (dif < 0 ? ' Puede ser una recarga que se vendió sin anotar.' : ' Puede ser una recarga anotada que no se hizo.') + '</div>' + consulta;
+          mostrar('rk_ajusteCaja', !!dif);
+        }
+        function ajustarSaldo() {
+          preguntar({ titulo: 'Igualar saldo de ' + rc.cia, texto: 'El sistema quedará con ' + cs(Number(el('rk_tel').value)) + ', lo que dice el teléfono. La diferencia va a la contabilidad como merma o sobrante.', si: 'Igualar' }, () => {
+            llamar('ajustarSaldoRecarga', [{ compania: rc.cia, saldo_telefono: el('rk_tel').value, nota: el('rk_nota').value.trim() }], r => {
+              el('rk_tel').value = ''; el('rk_nota').value = '';
+              tostada(r.diferencia ? 'Saldo igualado (diferencia ' + cs(r.diferencia) + ').' : 'Ya cuadraba.');
+              cargarRecargas();
+            }, { aviso: 'avisoVenta', boton: 'btnAjusteSaldo' });
+          });
+        }
+        function anularMovRecarga(id) {
+          preguntar({ titulo: 'Anular movimiento ' + id, texto: 'El saldo y la caja se recalculan como si no hubiera ocurrido.', campo: 'Motivo', si: 'Anular', peligro: true }, motivo => {
+            llamar('anularRecarga', [id, motivo], () => { tostada('Movimiento anulado.'); cargarRecargas(); cargarVenta(); }, { aviso: 'avisoVenta' });
+          });
+        }
+        function pintarCargos(lista) {
+          el('rk_cargos').innerHTML = lista.map((r, i) => tr([
+            td('<input type="number" min="0" step="1" value="' + r.desde + '"' + (i === 0 ? ' disabled title="El primer rango empieza en 0"' : '') + ' oninput="hastaCargos()">'),
+            td('<span class="hastaRec"></span>'),
+            td('<input type="number" min="0" step="1" value="' + r.cargo + '">', 'num'),
+            td(i === 0 ? '' : '<button class="sec mini" onclick="quitarRangoCargo(' + i + ')">Quitar</button>')])).join('');
+          hastaCargos();
+        }
+        function leerCargos() {
+          return todos('#rk_cargos tr').map(f => { const e = f.querySelectorAll('input'); return { desde: Number(e[0].value) || 0, cargo: e[1].value }; });
+        }
+        function hastaCargos() {
+          const l = leerCargos(), h = todos('#rk_cargos .hastaRec');
+          l.forEach((r, i) => { h[i].textContent = l[i + 1] ? 'hasta ' + (l[i + 1].desde - 1) : 'en adelante'; });
+        }
+        function agregarRangoCargo() {
+          const l = leerCargos(); const ult = l[l.length - 1];
+          l.push({ desde: (ult ? ult.desde : 0) + 100, cargo: ult ? ult.cargo : 5 });
+          pintarCargos(l);
+        }
+        function quitarRangoCargo(i) { const l = leerCargos(); l.splice(i, 1); pintarCargos(l); }
+        function guardarCargos() {
+          const l = leerCargos();
+          if (l.some(r => r.cargo === '' || Number(r.cargo) < 0)) return aviso('avisoVenta', 'Revise los cargos: no pueden quedar vacíos.', true);
+          llamar('guardarCargosRecarga', [l], r => { dr.cargos = r; pintarRecargas(); tostada('Cargos guardados.'); }, { aviso: 'avisoVenta', boton: 'btnCargos' });
+        }
 
         // Caja
         function pintarCaja() {
           if (!dv) return;
           const c = dv.caja, abierta = !!c;
-          mostrar('v_abrirCaja', !abierta && (actual.venta === 'vender' || actual.venta === 'caja'));
+          mostrar('v_abrirCaja', !abierta && ['vender', 'caja', 'recargas'].indexOf(actual.venta) !== -1);
+          if (actual.venta === 'recargas' && dr) pintarRecargas();
           mostrar('v_zonaVenta', abierta);
           mostrar('cj_cerrar', abierta);
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
@@ -1935,7 +2238,11 @@
             '<div class="kpi"><small>Ventas al crédito</small><b>' + cs(c.ventas['Crédito']) + '</b></div></div>' +
             '<div class="tabla"><table>' + f('Efectivo inicial', c.monto_inicial) + f('Ventas en efectivo', c.ventas['Efectivo']) +
             f('Ventas en dólares (en C$)', c.ventas['Dólares']) + f('Abonos en efectivo', c.abonos_efectivo) +
-            f('Menos gastos pagados del cajón', -c.gastos || 0) + tr([td('Debe haber en el cajón'), num(cs(c.esperado))], ' class="totalR"') +
+            f('Menos gastos pagados del cajón', -c.gastos || 0) +
+            (c.num_recargas || c.compras_saldo ? f('Recargas cobradas en efectivo (' + (c.num_recargas || 0) + ')', c.recargas_efectivo) +
+              f('Menos saldo de recargas comprado con efectivo', -c.compras_saldo || 0) : '') +
+            tr([td('Debe haber en el cajón'), num(cs(c.esperado))], ' class="totalR"') +
+            (c.recargas_transferencia ? f('Recargas por transferencia (no entran al cajón)', c.recargas_transferencia) : '') +
             f('Abonos por transferencia (no entran al cajón)', c.abonos_transferencia) + '</table></div></div>';
         }
         // Cajas abiertas de todos los usuarios (solo Admin), con lo que debe haber en cada cajón ahora.
