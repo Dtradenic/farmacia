@@ -328,6 +328,9 @@
     .nombres { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 14px 0; }
     .nombres button { min-height: 56px; background: #fff; color: var(--g900); border-color: var(--g300); font-weight: 600; }
     .nombres button:hover { background: var(--g50); border-color: var(--verde); }
+    /* Recetas del expediente en Vender */
+    .recetaPend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+    .recetaPend > div { flex: 1; min-width: 220px; } .recetaPend b { color: #1d4ed8; } .recetaPend small { display: block; color: var(--g700); font-size: 13px; }
     /* Indicadores */
     /* Las 5 tarjetas en una fila; cada parte tiene alto fijo para que todas se vean iguales, con o sin datos.
        En pantallas angostas la fila se desliza de lado. */
@@ -543,6 +546,9 @@
           <button data-tab="conta:resultados">Estado de resultados</button>
           <button data-tab="conta:balance">Balance general</button>
         </div>
+      </div>
+      <div class="grupo soloAdmin">
+        <button class="secc" onclick="abrirExpedientes()" title="Pacientes (expediente clínico)"><svg class="ico" data-ico="personas"></svg><span>Pacientes ↗</span></button>
       </div>
       <div class="grupo soloAdmin" data-ir="nomina">
         <button class="secc" onclick="irSeccion('nomina')" title="Personal"><svg class="ico" data-ico="personas"></svg><span>Personal</span><svg class="ico giro" data-ico="abajo"></svg></button>
@@ -842,6 +848,7 @@
 
           <div data-panel="venta:vender">
             <div id="v_zonaVenta">
+              <div id="v_recetas" class="oculto"></div>
               <div class="fila"><input id="v_buscar" class="crece" type="search" placeholder="Buscar producto (nombre, principio activo o código)" oninput="buscarVenta()"
                 onkeydown="if (event.key === 'Enter') agregarPrimero()"></div>
               <div class="resultados" id="v_resultados"></div>
@@ -849,6 +856,7 @@
                 <thead><tr><th>Producto</th><th>Por</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Desc. C$</th><th class="num">Total</th><th></th></tr></thead>
                 <tbody id="v_carrito"></tbody></table></div>
               <div class="granTotal" id="v_total">C$ 0.00</div>
+              <div class="aviso oculto" id="v_recetaCargada" style="background:var(--g100);color:var(--g700)"></div>
 
               <div id="v_receta" class="cuadro oculto">
                 <h3>Receta (producto controlado)</h3>
@@ -2074,6 +2082,7 @@
           const t = TITULOS_VENTA[nombre] || ['Ventas', 'Cobrar, caja y créditos'];
           el('ventaTitulo').textContent = t[0]; el('ventaSub').textContent = t[1];
           if (nombre === 'historial') cargarHistorial();
+          if (nombre === 'vender') cargarRecetas();
           if (nombre === 'creditos') volverListaClientes();
           if (nombre === 'caja') cargarCajasTodas();
           if (nombre === 'recargas') cargarRecargas();
@@ -2160,12 +2169,14 @@
               '<div class="lineaRec total"><span>Cobrado (' + esc(r.forma_pago) + ')</span><span>' + cs(r.cobrado) + '</span></div>' +
               '<div class="marcarRec">Marque en el celular de la farmacia (cambie PIN por su clave):<code>' + esc(r.marcacion) + '</code></div>' +
               '<div class="ayuda">Saldo de ' + esc(r.compania) + ' que queda: ' + cs(r.saldo_queda) + '.</div>' +
-              '<div class="fila"><button class="grande" onclick="nuevaRecarga()">Nueva recarga</button></div>';
+              '<div class="fila"><button class="grande" onclick="nuevaRecarga()">Nueva recarga</button>' +
+              '<button class="sec grande" onclick="verReciboRecarga(' + r.id + ')">🧾 Recibo</button></div>';
             mostrar('rc_zona', false); mostrar('rc_hecha', true);
             tostada('Recarga guardada: cobre ' + cs(r.cobrado) + '.');
             cargarRecargas(); cargarVenta();
           }, { aviso: 'avisoVenta', espera: 'Guardando recarga…', boton: 'btnRecarga' });
         }
+        function verReciboRecarga(id) { llamar('reciboRecarga', [id], mostrarRecibo, { aviso: 'avisoVenta', espera: 'Preparando recibo…' }); }
         function nuevaRecarga() {
           el('rc_tel').value = ''; el('rc_monto').value = ''; rc.paquete = null;
           mostrar('rc_hecha', false); mostrar('rc_zona', true);
@@ -2221,7 +2232,8 @@
             const dinTxt = m.tipo === 'VENTA' ? cs(m.cobrado) + ' <small>' + esc(m.forma_pago) + '</small>' : m.tipo === 'COMPRA' ? cs(m.pagado) + ' <small>' + esc(m.forma_pago) + '</small>' : '';
             const gan = m.tipo === 'VENTA' && !anulada ? cs(m.cobrado - m.costo) : '';
             return tr([td(esc(m.fecha)), td(esc(m.compania)), td(det), td(esc(m.usuario)), num((signo > 0 ? '+' : '') + dinero(signo)), num(dinTxt), num(gan),
-              td(anulada || m.tipo === 'AJUSTE' ? '' : '<button class="sec mini" onclick="anularMovRecarga(' + m.id + ')">Anular</button>')], anulada ? ' style="opacity:.55"' : '');
+              td((m.tipo === 'VENTA' ? '<button class="sec mini" onclick="verReciboRecarga(' + m.id + ')">Recibo</button> ' : '') +
+                (anulada || m.tipo === 'AJUSTE' ? '' : '<button class="sec mini" onclick="anularMovRecarga(' + m.id + ')">Anular</button>'))], anulada ? ' style="opacity:.55"' : '');
           }).join('') || '<tr><td colspan="8" class="vacio">Todavía no hay movimientos.</td></tr>';
         }
         function pintarCuadreSaldo() {
@@ -2383,7 +2395,7 @@
         // Buscar y carrito
         function buscarVenta() {
           const texto = buscado('v_buscar');
-          el('v_resultados').innerHTML = !texto || !dv ? '' : dv.productos.filter(p => contiene(texto, p.codigo, p.nombre, p.principio_activo)).slice(0, 8)
+          el('v_resultados').innerHTML = !texto || !dv ? '' : dv.productos.filter(p => p.codigo !== 'CONSULTA' && contiene(texto, p.codigo, p.nombre, p.principio_activo)).slice(0, 8)
             .map(p => '<button' + (p.servicio || p.disponible > 0 ? '' : ' disabled') + ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')">' +
               esc(p.nombre) + ' — ' + cs(p.precio_unidad) + (vendePorCaja(p) ? ' · caja ' + cs(p.precio_caja) : '') +
               '<br><small>' + esc(p.codigo) + (p.servicio ? ' · servicio' : ' · hay ' + p.disponible) +
@@ -2402,11 +2414,12 @@
           pintarCarrito();
           el('v_buscar').focus();
         }
-        const precioLinea = l => prodVenta(l.codigo)[l.modo === 'CAJA' ? 'precio_caja' : 'precio_unidad'];
+        const precioLinea = l => l.precio_receta !== undefined ? l.precio_receta : prodVenta(l.codigo)[l.modo === 'CAJA' ? 'precio_caja' : 'precio_unidad'];
         const totalLinea = l => r2(l.cantidad * precioLinea(l) - (Number(l.descuento) || 0));
         const totalCarrito = () => r2(carrito.reduce((s, l) => s + totalLinea(l), 0));
         function cambiarLinea(i, campo, valor) {
           const l = carrito[i];
+          if (l.fija && campo !== 'quitar' && campo !== 'descuento') return pintarCarrito();   // la consulta va una vez, al precio del médico
           if (campo === 'cantidad') l.cantidad = Math.max(1, Math.floor(Number(valor) || 1));
           if (campo === 'descuento') l.descuento = Math.max(0, Number(valor) || 0);
           if (campo === 'modo') l.modo = valor;
@@ -2417,6 +2430,7 @@
         }
         function vaciarCarrito() {
           carrito = [];
+          recetaEnCarrito = null;
           limpiar(CAMPOS_RECETA.map(c => 'r_' + c).concat(['v_pagado', 'v_cliente']));
           el('v_forma').value = 'Efectivo';
           cambioForma();
@@ -2439,8 +2453,45 @@
             ]);
           }).join('') || '<tr><td colspan="7" class="ayuda">Busca un producto arriba para agregarlo a la venta.</td></tr>';
           el('v_total').textContent = cs(totalCarrito());
-          mostrar('v_receta', carrito.some(l => prodVenta(l.codigo).controlado));
+          mostrar('v_receta', carrito.some(l => prodVenta(l.codigo).controlado) && !recetaEnCarrito);
+          el('v_recetaCargada').innerHTML = recetaEnCarrito ? '📋 Cobrando la receta de <b>' + esc(recetaEnCarrito.paciente) + '</b> (' + esc(recetaEnCarrito.medico) +
+            '). Los datos de la receta para controlados se llenan solos.' : '';
+          mostrar('v_recetaCargada', !!recetaEnCarrito);
           calcularVuelto();
+        }
+
+        /** Abre el expediente clínico (otra página, de la cuenta del negocio) en una pestaña nueva. */
+        function abrirExpedientes() {
+          cerrarMenuCel();
+          const ventana = window.open('', '_blank');   // se abre ya, para que el navegador no la bloquee
+          llamar('urlExpedientes', [], url => { if (ventana) ventana.location = url; else location.href = url; },
+            { falla: e => { if (ventana) ventana.close(); tostada(e.message || String(e), true); } });
+        }
+        // Recetas que manda el expediente clínico (solo medicamentos y cobro de consulta, sin diagnóstico)
+        let recetas = [], recetaEnCarrito = null;
+        function cargarRecetas() {
+          llamar('recetasPendientes', [], r => { recetas = r; pintarRecetas(); }, { falla: () => {} });
+        }
+        function pintarRecetas() {
+          el('v_recetas').innerHTML = recetas.map(r => '<div class="recetaPend"><div><b>📋 Receta de ' + esc(r.paciente) + '</b><small>' + esc(r.medico) + ' · ' + esc(r.fecha) + ' · ' +
+            r.lineas.map(l => l.cantidad + ' ' + esc(l.nombre)).join(', ') + (r.cobro_consulta ? (r.lineas.length ? ' + ' : '') + 'consulta ' + cs(r.cobro_consulta) : '') + '</small></div>' +
+            '<button class="mini" onclick="cargarReceta(' + r.id + ')">Cargar a la venta</button>' +
+            '<button class="mini sec" onclick="descartarRecetaVenta(' + r.id + ')">No compró</button></div>').join('');
+          mostrar('v_recetas', recetas.length > 0);
+        }
+        function cargarReceta(id) {
+          const r = recetas.filter(x => x.id === id)[0];
+          if (!r) return;
+          const faltan = r.lineas.filter(l => !prodVenta(l.codigo));
+          carrito = r.lineas.filter(l => prodVenta(l.codigo)).map(l => ({ codigo: l.codigo, modo: 'UNIDAD', cantidad: l.cantidad, descuento: 0 }));
+          if (r.cobro_consulta > 0 && prodVenta('CONSULTA')) carrito.push({ codigo: 'CONSULTA', modo: 'UNIDAD', cantidad: 1, descuento: 0, precio_receta: r.cobro_consulta, fija: true });
+          recetaEnCarrito = r;
+          pintarCarrito();
+          aviso('avisoVenta', 'Receta cargada. Revise las cantidades con el paciente y cobre.' + (faltan.length ? ' Ojo: ' + faltan.length + ' producto(s) ya no están disponibles.' : ''), !!faltan.length);
+        }
+        function descartarRecetaVenta(id) {
+          preguntar({ titulo: 'El paciente no compró', texto: 'La receta deja de aparecer aquí. Queda anotado en la Bitácora.', campo: 'Motivo', si: 'Quitar receta' }, motivo =>
+            llamar('descartarReceta', [id, motivo], () => { if (recetaEnCarrito && recetaEnCarrito.id === id) vaciarCarrito(); cargarRecetas(); }, { aviso: 'avisoVenta' }));
         }
         function cambioForma() {
           const f = el('v_forma').value;
@@ -2476,9 +2527,11 @@
             lineas: carrito.map(l => ({ codigo: l.codigo, modo: l.modo, cantidad: l.cantidad, descuento: l.descuento })),
             receta: leer('r_', CAMPOS_RECETA)
           };
+          if (recetaEnCarrito) v.id_receta = recetaEnCarrito.id;
           llamar('registrarVenta', [v], r => {
             vaciarCarrito();
             mostrarRecibo(r);
+            cargarRecetas();
             cargarVenta(() => aviso('avisoVenta', 'Venta ' + r.id + ' guardada.'));
           }, { aviso: 'avisoVenta', espera: 'Guardando venta…', boton: 'btnCobrar' });
         }
@@ -2488,7 +2541,7 @@
         function reciboWhatsApp() {
           const r = reciboActual;
           if (!r) return;
-          abrirWhatsApp('*' + r.negocio.nombre + '*\nComprobante de venta N° ' + r.id + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
+          abrirWhatsApp('*' + r.negocio.nombre + '*\nComprobante ' + (r.numero ? 'de recarga N° ' + r.numero : 'de venta N° ' + r.id) + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
             r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total)).join('\n') +
             (r.descuento ? '\nDescuento: -C$ ' + dinero(r.descuento) : '') + '\n*Total: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago +
             '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su compra!', r.telefono);
@@ -2548,7 +2601,7 @@
                 fuente(19); y += 26; texto('Comprobante interno · No es factura fiscal', W / 2, 'center', GRIS);
                 y += 18;
                 // Datos de la venta
-                fila('Recibo N°', ('00000' + r.id).slice(-6), 23, 700);
+                fila('Recibo N°', r.numero || ('00000' + r.id).slice(-6), 23, 700);
                 fila('Fecha', r.fecha, 22);
                 fila('Atendió', r.vendedor, 22);
                 if (r.cliente) fila('Cliente', r.cliente, 22);
@@ -2586,7 +2639,7 @@
                 }
                 y += 26;
                 fila('Forma de pago', r.forma_pago, 22);
-                if (r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares') {
+                if ((r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares') && !r.sin_vuelto) {
                   fila('Recibido', 'C$ ' + dinero(r.pagado), 22);
                   fila('Vuelto', 'C$ ' + dinero(r.vuelto), 23, 700);
                 }
@@ -2613,7 +2666,7 @@
           if (!r) return;
           const boton = el('btnReciboImg');
           boton.disabled = true;
-          const nombre = 'Recibo-' + ('00000' + r.id).slice(-6) + '.png';
+          const nombre = 'Recibo-' + (r.numero || ('00000' + r.id).slice(-6)) + '.png';
           reciboImagen(r).then(lienzo => new Promise(listo => lienzo.toBlob(b => listo({ lienzo: lienzo, blob: b }), 'image/png')))
             .then(x => {
               const dataUrl = x.lienzo.toDataURL('image/png');
@@ -2627,7 +2680,7 @@
               el('reciboImgAyuda').textContent = 'Si no se abrió el menú para compartir: mantén presionada la imagen y elige «Compartir» o «Guardar imagen», o toca «Descargar imagen» y envíala desde WhatsApp.';
               const archivo = typeof File === 'function' && x.blob ? new File([x.blob], nombre, { type: 'image/png' }) : null;
               if (archivo && navigator.canShare && navigator.canShare({ files: [archivo] })) {
-                return navigator.share({ files: [archivo], title: 'Recibo ' + ('00000' + r.id).slice(-6) })
+                return navigator.share({ files: [archivo], title: 'Recibo ' + (r.numero || ('00000' + r.id).slice(-6)) })
                   .then(() => { el('reciboImgAyuda').textContent = 'Imagen compartida.'; })
                   .catch(e => { if (e && e.name !== 'AbortError') console.warn('No se pudo compartir:', e); });
               }
@@ -2649,7 +2702,7 @@
             '<div class="centro"><img class="rLogo" alt="' + esc(n.nombre) + '" src="' + LOGO_SRC + '">' + esc(n.direccion) +
               (n.telefono ? '<br>Tel. ' + esc(n.telefono) : '') + (n.ruc ? '<br>RUC ' + esc(n.ruc) : '') + '</div>' +
             '<div class="rTipo">COMPROBANTE INTERNO<br><small>No es factura fiscal</small></div>' +
-            '<table>' + f('Recibo N°', '<b>' + ('00000' + r.id).slice(-6) + '</b>') + f('Fecha', esc(r.fecha)) + f('Atendió', esc(r.vendedor)) +
+            '<table>' + f('Recibo N°', '<b>' + (r.numero || ('00000' + r.id).slice(-6)) + '</b>') + f('Fecha', esc(r.fecha)) + f('Atendió', esc(r.vendedor)) +
               (r.cliente ? f('Cliente', esc(r.cliente)) : '') + '</table>' +
             (r.estado === 'ANULADA' ? '<div class="rAnulada">ANULADA</div>' : '') +
             '<hr><table class="rLineas"><tr><th>Cant</th><th>Descripción</th><th class="num">Importe</th></tr>' +
@@ -2659,7 +2712,7 @@
               (r.descuento ? f('Subtotal', dinero(r.subtotal)) + f('Descuento', '-' + dinero(r.descuento)) : '') +
               (r.iva ? f('IVA incluido', dinero(r.iva)) : '') + '</table>' +
             '<div class="rTotal"><span>TOTAL C$</span><span>' + dinero(r.total) + '</span></div>' +
-            '<table>' + f('Pago', esc(r.forma_pago)) + (efectivo ? f('Recibido C$', dinero(r.pagado)) + f('<b>Vuelto C$</b>', '<b>' + dinero(r.vuelto) + '</b>') : '') + '</table>' +
+            '<table>' + f('Pago', esc(r.forma_pago)) + (efectivo && !r.sin_vuelto ? f('Recibido C$', dinero(r.pagado)) + f('<b>Vuelto C$</b>', '<b>' + dinero(r.vuelto) + '</b>') : '') + '</table>' +
             (r.nota ? '<div style="margin-top:4px">' + esc(r.nota) + '</div>' : '') +
             '<hr><div class="centro"><b>¡Gracias por su compra!</b>' + (n.pie ? '<br>' + esc(n.pie) : '') + '<br><small>Conserve este comprobante.</small></div>';
           mostrar('capaRecibo', true);
