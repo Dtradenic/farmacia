@@ -367,6 +367,13 @@
     .cuadreEstado.bien { background: var(--verde-claro); border-color: #a7f3d0; color: var(--verde-osc); }
     .cuadreEstado.sobra { background: #fffbeb; border-color: #fde68a; color: #92400e; }
     .cuadreEstado.falta { background: var(--rojo-claro); border-color: #fecdd3; color: var(--rojo); }
+    /* Cajas abiertas de todos */
+    .cajasTodas { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+    .cajaOtra { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 14px; box-shadow: var(--sombra); }
+    .cajaOtraCabeza { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .cajaOtra table { font-size: 13.5px; margin-top: 10px; }
+    .cajaOtra td { padding: 6px 2px; }
+    .cajaOtra tr.aparte td { color: var(--g500); }
     /* Gastos por aprobar */
     .porAprobar { background: #fffbeb; border-color: #fde68a; }
     .pendiente { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 14px; margin-top: 12px; box-shadow: var(--sombra); }
@@ -743,7 +750,7 @@
         <div class="tarjeta">
           <div class="barra">
             <i class="icoTitulo"><svg class="ico" data-ico="carrito"></svg></i>
-            <div class="titulos"><h2>Ventas</h2><small>Cobrar, caja y créditos</small></div>          </div>
+            <div class="titulos"><h2 id="ventaTitulo">Ventas</h2><small id="ventaSub">Cobrar, caja y créditos</small></div>          </div>
           <div class="aviso" id="avisoVenta"></div>
 
           <!-- Abrir caja (aparece en Vender y en Caja si no hay caja abierta) -->
@@ -808,10 +815,23 @@
           </div>
 
           <div data-panel="venta:creditos" class="oculto">
-            <div class="fila">
-              <select id="cr_cliente" class="crece" onchange="verCliente()"></select>
-              <button class="sec" onclick="formCliente('')">+ Nuevo cliente</button>
+            <select id="cr_cliente" class="oculto" onchange="verCliente()" aria-hidden="true"></select>
+            <div id="cr_lista">
+              <div class="kpis" id="cr_kpis"></div>
+              <div class="fila">
+                <input id="cr_buscar" class="crece" type="search" placeholder="Buscar cliente por nombre, teléfono o cédula" oninput="pintarListaClientes()">
+                <button class="conIcono" onclick="formCliente('')"><svg class="ico" data-ico="mas"></svg>Nuevo cliente</button>
+              </div>
+              <div class="filtros" id="cr_filtros">
+                <button data-f="deben" class="activa" onclick="filtroClientes('deben')">Con deuda</button>
+                <button data-f="todos" onclick="filtroClientes('todos')">Todos los clientes</button>
+              </div>
+              <div class="tabla"><table>
+                <thead><tr><th>Cliente</th><th>Teléfono</th><th class="num">Créditos</th><th>Debe desde</th><th class="num">Días</th><th>Último abono</th><th class="num">Debe</th><th class="num">Límite</th></tr></thead>
+                <tbody id="cr_cuerpo"></tbody></table></div>
+              <div class="ayuda">Toca un cliente para ver sus ventas al crédito, recibir un abono o mandarle su saldo por WhatsApp.</div>
             </div>
+            <div id="cr_volver" class="oculto"><button class="sec mini conIcono" onclick="volverListaClientes()"><svg class="ico" data-ico="atras"></svg>Lista de clientes</button></div>
             <div id="cr_detalle"></div>
             <div id="cr_abono" class="cuadro oculto">
               <h3>Recibir abono</h3>
@@ -854,6 +874,12 @@
               <div class="fila"><button id="btnCerrarCaja" class="peligro" onclick="cerrarMiCaja()">Cerrar caja</button></div>
             </div>
             <div class="aviso" id="avisoCaja"></div>
+            <div class="cuadro soloAdmin" id="cj_todasCaja">
+              <div class="barra" style="margin-bottom:0"><h3 style="flex:1;margin:0">Cajas abiertas de todos</h3>
+                <button class="mini sec conIcono" id="btnCajasTodas" onclick="cargarCajasTodas()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button></div>
+              <div id="cj_todas"><div class="ayuda">Consultando…</div></div>
+              <div class="ayuda">Los números son de este momento. Para ver cierres de otros días: Reportes → Cierres de caja.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1824,13 +1850,19 @@
             opciones('cr_cliente', r.clientes, c => c.id, c => c.nombre, '— Elige un cliente —');
             pintarCaja();
             pintarCarrito();
+            if (actual.venta === 'creditos') pintarListaClientes();
             if (despues) despues();
           }, { aviso: 'avisoVenta', espera: 'Cargando…' });
         }
+        const TITULOS_VENTA = { vender: ['Vender', 'Cobrar y dar recibo'], historial: ['Ventas del día', 'Recibos y anulaciones'],
+          creditos: ['Clientes y créditos', 'Quién nos debe, cuánto y desde cuándo'], caja: ['Caja', 'Abrir, contar y cerrar el cajón'] };
         AL_ABRIR.venta = nombre => {
           aviso('avisoVenta', '');
+          const t = TITULOS_VENTA[nombre] || ['Ventas', 'Cobrar, caja y créditos'];
+          el('ventaTitulo').textContent = t[0]; el('ventaSub').textContent = t[1];
           if (nombre === 'historial') cargarHistorial();
-          if (nombre === 'creditos' && dv) verCliente();
+          if (nombre === 'creditos') volverListaClientes();
+          if (nombre === 'caja') cargarCajasTodas();
           pintarCaja();
         };
 
@@ -1853,6 +1885,21 @@
             f('Ventas en dólares (en C$)', c.ventas['Dólares']) + f('Abonos en efectivo', c.abonos_efectivo) +
             f('Menos gastos pagados del cajón', -c.gastos || 0) + tr([td('Debe haber en el cajón'), num(cs(c.esperado))], ' class="totalR"') +
             f('Abonos por transferencia (no entran al cajón)', c.abonos_transferencia) + '</table></div></div>';
+        }
+        // Cajas abiertas de todos los usuarios (solo Admin), con lo que debe haber en cada cajón ahora.
+        function cargarCajasTodas() {
+          if (!ES_ADMIN) return;
+          llamar('cajasAbiertas', [], lista => {
+            el('cj_todas').innerHTML = !lista.length ? '<div class="vacio">No hay cajas abiertas ahora.</div>' :
+              '<div class="cajasTodas">' + lista.map(k => '<div class="cajaOtra">' +
+                '<div class="cajaOtraCabeza"><b>' + esc(k.vendedor) + '</b><span class="chip ambar">Caja ' + k.id + ' · desde ' + esc(k.desde) + '</span></div>' +
+                '<div class="kpi fuerte"><small>Debe haber en el cajón</small><b>' + cs(k.esperado) + '</b></div>' +
+                '<table>' + [['Efectivo inicial', k.monto_inicial], ['Ventas en efectivo', k.ventas['Efectivo']], ['Ventas en dólares (en C$)', k.ventas['Dólares']],
+                  ['Abonos en efectivo', k.abonos_efectivo], ['Menos gastos del cajón', -k.gastos || 0]].map(f => tr([td(f[0]), num(cs(f[1]))])).join('') +
+                tr([td('Ventas por transferencia'), num(cs(k.ventas['Transferencia']))], ' class="aparte"') +
+                tr([td('Ventas al crédito'), num(cs(k.ventas['Crédito']))], ' class="aparte"') +
+                tr([td('Número de ventas'), num(k.num_ventas)], ' class="aparte"') + '</table></div>').join('') + '</div>';
+          }, { aviso: 'avisoCaja', boton: 'btnCajasTodas' });
         }
         function abrirMiCaja() {
           llamar('abrirCaja', [el('v_montoInicial').value || 0], () => cargarVenta(() => aviso('avisoVenta', 'Caja abierta.')),
@@ -2237,8 +2284,52 @@
         let clienteEnEdicion = '';
         const CAMPOS_CL = ['nombre', 'cedula', 'telefono', 'direccion', 'limite_credito', 'activo'];
         const clienteSel = () => dv ? dv.clientes.filter(c => String(c.id) === el('cr_cliente').value)[0] : null;
+        // Lista de clientes con su crédito (en vez del desplegable).
+        let creditos = {}, filtroCl = 'deben';
+        function cargarCreditos() {
+          llamar('resumenCreditos', [], r => { creditos = r || {}; pintarListaClientes(); }, { aviso: 'avisoCreditos' });
+        }
+        function filtroClientes(f) {
+          filtroCl = f;
+          document.querySelectorAll('#cr_filtros button').forEach(b => b.classList.toggle('activa', b.dataset.f === f));
+          pintarListaClientes();
+        }
+        function pintarListaClientes() {
+          if (!dv) return;
+          const texto = buscado('cr_buscar');
+          const todos = dv.clientes.map(c => Object.assign({}, c, creditos[String(c.id)] || { creditos: 0, desde: '', dias: 0, ultimo_abono: '' }));
+          const deben = todos.filter(c => c.saldo > 0);
+          const total = deben.reduce((s, c) => s + c.saldo, 0);
+          const viejo = deben.reduce((m, c) => Math.max(m, c.dias || 0), 0);
+          el('cr_kpis').innerHTML = '<div class="kpi fuerte"><small>Por cobrar</small><b>' + cs(total) + '</b></div>' +
+            '<div class="kpi"><small>Clientes que deben</small><b>' + deben.length + '</b></div>' +
+            '<div class="kpi' + (viejo > 30 ? ' alerta' : '') + '"><small>Crédito más viejo</small><b>' + (deben.length ? viejo + ' días' : '—') + '</b></div>';
+          const lista = (filtroCl === 'deben' ? deben : todos)
+            .filter(c => !texto || contiene(texto, c.nombre, c.telefono, c.cedula))
+            .sort((a, b) => filtroCl === 'deben' ? (b.dias - a.dias) || (b.saldo - a.saldo) : a.nombre.localeCompare(b.nombre));
+          const colorDias = d => d > 30 ? 'rojo' : d > 15 ? 'ambar' : 'verde';
+          el('cr_cuerpo').innerHTML = !lista.length ? '<tr><td colspan="8" class="vacio">' + (filtroCl === 'deben' && !texto ? 'Nadie debe. ¡Todo cobrado!' : 'No hay clientes con esa búsqueda.') + '</td></tr>'
+            : lista.map(c => '<tr class="click' + (c.activo === 'NO' ? ' inactivo' : '') + '" onclick="elegirCliente(' + c.id + ')">' + [
+              td('<b>' + esc(c.nombre) + '</b>'), td(esc(c.telefono)), num(c.saldo > 0 ? c.creditos : ''),
+              td(c.saldo > 0 ? esc(fechaCorta(c.desde)) : ''), num(c.saldo > 0 ? chip(c.dias + ' d', colorDias(c.dias)) : ''),
+              td(c.ultimo_abono ? esc(fechaCorta(c.ultimo_abono)) : (c.saldo > 0 ? '<span class="ayuda">ninguno</span>' : '')),
+              num(c.saldo > 0 ? '<b>' + dinero(c.saldo) + '</b>' : '—'), num(dinero(c.limite_credito))].join('') + '</tr>').join('');
+        }
+        function elegirCliente(id) {
+          el('cr_cliente').value = String(id);
+          verCliente();
+        }
+        function volverListaClientes() {
+          el('cr_cliente').value = '';
+          mostrar('cr_lista', true); mostrar('cr_volver', false); mostrar('cr_abono', false); mostrar('cr_form', false);
+          el('cr_detalle').innerHTML = '';
+          pintarListaClientes();
+          cargarCreditos();   // saldos al día (por si se acaba de recibir un abono)
+        }
         function verCliente() {
           const c = clienteSel();
+          mostrar('cr_lista', !c); mostrar('cr_volver', !!c);
+          if (c) window.scrollTo({ top: 0 });
           mostrar('cr_form', false);
           mostrar('cr_abono', !!c && c.saldo > 0);
           if (!c) { el('cr_detalle').innerHTML = ''; return; }
@@ -2764,10 +2855,10 @@
         function pintarCajas(lista) {
           if (!lista.length) return '<p>No hubo turnos de caja en este período.</p>';
           const tot = lista.reduce((s, k) => k.abierta ? s : { f: s.f + Math.min(0, k.diferencia), so: s.so + Math.max(0, k.diferencia) }, { f: 0, so: 0 });
-          return tablaReporte(['Caja', 'Vendedor', 'Abrió', 'Cerró', '#Inicial', '#Ventas efectivo', '#Abonos', '#Gastos', '#Esperado', '#Contado', '#Diferencia', 'Nota'],
+          return tablaReporte(['Caja', 'Vendedor', 'Abrió', 'Cerró', '#Inicial', '#Ventas efectivo', '#Abonos', '#Gastos', '#Esperado', '#Contado', '#Diferencia', 'Nota', 'Billetes contados'],
             lista.map(k => tr([td(k.id), td(esc(k.vendedor)), td(esc(k.apertura)), td(k.abierta ? chip('abierta', 'ambar') : esc(k.cierre)), num(dinero(k.monto_inicial)),
               num(dinero(k.ventas_efectivo)), num(dinero(k.abonos)), num(dinero(k.gastos)), num(dinero(k.esperado)), num(dinero(k.contado)),
-              num(k.abierta ? '' : k.diferencia ? '<span class="' + (k.diferencia < 0 ? 'error' : 'ok') + '">' + dinero(k.diferencia) + '</span>' : '0.00'), td(esc(k.nota))])).join('')) +
+              num(k.abierta ? '' : k.diferencia ? '<span class="' + (k.diferencia < 0 ? 'error' : 'ok') + '">' + dinero(k.diferencia) + '</span>' : '0.00'), td(esc(k.nota)), td('<small>' + esc(k.conteo || '') + '</small>')])).join('')) +
             '<div class="total">Faltantes ' + cs(-tot.f) + ' · sobrantes ' + cs(tot.so) + '</div>' +
             '<div class="ayuda">Diferencia = contado − esperado. Negativa es faltante. «Ventas efectivo» incluye los dólares pasados a córdobas.</div>';
         }
