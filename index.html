@@ -345,6 +345,12 @@
       .tabla { border: 0; overflow: visible; }
     }
     .soloImpreso { display: none; }
+    input:disabled, select:disabled { background-color: var(--g100); color: var(--g500); cursor: not-allowed; }
+    /* Gastos por aprobar */
+    .porAprobar { background: #fffbeb; border-color: #fde68a; }
+    .pendiente { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 14px; margin-top: 12px; box-shadow: var(--sombra); }
+    .pendienteCabeza { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    .pendienteMonto { font-size: 18px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
     /* Estilo nuevo (el de Inicio) en todas las pantallas */
     .tarjeta { border-radius: 14px; }
@@ -834,6 +840,12 @@
           <div class="aviso" id="avisoConta"></div>
 
           <div data-panel="conta:gastos">
+            <div class="cuadro porAprobar oculto" id="g_porAprobar">
+              <h3>Gastos por aprobar <span class="chip ambar" id="g_numPend"></span></h3>
+              <div class="ayuda">Lo anotó otra persona. Revisa qué fue, ponle la cuenta correcta y apruébalo. Hasta entonces no entra a la contabilidad ni a los reportes.
+                Rechaza solo lo que no pasó o está repetido.</div>
+              <div id="g_pendientes"></div>
+            </div>
             <div class="cuadro">
               <h3>Registrar gasto o salida de dinero</h3>
               <div class="formulario">
@@ -848,7 +860,7 @@
             </div>
             <h3>Gastos del mes</h3>
             <div class="tabla"><table>
-              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Descripción</th><th>Pago</th><th class="num">Monto</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Descripción</th><th>Pago</th><th>Estado</th><th class="num">Monto</th></tr></thead>
               <tbody id="g_cuerpo"></tbody></table></div>
             <div class="total" id="g_total"></div>
           </div>
@@ -1475,7 +1487,9 @@
               cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)', '', 'abrirVenta(\'historial\')') +
               cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')') +
               (r.por_cobrar ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')') +
-                cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')') : '');
+                cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')') : '') +
+              (r.gastos_pendientes && r.gastos_pendientes.numero ? cuadroHoy('Gastos por aprobar', r.gastos_pendientes.numero,
+                cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')') : '');
           }, { boton: 'btnHoy', falla: e => { el('estado').textContent = el('hoy').textContent = e.message || String(e); } });
         }
 
@@ -2219,6 +2233,7 @@
           pestana('conta', tab || 'gastos');
           llamar('catalogoCuentas', [], r => {
             cat = r;
+            if (vistaActual === 'conta') cargarPorAprobar();
             opciones('g_cuenta', r.cuentas_gasto, c => c.codigo, cuentaTexto);
             opciones('c_cuenta', r.cuentas, c => c.codigo, cuentaTexto);
             el('as_cerrado').textContent = r.cerrado_hasta ? ' Meses cerrados: hasta ' + r.cerrado_hasta + '.' : '';
@@ -2235,19 +2250,61 @@
         };
 
         // Gastos
+        const CHIP_ESTADO = { APROBADO: '<span class="chip verde">Aprobado</span>', PENDIENTE: '<span class="chip ambar">Por aprobar</span>',
+          RECHAZADO: '<span class="chip gris">Rechazado</span>' };
         function cargarGastos() {
           llamar('listarGastos', [primeroDelMes(), hoyTexto()], lista => {
-            el('g_cuerpo').innerHTML = lista.map(g => tr([td(fechaCorta(g.fecha)), td(esc(g.cuenta + ' ' + g.nombre_cuenta)),
-              td(esc(g.descripcion)), td(esc(g.forma_pago)), num(dinero(g.monto))])).join('');
-            el('g_total').textContent = 'Total del mes: ' + cs(lista.reduce((s, g) => s + g.monto, 0));
+            el('g_cuerpo').innerHTML = lista.map(g => '<tr' + (g.estado === 'RECHAZADO' ? ' class="inactivo"' : '') + '>' + [td(fechaCorta(g.fecha)),
+              td(esc(g.cuenta + ' ' + g.nombre_cuenta)), td(esc(g.descripcion)), td(esc(g.forma_pago)), td(CHIP_ESTADO[g.estado] || ''),
+              num(dinero(g.monto))].join('') + '</tr>').join('');
+            const aprobados = lista.filter(g => g.estado === 'APROBADO'), pend = lista.filter(g => g.estado === 'PENDIENTE');
+            el('g_total').textContent = 'Total aprobado del mes: ' + cs(aprobados.reduce((s, g) => s + g.monto, 0)) +
+              (pend.length ? ' · Por aprobar: ' + cs(pend.reduce((s, g) => s + g.monto, 0)) : '');
           }, { aviso: 'avisoConta' });
+          cargarPorAprobar();
         }
         function guardarGasto() {
           llamar('registrarGasto', [leer('g_', ['fecha', 'cuenta', 'descripcion', 'monto', 'forma_pago'])], r => {
             limpiar(['g_descripcion', 'g_monto']);
             cargarGastos();
-            aviso('avisoConta', 'Gasto ' + r.id + ' guardado.');
+            aviso('avisoConta', 'Gasto ' + r.id + ' guardado.' + (r.estado === 'PENDIENTE' ? ' Queda por aprobar: el administrador revisará la cuenta.' : ''));
           }, { aviso: 'avisoConta', espera: 'Guardando…', boton: 'btnGasto' });
+        }
+        // Gastos por aprobar (solo quien aprueba): corregir cuenta y descripción, aprobar o rechazar.
+        function cargarPorAprobar() {
+          if (!(cat && cat.aprueba_gastos)) return mostrar('g_porAprobar', false);
+          llamar('gastosPorAprobar', [], lista => {
+            mostrar('g_porAprobar', lista.length > 0);
+            el('g_numPend').textContent = lista.length;
+            const opcionesCuenta = actual => cat.cuentas_gasto.map(c => '<option value="' + esc(c.codigo) + '"' + (c.codigo === actual ? ' selected' : '') + '>' +
+              esc(cuentaTexto(c)) + '</option>').join('');
+            el('g_pendientes').innerHTML = lista.map(g => '<div class="pendiente" id="gp_' + g.id + '">' +
+              '<div class="pendienteCabeza"><b>' + esc(g.descripcion) + '</b><span class="pendienteMonto">' + cs(g.monto) + '</span></div>' +
+              '<div class="ayuda">' + esc(fechaCorta(g.fecha)) + ' · anotó ' + esc(g.usuario) + ' · ' + (g.forma_pago === 'Efectivo' ? 'efectivo del cajón' : 'banco o transferencia') +
+              ' · cuenta que puso: ' + esc(g.cuenta + ' ' + g.nombre_cuenta) + '</div>' +
+              '<div class="formulario">' +
+              '<div><label>Cuenta correcta</label><select id="gp_cuenta_' + g.id + '">' + opcionesCuenta(g.cuenta) + '</select></div>' +
+              '<div><label>Descripción</label><input id="gp_desc_' + g.id + '" value="' + esc(g.descripcion) + '"></div>' +
+              '<div><label>Monto (C$)</label><input id="gp_monto_' + g.id + '" type="number" min="0" step="0.01" value="' + g.monto + '"' +
+              (g.forma_pago === 'Efectivo' ? ' disabled title="Ya se restó del cajón"' : '') + '></div>' +
+              '<div><label>Nota (obligatoria si rechazas)</label><input id="gp_nota_' + g.id + '" placeholder="Ej.: es mueble, no caja chica"></div>' +
+              '</div>' +
+              '<div class="fila"><button id="gp_ok_' + g.id + '" onclick="decidirGasto(' + g.id + ', true)">Aprobar</button>' +
+              '<button class="peligro" id="gp_no_' + g.id + '" onclick="decidirGasto(' + g.id + ', false)">Rechazar</button></div>' +
+              '</div>').join('');
+          }, { aviso: 'avisoConta' });
+        }
+        function decidirGasto(id, aprobar) {
+          const r = { id: id, decision: aprobar ? 'APROBAR' : 'RECHAZAR', cuenta: el('gp_cuenta_' + id).value,
+            descripcion: el('gp_desc_' + id).value, monto: el('gp_monto_' + id).disabled ? undefined : el('gp_monto_' + id).value, nota: el('gp_nota_' + id).value };
+          const hacer = () => llamar('revisarGasto', [r], res => {
+            aviso('avisoConta', 'Gasto ' + res.id + (res.estado === 'APROBADO' ? ' aprobado.' : ' rechazado.'));
+            cargarGastos();
+          }, { aviso: 'avisoConta', espera: 'Guardando…', boton: aprobar ? 'gp_ok_' + id : 'gp_no_' + id });
+          if (aprobar) return hacer();
+          if (!r.nota.trim()) return aviso('avisoConta', 'Escribe en la nota por qué lo rechazas.', true);
+          preguntar({ titulo: '¿Rechazar este gasto?', texto: 'No contará en la contabilidad ni en el cajón. Úsalo solo si no ocurrió o está repetido.',
+            si: 'Rechazar', peligro: true }, hacer);
         }
 
         // Asientos
