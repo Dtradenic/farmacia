@@ -371,7 +371,9 @@
     .indHacer { margin: 0; padding-left: 18px; color: var(--g700); } .indHacer li { margin-bottom: 6px; }
     #ind_metas input { height: 36px; max-width: 90px; display: inline-block; }
     .indMini { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
-    .indChico { text-align: left; background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 10px 12px; color: var(--g900); min-height: 0; display: flex; flex-direction: column; }
+    .indChico { text-align: left; background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 10px 12px; color: var(--g900); min-height: 0; display: flex; flex-direction: column;
+      transition: border-color .15s, box-shadow .15s; }
+    .indChico:hover { background: #fff; border-color: var(--verde); box-shadow: var(--sombra-alta); }   /* como las tarjetas de «Hoy» */
     .indChico small { font-size: 12px; color: var(--g500); font-weight: 500; min-height: 2.6em; line-height: 1.3; }
     .indChico b { font-size: 20px; margin-top: 2px; }
     .indChico .semafInd { margin: 6px 0 0; font-size: 11.5px; padding: 2px 8px; }
