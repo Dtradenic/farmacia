@@ -2497,19 +2497,24 @@
         function pintarRecetas() {
           el('v_recetas').innerHTML = recetas.map(r => '<div class="recetaPend"><div><b>📋 Receta de ' + esc(r.paciente) + '</b><small>' + esc(r.medico) + ' · ' + esc(r.fecha) + ' · ' +
             r.lineas.map(l => l.cantidad + ' ' + esc(l.nombre)).join(', ') + (r.cobro_consulta ? (r.lineas.length ? ' + ' : '') + 'consulta ' + cs(r.cobro_consulta) : '') + '</small></div>' +
-            '<button class="mini" onclick="cargarReceta(' + r.id + ')">Cargar a la venta</button>' +
-            '<button class="mini sec" onclick="descartarRecetaVenta(' + r.id + ')">No compró</button></div>').join('');
+            (r.lineas.length ? '<button class="mini" onclick="cargarReceta(' + r.id + ')">Cargar a la venta</button>' : '') +
+            // Si no compra los medicamentos, se cobra solo la consulta; si la consulta no se cobra, la receta se quita.
+            (r.cobro_consulta > 0 ? '<button class="mini' + (r.lineas.length ? ' sec' : '') + '" onclick="cargarReceta(' + r.id + ', true)">' +
+              (r.lineas.length ? 'No compró: solo la consulta' : 'Cobrar la consulta') + '</button>' :
+              '<button class="mini sec" onclick="descartarRecetaVenta(' + r.id + ')">No compró</button>') + '</div>').join('');
           mostrar('v_recetas', recetas.length > 0);
         }
-        function cargarReceta(id) {
+        /** Carga la receta al carrito. soloConsulta: el paciente no compra los medicamentos, solo se cobra la consulta. */
+        function cargarReceta(id, soloConsulta) {
           const r = recetas.filter(x => x.id === id)[0];
           if (!r) return;
-          const faltan = r.lineas.filter(l => !prodVenta(l.codigo));
-          carrito = r.lineas.filter(l => prodVenta(l.codigo)).map(l => ({ codigo: l.codigo, modo: 'UNIDAD', cantidad: l.cantidad, descuento: 0 }));
+          const faltan = soloConsulta ? [] : r.lineas.filter(l => !prodVenta(l.codigo));
+          carrito = soloConsulta ? [] : r.lineas.filter(l => prodVenta(l.codigo)).map(l => ({ codigo: l.codigo, modo: 'UNIDAD', cantidad: l.cantidad, descuento: 0 }));
           if (r.cobro_consulta > 0 && prodVenta('CONSULTA')) carrito.push({ codigo: 'CONSULTA', modo: 'UNIDAD', cantidad: 1, descuento: 0, precio_receta: r.cobro_consulta, fija: true });
           recetaEnCarrito = r;
           pintarCarrito();
-          aviso('avisoVenta', 'Receta cargada. Revise las cantidades con el paciente y cobre.' + (faltan.length ? ' Ojo: ' + faltan.length + ' producto(s) ya no están disponibles.' : ''), !!faltan.length);
+          aviso('avisoVenta', soloConsulta ? 'Se cobra solo la consulta (' + cs(r.cobro_consulta) + '). Los medicamentos no se venden.' :
+            'Receta cargada. Revise las cantidades con el paciente y cobre.' + (faltan.length ? ' Ojo: ' + faltan.length + ' producto(s) ya no están disponibles.' : ''), !!faltan.length);
         }
         function descartarRecetaVenta(id) {
           preguntar({ titulo: 'El paciente no compró', texto: 'La receta deja de aparecer aquí. Queda anotado en la Bitácora.', campo: 'Motivo', si: 'Quitar receta' }, motivo =>
