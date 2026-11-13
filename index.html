@@ -328,6 +328,10 @@
     .nombres { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 14px 0; }
     .nombres button { min-height: 56px; background: #fff; color: var(--g900); border-color: var(--g300); font-weight: 600; }
     .nombres button:hover { background: var(--g50); border-color: var(--verde); }
+    /* Expediente clínico dentro del sistema */
+    .marcoExpediente { display: block; width: 100%; height: calc(100vh - 96px); height: calc(100dvh - 96px); min-height: 520px; border: 1px solid var(--g200);
+      border-radius: 14px; background: #fff; box-shadow: var(--sombra); }
+    @media (max-width: 860px) { .marcoExpediente { height: calc(100dvh - 84px); border-radius: 10px; } }
     /* Recetas del expediente en Vender */
     .recetaPend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
     .recetaPend > div { flex: 1; min-width: 220px; } .recetaPend b { color: #1d4ed8; } .recetaPend small { display: block; color: var(--g700); font-size: 13px; }
@@ -547,8 +551,8 @@
           <button data-tab="conta:balance">Balance general</button>
         </div>
       </div>
-      <div class="grupo soloAdmin">
-        <button class="secc" onclick="abrirExpedientes()" title="Pacientes (expediente clínico)"><svg class="ico" data-ico="personas"></svg><span>Pacientes ↗</span></button>
+      <div class="grupo soloAdmin" data-ir="pacientes">
+        <button class="secc" onclick="abrirExpedientes()" title="Pacientes (expediente clínico)"><svg class="ico" data-ico="personas"></svg><span>Pacientes</span></button>
       </div>
       <div class="grupo soloAdmin" data-ir="nomina">
         <button class="secc" onclick="irSeccion('nomina')" title="Personal"><svg class="ico" data-ico="personas"></svg><span>Personal</span><svg class="ico giro" data-ico="abajo"></svg></button>
@@ -1198,6 +1202,13 @@
       </div>
 
       <!-- Reportes (solo Admin) -->
+      <!-- Pacientes: el expediente clínico de la cuenta del negocio, mostrado aquí dentro.
+           Esta página no puede leer lo que pasa adentro (el navegador separa los dos sitios). -->
+      <div data-vista="pacientes" class="oculto">
+        <div class="aviso" id="avisoPacientes"></div>
+        <iframe id="marcoExpediente" class="marcoExpediente" title="Expediente clínico" allow="clipboard-write"></iframe>
+      </div>
+
       <div data-vista="reportes" class="oculto">
         <div class="tarjeta">
           <div class="barra">
@@ -1605,6 +1616,7 @@
 
         function mostrarEntrada(mensaje) {
           TOKEN = ''; USUARIO = null;
+          cerrarExpediente();
           guardar('');
           document.body.classList.add('sinSesion');
           mostrar('capaRecibo', false);
@@ -2460,12 +2472,20 @@
           calcularVuelto();
         }
 
-        /** Abre el expediente clínico (otra página, de la cuenta del negocio) en una pestaña nueva. */
+        /**
+         * Muestra el expediente clínico dentro del sistema. Se carga una vez y queda abierto mientras se usan
+         * otras pantallas; al cerrar la sesión del sistema se quita (el médico tendrá que volver a entrar).
+         */
         function abrirExpedientes() {
           cerrarMenuCel();
-          const ventana = window.open('', '_blank');   // se abre ya, para que el navegador no la bloquee
-          llamar('urlExpedientes', [], url => { if (ventana) ventana.location = url; else location.href = url; },
-            { falla: e => { if (ventana) ventana.close(); tostada(e.message || String(e), true); } });
+          ver('pacientes');
+          const marco = el('marcoExpediente');
+          if (marco.dataset.cargado) return;
+          llamar('urlExpedientes', [], url => { marco.dataset.cargado = '1'; marco.src = url; }, { aviso: 'avisoPacientes', espera: 'Abriendo el expediente…' });
+        }
+        function cerrarExpediente() {
+          const m = el('marcoExpediente');
+          if (m && m.dataset.cargado) { m.src = 'about:blank'; delete m.dataset.cargado; }
         }
         // Recetas que manda el expediente clínico (solo medicamentos y cobro de consulta, sin diagnóstico)
         let recetas = [], recetaEnCarrito = null;
