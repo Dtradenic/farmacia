@@ -324,6 +324,33 @@
     .nombres { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 14px 0; }
     .nombres button { min-height: 56px; background: #fff; color: var(--g900); border-color: var(--g300); font-weight: 600; }
     .nombres button:hover { background: var(--g50); border-color: var(--verde); }
+    /* Indicadores */
+    .indGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 12px; margin-top: 14px; }
+    .indK { background: #fff; border: 1px solid var(--g200); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; box-shadow: var(--sombra); }
+    .indK .n { font-size: 11px; font-weight: 700; color: var(--g500); letter-spacing: .05em; text-transform: uppercase; }
+    .indK h3 { margin: 3px 0 6px; font-size: 15px; line-height: 1.25; }
+    .indK .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .indK .meta { font-size: 12.5px; color: var(--g500); }
+    .indK .que { margin-top: auto; border-top: 1px dashed var(--g200); padding-top: 8px; font-size: 12.5px; color: var(--g700); }
+    .indK .meses, .indBarra + .meses { display: flex; justify-content: space-between; font-size: 10px; color: var(--g500); margin-bottom: 8px; }
+    .semafInd { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 3px 10px; margin: 8px 0 6px; align-self: flex-start; }
+    .semafInd i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+    .semafInd.ok { background: var(--verde-claro); color: var(--verde-osc); } .semafInd.ok i { background: #10b981; }
+    .semafInd.am { background: var(--ambar-claro); color: var(--ambar); } .semafInd.am i { background: #f59e0b; }
+    .semafInd.ro { background: var(--rojo-claro); color: var(--rojo); } .semafInd.ro i { background: #e11d48; }
+    .semafInd.gr { background: var(--g100); color: var(--g500); } .semafInd.gr i { background: var(--g300); }
+    svg.indSp { width: 100%; height: 46px; margin: 8px 0 2px; overflow: visible; }
+    .indBarra { position: relative; height: 12px; background: var(--g100); border-radius: 999px; margin: 18px 0 4px; }
+    .indBarra > div { height: 100%; border-radius: 999px; }
+    .indBarra i { position: absolute; top: -4px; width: 2px; height: 20px; background: var(--g500); }
+    .indFila2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+    .indHacer { margin: 0; padding-left: 18px; color: var(--g700); } .indHacer li { margin-bottom: 6px; }
+    #ind_metas input { height: 36px; max-width: 90px; display: inline-block; }
+    .indMini { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+    .indChico { text-align: left; background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 10px 12px; color: var(--g900); min-height: 0; display: flex; flex-direction: column; }
+    .indChico small { font-size: 12px; color: var(--g500); font-weight: 500; }
+    .indChico b { font-size: 20px; margin-top: 2px; }
+    .indChico .semafInd { margin: 6px 0 0; font-size: 11.5px; padding: 2px 8px; }
     /* Recargas */
     .ciasRec { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; max-width: 520px; }
     .ciasRec button { text-align: left; padding: 10px 14px; min-height: 60px; background: #fff; border: 1px solid var(--g300); border-radius: 12px; color: var(--g900); }
@@ -531,6 +558,7 @@
       <div class="grupo soloAdmin" data-ir="reportes">
         <button class="secc" onclick="irSeccion('reportes')" title="Reportes"><svg class="ico" data-ico="grafica"></svg><span>Reportes</span><svg class="ico giro" data-ico="abajo"></svg></button>
         <div class="subs"><b class="subTitulo">Reportes</b>
+          <button data-tab="rep:indicadores">Indicadores</button>
           <button data-tab="rep:resumen">Resumen</button>
           <button data-tab="rep:productos">Ventas por producto</button>
           <button data-tab="rep:cajas">Cierres de caja</button>
@@ -606,6 +634,13 @@
           </div>
           <div class="aviso" id="aviso"></div>
           <div class="kpis" id="hoy"><div class="ayuda">Consultando…</div></div>
+        </div>
+        <div class="tarjeta soloAdmin">
+          <div class="barra" style="margin-bottom:0">
+            <h2 style="flex:1">Indicadores del mes</h2>
+            <button class="mini sec" onclick="abrirReportes('indicadores')">Ver detalle</button>
+          </div>
+          <div class="indMini" id="ind_inicio"><div class="ayuda">Calculando…</div></div>
         </div>
         <div class="tarjeta">
           <h2>¿Qué vas a hacer?</h2>
@@ -1165,6 +1200,28 @@
             <div class="titulos"><h2>Reportes</h2><small>Tablero, cajas, controlados y respaldos</small></div>          </div>
           <div class="aviso" id="avisoRep"></div>
 
+          <!-- Indicadores (KPI) -->
+          <div data-panel="rep:indicadores" class="oculto">
+            <div class="filtros" id="ind_periodos">
+              <button data-p="mes" class="activa" onclick="cargarIndicadores('mes')">Este mes</button>
+              <button data-p="pasado" onclick="cargarIndicadores('pasado')">Mes pasado</button>
+              <button data-p="90" onclick="cargarIndicadores('90')">Últimos 90 días</button>
+              <button data-p="anio" onclick="cargarIndicadores('anio')">Este año</button>
+            </div>
+            <div class="ayuda" id="ind_rango" style="margin-top:8px"></div>
+            <div class="indGrid" id="ind_grid"></div>
+            <div class="indFila2">
+              <div class="cuadro"><h3>Qué hacer</h3><ul class="indHacer" id="ind_hacer"></ul></div>
+              <div class="cuadro"><h3>Metas</h3>
+                <div class="tabla"><table>
+                  <thead><tr><th>Indicador</th><th class="num">Verde si…</th><th class="num">Amarillo si…</th></tr></thead>
+                  <tbody id="ind_metas"></tbody></table></div>
+                <div class="ayuda">Rojo = peor que el amarillo. Los indicadores 1 a 3: más es mejor. El 4 y el 5: menos es mejor.</div>
+                <div class="fila"><button id="btnMetas" onclick="guardarMetas()">Guardar metas</button></div>
+              </div>
+            </div>
+          </div>
+
           <div data-panel="rep:resumen productos cajas controlados">
             <div class="fila">
               <div><label>Desde</label><input id="r_desde" type="date"></div>
@@ -1701,6 +1758,7 @@
               (r.gastos_pendientes && r.gastos_pendientes.numero ? cuadroHoy('Gastos por aprobar', r.gastos_pendientes.numero,
                 cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')') : '');
           }, { boton: 'btnHoy', falla: e => { el('estado').textContent = el('hoy').textContent = e.message || String(e); } });
+          if (ES_ADMIN) llamar('indicadores', ['mes'], pintarIndInicio, { falla: e => { el('ind_inicio').textContent = e.message || String(e); } });
         }
 
         // Al abrir: si este navegador tiene una sesión guardada y sigue vigente, entra directo; si no, pide la clave.
@@ -3084,12 +3142,13 @@
         function abrirReportes(tab) {
           ver('reportes');
           if (!el('r_hasta').value) periodo('mes', true);
-          pestana('rep', tab || 'resumen');
+          pestana('rep', tab || 'indicadores');
         }
         AL_ABRIR.rep = nombre => {
           aviso('avisoRep', '');
           mostrar('r_prodCaja', nombre === 'controlados');
           if (nombre === 'respaldos') return cargarRespaldos();
+          if (nombre === 'indicadores') return cargarIndicadores(indPeriodo);
           cargarReporte();
         };
         function periodo(tipo, sinCargar) {
@@ -3127,6 +3186,92 @@
             }
             pintar(pintarControlados(r));
           }, opc);
+        }
+
+        // ===== Indicadores (KPI) =====
+        let indPeriodo = 'mes', indDatos = null;
+        const MES_CORTO = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const ESTADO_IND = { verde: ['ok', 'Va bien'], amarillo: ['am', 'Cerca de la meta'], rojo: ['ro', 'Atención'], sin_datos: ['gr', 'Sin datos todavía'] };
+        const COLOR_IND = { ok: '#157a5e', am: '#b45309', ro: '#be123c', gr: '#94a3b8' };
+        const ETIQUETA_IND = { crecimiento: '1 · Crecer', margen: '2 · Ganar', promedio: '3 · Vender', dias_inventario: '4 · Comprar bien', credito_atrasado: '5 · Cobrar' };
+        function valorInd(k, v) {
+          if (v === null || v === undefined) return '—';
+          if (k.unidad === 'C$') return 'C$ ' + Math.round(v).toLocaleString('en-US');
+          if (k.unidad === '%') return (k.clave === 'crecimiento' && v > 0 ? '+' : '') + (Math.round(v * 10) / 10).toLocaleString('en-US') + '%';
+          return Math.round(v).toLocaleString('en-US') + ' días';
+        }
+        const metaTxt = (k, n) => k.unidad === 'C$' ? 'C$ ' + n : n + (k.unidad === '%' ? '%' : ' días');
+        /** Línea de tendencia de 6 meses con la meta punteada. */
+        function lineaInd(valores, meta, color) {
+          const nums = valores.filter(v => v !== null);
+          if (nums.length < 2) return '<div class="ayuda" style="margin:12px 0">La tendencia aparece cuando haya 2 meses con ventas.</div>';
+          const todos2 = nums.concat(meta !== null ? [meta] : []);
+          let min = Math.min.apply(null, todos2), max = Math.max.apply(null, todos2);
+          if (max === min) { max += 1; min -= 1; }
+          const y = v => (40 - (v - min) / (max - min) * 34).toFixed(1);
+          const pts = valores.map((v, i) => v === null ? null : (i * 40) + ',' + y(v)).filter(Boolean);
+          const ult = pts[pts.length - 1].split(',');
+          return '<svg class="indSp" viewBox="-4 0 208 46" preserveAspectRatio="none">' +
+            (meta !== null ? '<line x1="0" x2="200" y1="' + y(meta) + '" y2="' + y(meta) + '" stroke="#94a3b8" stroke-dasharray="4 4"/>' : '') +
+            '<polyline fill="none" stroke="' + color + '" stroke-width="2.5" points="' + pts.join(' ') + '"/>' +
+            '<circle cx="' + ult[0] + '" cy="' + ult[1] + '" r="3.5" fill="' + color + '"/></svg>';
+        }
+        /** Barra de 0 al doble de la meta amarilla, con marcas de verde y amarillo (indicadores 4 y 5). */
+        function barraInd(v, meta, color) {
+          if (v === null) return '<div class="ayuda" style="margin:12px 0">Aparece cuando haya ventas con costo.</div>';
+          const tope = Math.max(meta[1] * 1.5, v * 1.1, 1), p = x => Math.min(100, x / tope * 100).toFixed(1);
+          return '<div class="indBarra"><div style="width:' + p(v) + '%;background:' + color + '"></div>' +
+            '<i style="left:' + p(meta[0]) + '%" title="verde"></i><i style="left:' + p(meta[1]) + '%" title="amarillo"></i></div>' +
+            '<div class="meses"><span>0</span><span>meta ' + meta[0] + '</span><span>' + Math.round(tope) + '</span></div>';
+        }
+        function detalleInd(k, r) {
+          const d = k.detalle;
+          if (k.clave === 'crecimiento') return [cs(d.ventas) + ' vendidos', 'Antes: ' + cs(d.anterior), 'Mide si entra más dinero que antes.'];
+          if (k.clave === 'margen') return [cs(d.utilidad) + ' de utilidad bruta', 'De cada C$ 100 vendidos quedan C$ ' + (k.valor === null ? '—' : Math.round(k.valor)),
+            d.productos_sin_costo ? '⚠ ' + d.productos_sin_costo + ' producto(s) sin costo' : 'Mide si los precios cubren el costo y dejan ganancia.'];
+          if (k.clave === 'promedio') return [d.ventas + ' ventas · ' + d.por_dia + ' al día', 'Antes: ' + d.por_dia_anterior + ' al día', 'Mide cuántos clientes llegan y cuánto compra cada uno.'];
+          if (k.clave === 'dias_inventario') return [cs(d.valor_inventario) + ' en estantes (a costo)', d.por_vencer ? '<b>' + cs(d.por_vencer) + ' vencen en ' + d.dias_alerta + ' días</b>' : 'Nada por vencer pronto',
+            'Mide cuánto dinero está parado en mercadería.'];
+          return [cs(d.atrasado) + ' atrasado de ' + cs(d.deuda), d.clientes + ' cliente(s) con más de 30 días', 'Mide qué parte de lo fiado no se ha cobrado a tiempo.'];
+        }
+        function cargarIndicadores(p) {
+          indPeriodo = p || 'mes';
+          todos('#ind_periodos button').forEach(b => b.classList.toggle('activa', b.dataset.p === indPeriodo));
+          llamar('indicadores', [indPeriodo], r => { indDatos = r; pintarIndicadores(r); }, { aviso: 'avisoRep', espera: 'Calculando indicadores…' });
+        }
+        function pintarIndicadores(r) {
+          el('ind_rango').textContent = 'Del ' + fechaCorta(r.desde) + ' al ' + fechaCorta(r.hasta) + ', comparado con ' + r.compara +
+            ' (' + fechaCorta(r.ant_desde) + ' al ' + fechaCorta(r.ant_hasta) + ').';
+          const meses = r.tendencia.map(t => MES_CORTO[Number(t.mes.slice(5, 7)) - 1]);
+          const serieDe = { crecimiento: r.tendencia.map(t => t.numero ? t.ventas : null), margen: r.tendencia.map(t => t.margen),
+            promedio: r.tendencia.map(t => t.numero ? t.promedio : null) };
+          el('ind_grid').innerHTML = r.indicadores.map(k => {
+            const e = ESTADO_IND[k.estado], color = COLOR_IND[e[0]], det = detalleInd(k, r);
+            const grafica = serieDe[k.clave] ? lineaInd(serieDe[k.clave], k.clave === 'crecimiento' ? null : k.meta[0], color) +
+              '<div class="meses">' + meses.map(m => '<span>' + m + '</span>').join('') + '</div>' : barraInd(k.valor, k.meta, color);
+            return '<div class="indK"><div class="n">' + ETIQUETA_IND[k.clave] + '</div><h3>' + esc(k.nombre) + '</h3>' +
+              '<div class="v">' + valorInd(k, k.valor) + '</div>' +
+              '<span class="semafInd ' + e[0] + '"><i></i>' + e[1] + '</span>' +
+              '<div class="meta">Meta: ' + (k.mayor_mejor ? '' : 'como máximo ') + metaTxt(k, k.meta[0]) + ' · ' + det[0] + '</div>' +
+              grafica + '<div class="que">' + det[1] + '<br>' + det[2] + '</div></div>';
+          }).join('');
+          el('ind_hacer').innerHTML = r.hacer.map(h => '<li><b>' + esc(h.tema) + ':</b> ' + esc(h.texto) + '</li>').join('') ||
+            '<li>Todo en orden. Siga así.</li>';
+          el('ind_metas').innerHTML = r.indicadores.map(k => tr([td(esc(k.nombre) + ' <small>(' + k.unidad + ')</small>'),
+            td((k.mayor_mejor ? '≥ ' : '≤ ') + '<input type="number" step="any" data-m="' + k.clave + '" data-i="0" value="' + k.meta[0] + '">', 'num'),
+            td((k.mayor_mejor ? '≥ ' : '≤ ') + '<input type="number" step="any" data-m="' + k.clave + '" data-i="1" value="' + k.meta[1] + '">', 'num')])).join('');
+        }
+        function guardarMetas() {
+          const m = {};
+          todos('#ind_metas input').forEach(i => { (m[i.dataset.m] = m[i.dataset.m] || [])[Number(i.dataset.i)] = i.value === '' ? '' : Number(i.value); });
+          llamar('guardarMetasIndicadores', [m], () => { tostada('Metas guardadas.'); cargarIndicadores(indPeriodo); }, { aviso: 'avisoRep', boton: 'btnMetas' });
+        }
+        function pintarIndInicio(r) {
+          el('ind_inicio').innerHTML = r.indicadores.map(k => {
+            const e = ESTADO_IND[k.estado];
+            return '<button class="indChico ' + e[0] + '" onclick="abrirReportes(\'indicadores\')"><small>' + esc(k.nombre) + '</small><b>' +
+              valorInd(k, k.valor) + '</b><span class="semafInd ' + e[0] + '"><i></i>' + e[1] + '</span></button>';
+          }).join('');
         }
 
         const kpiR = (texto, valor, sub, clase) => '<div class="kpi' + (clase ? ' ' + clase : '') + '"><small>' + texto + '</small><b>' + valor + '</b>' +
