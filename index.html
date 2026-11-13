@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Farmacia Dr. Alduvin</title>
-  <meta name="theme-color" content="#157a5e">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
-  <link rel="apple-touch-icon" href="icono-apple-180.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Farmacia">
   <base target="_top">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -286,6 +277,53 @@
       .tabla { border: 0; overflow: visible; }
     }
     .soloImpreso { display: none; }
+
+    /* Estilo nuevo (el de Inicio) en todas las pantallas */
+    .tarjeta { border-radius: 14px; }
+    .barra .icoTitulo { width: 44px; height: 44px; border-radius: 12px; background: var(--verde-claro); color: var(--verde); display: grid; place-items: center;
+      font-style: normal; font-size: 22px; flex: none; }
+    .barra .titulos { flex: 1; min-width: 0; }
+    .barra .titulos h2 { font-size: 20px; line-height: 1.25; }
+    .barra .titulos small { display: block; font-size: 13px; color: var(--g500); margin-top: 2px; }
+    .barra .volver { flex: none; }
+    nav button { display: inline-flex; align-items: center; gap: 7px; }
+    nav button svg.ico { font-size: 16px; }
+    h3 { color: var(--g900); }
+    button.sec:hover { border-color: #94a3b8; }
+    input:not([type=checkbox]):not([type=radio]):not([type=file]), select { height: 44px; min-height: 0; transition: border-color .15s, box-shadow .15s; }
+    input[type=checkbox], input[type=radio] { width: auto; }
+    input:hover, select:hover { border-color: #94a3b8; }
+    input:focus, select:focus { border-color: var(--verde); box-shadow: 0 0 0 3px rgba(16, 185, 129, .18); }
+    input[type=search] { padding-left: 38px; background: #fff no-repeat 12px center / 18px
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"); }
+    td input:not([type=checkbox]):not([type=radio]), td select { height: 34px; }
+    .tabla { border-radius: 12px; background: #fff; box-shadow: var(--sombra); }
+    th { border-bottom: 1px solid var(--g200); }
+    tr.click:hover td { background: var(--verde-claro); }
+    .pestanas { border-radius: 12px; scrollbar-width: none; }
+    .pestanas::-webkit-scrollbar { display: none; }
+    .pestanas button { border-radius: 9px; font-weight: 500; }
+    .pestanas button.activa { font-weight: 600; }
+    .cuadro { border-radius: 12px; }
+    .kpis { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .kpi { border-radius: 12px; padding: 12px 14px; box-shadow: var(--sombra); }
+    .kpi small { font-size: 13px; font-weight: 500; }
+    .kpi b { display: block; font-size: 20px; font-weight: 700; letter-spacing: -.01em; margin-top: 2px; line-height: 1.3; }
+    .kpi b .moneda { font-size: .62em; font-weight: 600; color: var(--g500); margin-right: 3px; letter-spacing: 0; }
+    .kpi.fuerte b, .kpi.fuerte small { color: var(--verde-osc); }
+    .kpi.alerta { background: #fffbeb; }
+    .kpi.alerta small { color: #b45309; }
+    .resultados button { border-radius: 10px; }
+    .chip { padding: 3px 9px; }
+    .granTotal { font-size: 32px; }
+    @media (max-width: 520px) {
+      .barra .icoTitulo { width: 38px; height: 38px; font-size: 19px; border-radius: 10px; }
+      .barra .titulos h2 { font-size: 18px; }
+      .barra .titulos small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .kpi { padding: 10px 12px; }
+      .kpi b { font-size: 18px; }
+    }
   </style>
 </head>
 <body>
@@ -307,13 +345,13 @@
     <div id="bannerVista" class="oculto noImprimir">Estás viendo la pantalla como la ve un vendedor. Lo que hagas se guarda a tu nombre, como Admin.
       <button class="mini sec" onclick="vistaVendedor(false)">Volver a vista Admin</button></div>
     <nav class="noImprimir conSesion"><div>
-      <button data-ir="inicio" onclick="ver('inicio')">Inicio</button>
-      <button data-ir="venta" onclick="abrirVenta('vender')">Vender</button>
-      <button data-ir="productos" onclick="abrirProductos()">Productos</button>
-      <button data-ir="inventario" onclick="abrirInventario()">Inventario</button>
-      <button data-ir="conta" onclick="abrirConta()">Gastos y contabilidad</button>
-      <button data-ir="nomina" class="soloAdmin" onclick="abrirNomina()">Personal</button>
-      <button data-ir="reportes" class="soloAdmin" onclick="abrirReportes()">Reportes</button>
+      <button data-ir="inicio" onclick="ver('inicio')"><svg class="ico" data-ico="casa"></svg>Inicio</button>
+      <button data-ir="venta" onclick="abrirVenta('vender')"><svg class="ico" data-ico="carrito"></svg>Vender</button>
+      <button data-ir="productos" onclick="abrirProductos()"><svg class="ico" data-ico="pastilla"></svg>Productos</button>
+      <button data-ir="inventario" onclick="abrirInventario()"><svg class="ico" data-ico="paquete"></svg>Inventario</button>
+      <button data-ir="conta" onclick="abrirConta()"><svg class="ico" data-ico="calculadora"></svg>Gastos y contabilidad</button>
+      <button data-ir="nomina" class="soloAdmin" onclick="abrirNomina()"><svg class="ico" data-ico="personas"></svg>Personal</button>
+      <button data-ir="reportes" class="soloAdmin" onclick="abrirReportes()"><svg class="ico" data-ico="grafica"></svg>Reportes</button>
     </div></nav>
   </div>
   <div id="tostadas" aria-live="polite"></div>
@@ -386,13 +424,14 @@
       <div data-vista="productos" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inicio')">← Inicio</button>
-            <h2>Productos</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="pastilla"></svg></i>
+            <div class="titulos"><h2>Productos</h2><small>Catálogo y precios</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
           </div>
           <div class="fila">
             <input id="buscar" class="crece" type="search" placeholder="Buscar por nombre, principio activo o código" oninput="pintarProductos()">
             <select id="p_categoria" style="width:auto;max-width:220px" onchange="pintarProductos()" aria-label="Categoría"></select>
-            <button class="soloAdmin" onclick="editar('')">+ Nuevo producto</button>
+            <button class="soloAdmin conIcono" onclick="editar('')"><svg class="ico" data-ico="mas"></svg>Nuevo producto</button>
           </div>
           <div class="aviso" id="avisoProductos"></div>
           <div class="ayuda" id="cuentaProductos"></div>
@@ -405,7 +444,11 @@
       <!-- Formulario de producto (solo Admin) -->
       <div data-vista="formulario" class="oculto">
         <div class="tarjeta">
-          <h2 id="tituloFormulario">Producto</h2>
+          <div class="barra">
+            <i class="icoTitulo"><svg class="ico" data-ico="pastilla"></svg></i>
+            <div class="titulos"><h2 id="tituloFormulario">Producto</h2><small>Datos, precios y existencia mínima</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('productos')"><svg class="ico" data-ico="atras"></svg>Productos</button>
+          </div>
           <div class="formulario">
             <div><label>Nombre</label><input id="f_nombre"></div>
             <div><label>Principio activo</label><input id="f_principio_activo"></div>
@@ -433,8 +476,9 @@
       <div data-vista="inventario" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inicio')">← Inicio</button>
-            <h2>Inventario</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="paquete"></svg></i>
+            <div class="titulos"><h2>Inventario</h2><small>Existencias, alertas y compras</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
           </div>
           <div class="pestanas">
             <button data-tab="inv:existencias">Existencias</button>
@@ -541,8 +585,9 @@
       <div data-vista="kardex" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inventario')">← Inventario</button>
-            <h2 id="tituloKardex">Kardex</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="lista"></svg></i>
+            <div class="titulos"><h2 id="tituloKardex">Kardex</h2><small>Entradas y salidas del producto</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inventario')"><svg class="ico" data-ico="atras"></svg>Inventario</button>
           </div>
           <h3>Lotes con existencia</h3>
           <div class="tabla"><table>
@@ -560,8 +605,9 @@
       <div data-vista="venta" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inicio')">← Inicio</button>
-            <h2>Ventas</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="carrito"></svg></i>
+            <div class="titulos"><h2>Ventas</h2><small>Cobrar, caja y créditos</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
           </div>
           <div class="pestanas">
             <button data-tab="venta:vender">Vender</button>
@@ -681,8 +727,9 @@
       <div data-vista="conta" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inicio')">← Inicio</button>
-            <h2>Gastos y contabilidad</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="calculadora"></svg></i>
+            <div class="titulos"><h2>Gastos y contabilidad</h2><small>Gastos, libros y balances</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
           </div>
           <div class="pestanas">
             <button data-tab="conta:gastos">Gastos</button>
@@ -760,8 +807,9 @@
       <div data-vista="nomina" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inicio')">← Inicio</button>
-            <h2>Personal</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="personas"></svg></i>
+            <div class="titulos"><h2>Personal</h2><small>Empleados, asistencia y nómina</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
           </div>
           <div class="pestanas">
             <button data-tab="nom:planilla">Nómina del mes</button>
@@ -841,8 +889,9 @@
       <div data-vista="reportes" class="oculto">
         <div class="tarjeta">
           <div class="barra">
-            <button class="sec" onclick="ver('inicio')">← Inicio</button>
-            <h2>Reportes</h2>
+            <i class="icoTitulo"><svg class="ico" data-ico="grafica"></svg></i>
+            <div class="titulos"><h2>Reportes</h2><small>Tablero, cajas, controlados y respaldos</small></div>
+            <button class="sec mini conIcono volver" onclick="ver('inicio')"><svg class="ico" data-ico="atras"></svg>Inicio</button>
           </div>
           <div class="pestanas">
             <button data-tab="rep:resumen">Resumen</button>
@@ -935,8 +984,21 @@
           flecha: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
           salida: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
           entrada: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
-          abajo: '<path d="m6 9 6 6 6-6"/>'
+          abajo: '<path d="m6 9 6 6 6-6"/>',
+          atras: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+          casa: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+          lista: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+          mas: '<path d="M5 12h14"/><path d="M12 5v14"/>'
         };
+        // Montos de las tarjetas: el «C$» va pequeño y gris al lado de la cifra (en todas las pantallas).
+        const marcarMoneda = raiz => raiz.querySelectorAll('.kpi > b').forEach(b => {
+          const t = b.firstChild;
+          if (t && t.nodeType === 3 && /^C\$\s*/.test(t.nodeValue)) {
+            const s = document.createElement('span'); s.className = 'moneda'; s.textContent = 'C$';
+            t.nodeValue = t.nodeValue.replace(/^C\$\s*/, ''); b.insertBefore(s, t);
+          }
+        });
+        new MutationObserver(() => marcarMoneda(document.querySelector('main'))).observe(document.querySelector('main'), { childList: true, subtree: true });
         const ico = nombre => '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
         document.querySelectorAll('svg[data-ico]').forEach(s => {
           ['viewBox|0 0 24 24', 'fill|none', 'stroke|currentColor', 'stroke-width|2', 'stroke-linecap|round', 'stroke-linejoin|round', 'aria-hidden|true']
@@ -2471,9 +2533,5 @@
         }
       </script>
   </main>
-<script>
-  // App instalable: registra el trabajador (sw.js). Si falla, la pagina funciona igual.
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
-</script>
 </body>
 </html>
