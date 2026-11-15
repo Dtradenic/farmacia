@@ -238,6 +238,8 @@
     tr.totalR td { font-weight: 600; border-top: 2px solid var(--g700); }
     td input { width: 84px; padding: 6px 8px; }
     td select { width: auto; padding: 6px 8px; }
+    .revItem { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between;
+      border: 1px solid var(--g200); border-radius: 12px; padding: 12px 14px; margin-top: 10px; background: #fff; }
     .chip { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; margin: 1px 2px; white-space: nowrap; }
     .chip.rojo { background: var(--rojo-claro); color: var(--rojo); }
     .chip.ambar { background: var(--ambar-claro); color: var(--ambar); }
@@ -677,8 +679,9 @@
             <button class="soloAdmin conIcono" onclick="editar('')"><svg class="ico" data-ico="mas"></svg>Nuevo producto</button>
           </div>
           <div class="aviso" id="avisoProductos"></div>
+          <div id="panelRevisar" class="oculto" style="margin-top:12px"></div>
           <div class="ayuda" id="cuentaProductos"></div>
-          <div class="tabla"><table>
+          <div class="tabla" id="tablaProductos"><table>
             <thead><tr><th>Código</th><th>Producto</th><th>Presentación</th><th class="num">Precio unidad</th><th class="num">Precio caja</th></tr></thead>
             <tbody id="cuerpoProductos"></tbody></table></div>
         </div>
@@ -693,16 +696,19 @@
             <button class="sec mini conIcono volver" onclick="ver('productos')"><svg class="ico" data-ico="atras"></svg>Productos</button>
           </div>
           <div class="formulario">
+            <div style="grid-column:1/-1"><label style="display:flex; align-items:center; gap:10px; font-weight:600; cursor:pointer; margin:0">
+              <input type="checkbox" id="f_servicio" onchange="modoServicio()" style="width:20px; height:20px">
+              Es un servicio (consulta, nebulización, inyección…): no lleva inventario</label></div>
             <div><label>Nombre</label><input id="f_nombre"></div>
-            <div><label>Principio activo</label><input id="f_principio_activo"></div>
-            <div><label>Presentación (tableta, jarabe 120 ml…)</label><input id="f_presentacion"></div>
+            <div class="noServicio"><label>Principio activo</label><input id="f_principio_activo"></div>
+            <div class="noServicio"><label>Presentación (tableta, jarabe 120 ml…)</label><input id="f_presentacion"></div>
             <div><label>Categoría</label><input id="f_categoria"></div>
-            <div><label>Unidades por caja</label><input id="f_unidades_por_caja" type="number" min="1" step="1"></div>
+            <div class="noServicio"><label>Unidades por caja</label><input id="f_unidades_por_caja" type="number" min="1" step="1"></div>
             <div><label>Precio por unidad (C$)</label><input id="f_precio_unidad" type="number" min="0" step="0.01"></div>
-            <div><label>Precio por caja (C$)</label><input id="f_precio_caja" type="number" min="0" step="0.01"></div>
-            <div><label>Stock mínimo (unidades)</label><input id="f_stock_minimo" type="number" min="0" step="1"></div>
+            <div class="noServicio"><label>Precio por caja (C$)</label><input id="f_precio_caja" type="number" min="0" step="0.01"></div>
+            <div class="noServicio"><label>Stock mínimo (unidades)</label><input id="f_stock_minimo" type="number" min="0" step="1"></div>
             <div><label>Exento de IVA</label><select id="f_iva_exento"><option>SI</option><option>NO</option></select></div>
-            <div><label>Controlado (psicotrópico)</label><select id="f_controlado"><option>NO</option><option>SI</option></select></div>
+            <div class="noServicio"><label>Controlado (psicotrópico)</label><select id="f_controlado"><option>NO</option><option>SI</option></select></div>
             <div><label>Activo</label><select id="f_activo"><option>SI</option><option>NO</option></select></div>
           </div>
           <div class="fila">
@@ -710,7 +716,8 @@
             <button id="btnGuardarPedir" class="sec" onclick="guardarMiProducto(true)">Guardar y agregar a Qué comprar</button>
             <button class="sec" onclick="ver('productos')">Cancelar</button>
           </div>
-          <p class="nota" style="margin-top:8px; font-size:13px; color:var(--g700)">Un producto sin existencia aparece en <b>Inventario → Qué comprar</b> si su stock mínimo es 1 o más (se sugiere pedir el doble del mínimo).</p>
+          <p class="nota" id="notaServicio" style="margin-top:8px; font-size:13px; color:var(--g700)">Un servicio se cobra en Vender como cualquier producto. Los medicamentos e insumos que se usan se agregan aparte en la misma venta, para que salgan del inventario.</p>
+          <p class="nota" id="notaPedir" style="margin-top:8px; font-size:13px; color:var(--g700)">Un producto sin existencia aparece en <b>Inventario → Qué comprar</b> si su stock mínimo es 1 o más (se sugiere pedir el doble del mínimo).</p>
           <div class="aviso" id="avisoFormulario"></div>
         </div>
       </div>
@@ -1775,7 +1782,10 @@
               (r.por_cobrar ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')') +
                 cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')') : '') +
               (r.gastos_pendientes && r.gastos_pendientes.numero ? cuadroHoy('Gastos por aprobar', r.gastos_pendientes.numero,
-                cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')') : '');
+                cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')') : '') +
+              (r.productos_por_revisar ? cuadroHoy('Productos por revisar', r.productos_por_revisar,
+                'Nuevos, creados por otra persona · tócalo para revisar', 'naranja', 'abrirRevisarProductos()') : '');
+            PUEDE_REVISAR = r.productos_por_revisar !== undefined;
           }, { boton: 'btnHoy', falla: e => { el('estado').textContent = el('hoy').textContent = e.message || String(e); } });
           if (ES_ADMIN) llamar('indicadores', ['mes'], pintarIndInicio, { falla: e => { el('ind_inicio').textContent = e.message || String(e); } });
         }
@@ -1793,26 +1803,69 @@
         const CAMPOS_P = ['nombre', 'principio_activo', 'presentacion', 'categoria', 'unidades_por_caja',
           'precio_unidad', 'precio_caja', 'stock_minimo', 'iva_exento', 'controlado', 'activo'];
 
-        function abrirProductos() {
+        let PUEDE_REVISAR = false;   // quien aprueba gastos también revisa productos nuevos (lo dice resumenInicio)
+        /** filtro: valor inicial del selector de categoría (p. ej. '*revisar'). */
+        function abrirProductos(filtro) {
           ver('productos');
           llamar('listarProductos', [], lista => {
             productos = lista;
             const categorias = lista.map(p => String(p.categoria || '')).filter((c, i, t) => c && t.indexOf(c) === i).sort();
-            opciones('p_categoria', categorias.concat(['*controlados', '*inactivos']), c => c,
-              c => c === '*controlados' ? 'Solo controlados' : c === '*inactivos' ? 'Solo inactivos' : c, 'Todas las categorías');
+            const hayRevisar = ES_ADMIN && lista.some(p => p.por_revisar);
+            opciones('p_categoria', (hayRevisar ? ['*revisar'] : []).concat(categorias, ['*controlados', '*inactivos']), c => c,
+              c => c === '*revisar' ? 'Solo por revisar' : c === '*controlados' ? 'Solo controlados' : c === '*inactivos' ? 'Solo inactivos' : c, 'Todas las categorías');
+            if (filtro && (filtro !== '*revisar' || hayRevisar)) el('p_categoria').value = filtro;
             pintarProductos();
           }, { aviso: 'avisoProductos', espera: 'Cargando productos…' });
         }
+        function abrirRevisarProductos() { abrirProductos('*revisar'); }
         function pintarProductos() {
           const texto = buscado('buscar'), cat = el('p_categoria').value;
+          const revisando = cat === '*revisar' && PUEDE_REVISAR;
+          mostrar('panelRevisar', revisando);
+          mostrar('tablaProductos', !revisando);
+          if (revisando) { el('cuentaProductos').textContent = ''; return cargarRevision(); }
           const visibles = productos.filter(p => contiene(texto, p.codigo, p.nombre, p.principio_activo) &&
-            (!cat || (cat === '*controlados' ? si(p.controlado) : cat === '*inactivos' ? !si(p.activo) : String(p.categoria) === cat)));
+            (!cat || (cat === '*revisar' ? p.por_revisar : cat === '*controlados' ? si(p.controlado) : cat === '*inactivos' ? !si(p.activo) : String(p.categoria) === cat)));
           el('cuerpoProductos').innerHTML = visibles.map(p => tr([
-            td(esc(p.codigo)), td(esc(p.nombre) + (si(p.controlado) ? ' ' + chip('controlado', 'ambar') : '') + (si(p.activo) ? '' : ' ' + chip('inactivo', 'gris'))),
+            td(esc(p.codigo)), td(esc(p.nombre) + (p.categoria === 'Servicio' ? ' ' + chip('servicio', 'gris') : '') +
+              (si(p.controlado) ? ' ' + chip('controlado', 'ambar') : '') + (si(p.activo) ? '' : ' ' + chip('inactivo', 'gris')) +
+              (ES_ADMIN && p.por_revisar ? ' ' + chip('por revisar', 'ambar') : '')),
             td(esc(p.presentacion)), num(dinero(p.precio_unidad)), num(Number(p.precio_caja) ? dinero(p.precio_caja) : '—')
           ], ' class="' + (si(p.activo) ? '' : 'inactivo ') + (ES_ADMIN ? 'click" onclick="editar(\'' + esc(p.codigo) + '\')"' : '"'))).join('') ||
             '<tr><td colspan="5" class="vacio">Ningún producto coincide con la búsqueda.</td></tr>';
           el('cuentaProductos').textContent = visibles.length + ' de ' + productos.length + ' productos' + (ES_ADMIN ? '. Toca un producto para editarlo.' : '');
+        }
+        /** Lista de productos y servicios por revisar, con lo que les falta (solo quien revisa). */
+        function cargarRevision() {
+          el('panelRevisar').innerHTML = '<p class="ayuda">Cargando…</p>';
+          llamar('productosPorRevisar', [], lista => {
+            el('panelRevisar').innerHTML = !lista.length ? '<p class="ayuda">No hay productos por revisar.</p>' :
+              '<p class="ayuda">Los creó otra persona y ya se pueden vender. Revisa que estén bien (toca <b>Editar</b> para corregir) y márcalos como revisados.</p>' +
+              lista.map(p => '<div class="revItem"><div style="flex:1 1 260px; min-width:0">' +
+                '<b>' + esc(p.nombre) + '</b>' + (p.servicio ? ' ' + chip('servicio', 'gris') : '') +
+                '<div style="font-size:13px; color:var(--g700); margin:2px 0 6px">' + esc(p.codigo) + (p.categoria ? ' · ' + esc(p.categoria) : '') +
+                ' · C$ ' + dinero(p.precio_unidad) + ' · lo creó ' + esc(p.creado_por) + (p.creado_el ? ' el ' + esc(p.creado_el) : '') + '</div>' +
+                (p.faltan.length ? p.faltan.map(f => chip(esc(f), f.charAt(0) === '¿' ? 'ambar' : 'rojo')).join(' ') : chip('completo', 'verde')) +
+                '</div><div style="display:flex; gap:8px; flex-wrap:wrap">' +
+                '<button class="sec mini" onclick="editar(\'' + esc(p.codigo) + '\')">Editar</button>' +
+                '<button class="mini" onclick="marcarRevisado(\'' + esc(p.codigo) + '\', this)">Marcar revisado</button></div></div>').join('');
+          }, { aviso: 'avisoProductos' });
+        }
+        function marcarRevisado(codigo, boton) {
+          boton.disabled = true;
+          llamar('marcarProductoRevisado', [codigo], () => { tostada('Producto revisado.'); abrirProductos('*revisar'); },
+            { aviso: 'avisoProductos', falla: e => { boton.disabled = false; aviso('avisoProductos', e.message || String(e), true); } });
+        }
+        /** Casilla «Es un servicio»: oculta lo que un servicio no usa y fija la categoría. */
+        function modoServicio() {
+          const s = el('f_servicio').checked;
+          todos('[data-vista="formulario"] .noServicio').forEach(d => d.classList.toggle('oculto', s));
+          if (s) el('f_categoria').value = 'Servicio';
+          else if (el('f_categoria').value === 'Servicio') el('f_categoria').value = '';
+          el('f_categoria').readOnly = s;
+          mostrar('btnGuardarPedir', !s);
+          mostrar('notaPedir', !s);
+          mostrar('notaServicio', s);
         }
         function editar(codigo) {
           const p = productos.filter(x => x.codigo === codigo)[0];
@@ -1821,17 +1874,21 @@
           const o = Object.assign({ iva_exento: 'SI', controlado: 'NO', activo: 'SI', unidades_por_caja: 1 }, p);
           ['iva_exento', 'controlado', 'activo'].forEach(c => { o[c] = si(o[c]) ? 'SI' : 'NO'; });
           llenar('f_', CAMPOS_P, o);
+          el('f_servicio').checked = o.categoria === 'Servicio';
+          modoServicio();
           aviso('avisoFormulario', '');
           ver('formulario');
         }
         function guardarMiProducto(pedir) {
           const p = leer('f_', CAMPOS_P);
           p.codigo = codigoEnEdicion;
+          p.servicio = el('f_servicio').checked ? 'SI' : 'NO';
           if (pedir && !(Number(p.stock_minimo) >= 1)) {
             return aviso('avisoFormulario', 'Para que salga en Qué comprar ponga un stock mínimo de 1 o más (se pedirá el doble).', true);
           }
           if (pedir && p.activo === 'NO') return aviso('avisoFormulario', 'Un producto inactivo no sale en Qué comprar. Póngalo en Activo: SI.', true);
-          llamar('guardarProducto', [p], () => pedir ? abrirInventario('pedido') : abrirProductos(),
+          const filtro = el('p_categoria').value;   // al volver, la lista queda como estaba (p. ej. «Solo por revisar»)
+          llamar('guardarProducto', [p], () => pedir ? abrirInventario('pedido') : abrirProductos(filtro),
             { aviso: 'avisoFormulario', espera: 'Guardando…', boton: pedir ? 'btnGuardarPedir' : 'btnGuardar' });
         }
 
