@@ -699,10 +699,10 @@
             <div style="grid-column:1/-1"><label style="display:flex; align-items:center; gap:10px; font-weight:600; cursor:pointer; margin:0">
               <input type="checkbox" id="f_servicio" onchange="modoServicio()" style="width:20px; height:20px">
               Es un servicio (consulta, nebulización, inyección…): no lleva inventario</label></div>
-            <div><label>Nombre</label><input id="f_nombre"></div>
-            <div class="noServicio"><label>Principio activo</label><input id="f_principio_activo"></div>
-            <div class="noServicio"><label>Presentación (tableta, jarabe 120 ml…)</label><input id="f_presentacion"></div>
-            <div><label>Categoría</label><input id="f_categoria"></div>
+            <div><label>Nombre</label><input id="f_nombre" autocomplete="off"></div>
+            <div class="noServicio"><label>Principio activo</label><input id="f_principio_activo" autocomplete="off"></div>
+            <div class="noServicio"><label>Presentación (tableta, jarabe 120 ml…)</label><input id="f_presentacion" autocomplete="off"></div>
+            <div><label>Categoría</label><input id="f_categoria" autocomplete="off"></div>
             <div class="noServicio"><label>Unidades por caja</label><input id="f_unidades_por_caja" type="number" min="1" step="1"></div>
             <div><label>Precio por unidad (C$)</label><input id="f_precio_unidad" type="number" min="0" step="0.01"></div>
             <div class="noServicio"><label>Precio por caja (C$)</label><input id="f_precio_caja" type="number" min="0" step="0.01"></div>
