@@ -309,6 +309,8 @@
     #reciboImg img { width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
     #reciboImg p { background: #fff; border-radius: 6px; padding: 8px; margin: 8px 0 0; }
     #recibo .rAnulada { text-align: center; font-weight: 700; font-size: 18px; border: 2px solid #000; margin: 8px 0; padding: 2px; letter-spacing: .2em; }
+    #recibo .rIndica { font-size: 12px; font-style: italic; margin-top: 2px; }
+    .vIndica { display: block; width: 100%; min-width: 180px; margin-top: 4px; font-size: 13px; color: var(--g700); }
 
     /* Menú de la cuenta, vista de vendedor, asistencia y pantalla sin acceso */
     .cuenta { position: relative; }
@@ -2490,6 +2492,7 @@
         const totalCarrito = () => r2(carrito.reduce((s, l) => s + totalLinea(l), 0));
         function cambiarLinea(i, campo, valor) {
           const l = carrito[i];
+          if (campo === 'indicacion') { l.indicacion = String(valor || '').slice(0, 300); return; }   // sin repintar: no se pierde el cursor
           if (l.fija && campo !== 'quitar' && campo !== 'descuento') return pintarCarrito();   // la consulta va una vez, al precio del médico
           if (campo === 'cantidad') l.cantidad = Math.max(1, Math.floor(Number(valor) || 1));
           if (campo === 'descuento') l.descuento = Math.max(0, Number(valor) || 0);
@@ -2514,7 +2517,10 @@
             const p = prodVenta(l.codigo), cambia = c => ' onchange="cambiarLinea(' + i + ',\'' + c + '\',this.value)"';
             const boton = (c, texto, clase) => '<button class="mini ' + clase + '" onclick="cambiarLinea(' + i + ',\'' + c + '\')">' + texto + '</button>';
             return tr([
-              td(esc(p.nombre) + (p.controlado ? ' ' + chip('controlado', 'ambar') : '')),
+              td(esc(p.nombre) + (p.controlado ? ' ' + chip('controlado', 'ambar') : '') +
+                (dv.indica_dosis && !l.fija ? '<input class="vIndica" maxlength="300" placeholder="Dosis o tratamiento (opcional)" value="' + esc(l.indicacion || '') +
+                  '" oninput="cambiarLinea(' + i + ',\'indicacion\',this.value)">'
+                : l.indicacion ? '<div class="vIndica">💊 ' + esc(l.indicacion) + '</div>' : '')),
               td(vendePorCaja(p) ? '<select' + cambia('modo') + '><option value="UNIDAD">Unidad</option><option value="CAJA"' +
                 (l.modo === 'CAJA' ? ' selected' : '') + '>Caja (' + p.unidades_por_caja + ')</option></select>' : 'Unidad'),
               num(boton('menos', '−', 'sec') + ' <input type="number" min="1" step="1" value="' + l.cantidad + '"' + cambia('cantidad') + ' style="width:60px"> ' + boton('mas', '+', 'sec')),
@@ -2566,7 +2572,7 @@
           const r = recetas.filter(x => x.id === id)[0];
           if (!r) return;
           const faltan = soloConsulta ? [] : r.lineas.filter(l => !prodVenta(l.codigo));
-          carrito = soloConsulta ? [] : r.lineas.filter(l => prodVenta(l.codigo)).map(l => ({ codigo: l.codigo, modo: 'UNIDAD', cantidad: l.cantidad, descuento: 0 }));
+          carrito = soloConsulta ? [] : r.lineas.filter(l => prodVenta(l.codigo)).map(l => ({ codigo: l.codigo, modo: 'UNIDAD', cantidad: l.cantidad, descuento: 0, indicacion: l.indicacion || '' }));
           if (r.cobro_consulta > 0 && prodVenta('CONSULTA')) carrito.push({ codigo: 'CONSULTA', modo: 'UNIDAD', cantidad: 1, descuento: 0, precio_receta: r.cobro_consulta, fija: true });
           recetaEnCarrito = r;
           pintarCarrito();
@@ -2608,7 +2614,7 @@
           if (!carrito.length) return aviso('avisoVenta', 'Agrega productos a la venta.', true);
           const v = {
             forma_pago: el('v_forma').value, id_cliente: el('v_cliente').value, pagado: el('v_pagado').value,
-            lineas: carrito.map(l => ({ codigo: l.codigo, modo: l.modo, cantidad: l.cantidad, descuento: l.descuento })),
+            lineas: carrito.map(l => ({ codigo: l.codigo, modo: l.modo, cantidad: l.cantidad, descuento: l.descuento, indicacion: l.indicacion || '' })),
             receta: leer('r_', CAMPOS_RECETA)
           };
           if (recetaEnCarrito) v.id_receta = recetaEnCarrito.id;
@@ -2626,7 +2632,7 @@
           const r = reciboActual;
           if (!r) return;
           abrirWhatsApp('*' + r.negocio.nombre + '*\nComprobante ' + (r.numero ? 'de recarga N° ' + r.numero : 'de venta N° ' + r.id) + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
-            r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total)).join('\n') +
+            r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total) + (l.indicacion ? '\n   _Indicación: ' + l.indicacion + '_' : '')).join('\n') +
             (r.descuento ? '\nDescuento: -C$ ' + dinero(r.descuento) : '') + '\n*Total: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago +
             '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su compra!', r.telefono);
         }
@@ -2707,6 +2713,7 @@
                   nombre.slice(1).forEach(t => { y += 30; texto(t, M + 80, 'left'); });
                   fuente(19); y += 26;
                   texto(dinero(l.unidades ? (l.total + l.descuento) / l.unidades : 0) + ' c/u' + (l.descuento ? ' · desc. ' + dinero(l.descuento) : ''), M + 80, 'left', GRIS);
+                  if (l.indicacion) { fuente(19, 600); partir('Indicación: ' + l.indicacion, ANCHO - 80).forEach(t => { y += 26; texto(t, M + 80, 'left', VERDE); }); }
                   y += 12; raya(1, '#e5e7eb', true);
                 });
                 // Totales
@@ -2791,7 +2798,8 @@
             (r.estado === 'ANULADA' ? '<div class="rAnulada">ANULADA</div>' : '') +
             '<hr><table class="rLineas"><tr><th>Cant</th><th>Descripción</th><th class="num">Importe</th></tr>' +
             r.lineas.map(l => tr([td(l.unidades), td(esc(l.nombre) + '<br><small>' + dinero(l.unidades ? (l.total + l.descuento) / l.unidades : 0) + ' c/u' +
-              (l.descuento ? ' · desc. ' + dinero(l.descuento) : '') + '</small>'), num(dinero(l.total))])).join('') + '</table><hr>' +
+              (l.descuento ? ' · desc. ' + dinero(l.descuento) : '') + '</small>' +
+              (l.indicacion ? '<div class="rIndica">Indicación: ' + esc(l.indicacion) + '</div>' : '')), num(dinero(l.total))])).join('') + '</table><hr>' +
             '<table>' + f(articulos + (articulos === 1 ? ' artículo' : ' artículos'), '') +
               (r.descuento ? f('Subtotal', dinero(r.subtotal)) + f('Descuento', '-' + dinero(r.descuento)) : '') +
               (r.iva ? f('IVA incluido', dinero(r.iva)) : '') + '</table>' +
