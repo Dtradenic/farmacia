@@ -197,25 +197,48 @@
     #inicioHoy .asistencia.dentro .punto { background: var(--verde-vivo); box-shadow: 0 0 0 4px rgba(16, 185, 129, .18); }
     #inicioHoy button.peligro { color: #dc2626; border-color: #fca5a5; }
     #inicioHoy button.peligro:hover { background: #fef2f2; border-color: #ef4444; }
-    #hoy { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 16px; }
+    #hoy { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 16px; }
+    @media (max-width: 899px) { #hoy { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     #inicioHoy .asistencia #estado { min-width: 0; }
-    #hoy .kpi { display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 16px; border-radius: 12px; border-color: var(--g200); box-shadow: var(--sombra); transition: border-color .15s, box-shadow .15s; }
+    :is(#hoy, .rpKs) .kpi { display: flex; flex-direction: column; justify-content: flex-start; min-width: 0; padding: 14px 16px; border-radius: 12px; border-color: var(--g200); box-shadow: var(--sombra); transition: border-color .15s, box-shadow .15s; }
     #hoy button.kpi:hover { box-shadow: var(--sombra-alta); }
-    #hoy .kpi small { font-size: 13px; font-weight: 500; color: var(--g500); }
-    #hoy .kpi b { display: block; font-size: 22px; font-weight: 700; letter-spacing: -.01em; margin-top: 4px; line-height: 1.25; white-space: nowrap; }
-    #hoy .kpi b .moneda { font-size: .62em; font-weight: 600; color: var(--g500); margin-right: 3px; letter-spacing: 0; }
-    #hoy .kpi .sub { font-size: 13px; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
-    #hoy .kpi.alerta { background: #fffbeb; border-color: #fde68a; }
-    #hoy .kpi.alerta small, #hoy .kpi.alerta .sub { color: #b45309; }
-    #hoy .kpi.alerta b { color: #78350f; }
+    :is(#hoy, .rpKs) .kpi small { font-size: 13px; font-weight: 500; color: var(--g500); }
+    :is(#hoy, .rpKs) .kpi b { display: block; font-size: 24px; font-weight: 700; letter-spacing: -.01em; margin-top: 6px; line-height: 1.25; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    :is(#hoy, .rpKs) .kpi b .moneda { font-size: .62em; font-weight: 600; color: var(--g500); margin-right: 3px; letter-spacing: 0; }
+    :is(#hoy, .rpKs) .kpi .sub { font-size: 13px; margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+    .inKCab { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .inKCab small { line-height: 1.35; padding-top: 2px; }
+    .inKIc { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--g100); color: var(--g500); display: grid; place-items: center; font-style: normal; }
+    .inKIc .ico { width: 18px; height: 18px; }
+    :is(#hoy, .rpKs) .kpi.fuerte .inKIc { background: #fff; color: var(--verde); }
+    :is(#hoy, .rpKs) .kpi.alerta .inKIc { background: #fff; color: #b45309; }
+    :is(#hoy, .rpKs) .kpi.naranja .inKIc { background: #fff; color: #c2410c; }
+    :is(#hoy, .rpKs) .kpi.malo .inKIc { background: #fff; color: var(--rojo); }
+    .inKTx { flex: 1; min-width: 0; }
+    .inKFl { flex: none; display: grid; place-items: center; color: var(--g300); font-style: normal; transition: color .15s; }
+    .inKFl .ico { width: 16px; height: 16px; }
+    #hoy button.kpi:hover .inKFl, #hoy button.kpi:focus-visible .inKFl { color: var(--verde); }
+    :is(#hoy, .rpKs) .kpi.alerta { background: #fffbeb; border-color: #fde68a; }
+    :is(#hoy, .rpKs) .kpi.alerta small, :is(#hoy, .rpKs) .kpi.alerta .sub { color: #b45309; }
+    :is(#hoy, .rpKs) .kpi.alerta b { color: #78350f; }
     #hoy button.kpi.alerta:hover { background: #fffbeb; border-color: #f59e0b; }
-    #hoy .kpi.naranja { background: #fff7ed; border-color: #fed7aa; }
-    #hoy .kpi.naranja small, #hoy .kpi.naranja .sub { color: #c2410c; }
-    #hoy .kpi.naranja b { color: #7c2d12; }
+    :is(#hoy, .rpKs) .kpi.naranja { background: #fff7ed; border-color: #fed7aa; }
+    :is(#hoy, .rpKs) .kpi.naranja small, :is(#hoy, .rpKs) .kpi.naranja .sub { color: #c2410c; }
+    :is(#hoy, .rpKs) .kpi.naranja b { color: #7c2d12; }
     #hoy button.kpi.naranja:hover { background: #fff7ed; border-color: #f97316; }
-    #hoy .kpi.fuerte small, #hoy .kpi.fuerte .sub { color: var(--verde-osc); }
-    @media (max-width: 520px) { #hoy { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } #hoy .kpi { padding: 12px; } #hoy .kpi b { font-size: 19px; }
+    :is(#hoy, .rpKs) .kpi.fuerte small, :is(#hoy, .rpKs) .kpi.fuerte .sub { color: var(--verde-osc); }
+    @media (max-width: 519px) { #hoy { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } :is(#hoy, .rpKs) .kpi { padding: 12px; } :is(#hoy, .rpKs) .kpi b { font-size: 20px; }
       #hoy .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+    @media (prefers-reduced-motion: reduce) { .inKFl { transition: none; } }
+
+    /* Inicio: ventas de los últimos 7 días, indicadores y accesos */
+    .inDos, .rpDos { display: grid; gap: 8px; margin-top: 4px; }
+    .inDos h3, .rpDos h3 { margin-top: 18px; }
+    @media (min-width: 900px) { .inDos, .rpDos { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 24px; } .inDos h3, .rpDos h3 { margin-top: 0; } }
+    .inFallo { font-size: 13px; color: var(--g500); padding: 16px 0 4px; }
+    .inDesliza { display: none; font-size: 11px; color: var(--g500); margin-top: 2px; }
+    @media (max-width: 899px) { .inDesliza { display: block; } }
+    @media (min-width: 861px) { .inModulos h2 { font-size: 16px; } .inModulos .modulo { padding: 12px; } }
 
     /* Pestañas */
     .pestanas { display: flex; gap: 4px; padding: 4px; margin-bottom: 4px; background: var(--g100); border-radius: 12px; overflow-x: auto; scrollbar-width: none; }
@@ -269,21 +292,195 @@
     .centrado { max-width: 620px; margin-left: auto; margin-right: auto; }
 
     /* Tablero */
-    .rapidos { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
     .kpi .sub { display: block; font-size: 12px; color: var(--g500); margin-top: 2px; }
-    .kpi .sube { color: var(--verde); font-weight: 600; }
-    .kpi .baja { color: var(--rojo); font-weight: 600; }
     .kpi.alerta { background: #fffbeb; border-color: #fde68a; }
     .kpi.alerta small { color: #b45309; }
     .kpi.malo { background: var(--rojo-claro); border-color: #fecdd3; }
-    .columnas { display: flex; align-items: flex-end; gap: 2px; height: 140px; margin-top: 12px; padding-bottom: 2px; border-bottom: 1px solid var(--g300); overflow-x: auto; }
-    .columnas div { flex: 1 0 6px; background: var(--verde); border-radius: 3px 3px 0 0; min-height: 1px; }
-    .columnas div:hover { background: var(--verde-osc); }
-    .ejeX { display: flex; justify-content: space-between; font-size: 12px; color: var(--g500); margin-top: 4px; }
-    .barraH { display: grid; grid-template-columns: minmax(90px, 30%) 1fr auto; gap: 10px; align-items: center; margin-top: 8px; font-size: 14px; }
-    .barraH .pista { height: 12px; background: var(--g100); border-radius: 6px; overflow: hidden; }
-    .barraH .pista div { height: 100%; background: var(--verde); border-radius: 6px; }
     .dosCol { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 24px; }
+    /* Reportes: barra de fechas y Resumen */
+    #r_rapidos button, #ind_periodos button { min-height: 40px; }
+    .rpAcc { display: flex; gap: 8px; margin-left: auto; }
+    @media (max-width: 599px) {
+      .rpFechas #btnRep { flex: 1 1 100%; }
+      .fila.rpFechas > .rpAcc { flex: 1 1 100%; margin-left: 0; }
+      .rpAcc button { flex: 1 1 0; min-width: 0; justify-content: center; padding: 0 8px; }
+    }
+    .rpAvisos { list-style: none; margin: 16px 0 0; padding: 10px 14px; background: var(--ambar-claro); border: 1px solid #fde68a; border-radius: 12px; color: var(--ambar); font-size: 14px; }
+    .rpAvisos li { display: flex; gap: 8px; align-items: flex-start; padding: 4px 0; }
+    .rpAvisos .ico { flex: none; width: 17px; height: 17px; margin-top: 2px; }
+    .rpKs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    .rpKs > .kpi:first-child, .rpKs > .kpi:last-child:nth-child(even) { grid-column: 1 / -1; }
+    @media (min-width: 760px) {
+      .rpKs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .rpKs > .kpi:first-child, .rpKs > .kpi:last-child:nth-child(even) { grid-column: auto; }
+      .rpKs.cinco { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .rpKs .kpi b { white-space: normal; }
+    .rpKs .gCambio { margin-right: 2px; }
+    .rpDos > div:first-child > h3:first-child { margin-top: 0; }
+    .rpCuenta { margin-top: 4px; }
+    .rpFila { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 0 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--g200); font-size: 14px; }
+    .rpSig { color: var(--g500); text-align: center; font-weight: 600; }
+    .rpVal { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px 6px; }
+    .rpVal .chip { margin: 0; }
+    @media (max-width: 519px) { .rpVal { flex-direction: column; align-items: flex-end; } }
+    .rpNoCorta { white-space: nowrap; }
+    .rpBarra { display: none; }
+    .rpFila.sub { font-weight: 700; border-top: 1px solid var(--g300); }
+    .rpFila.final { font-weight: 700; font-size: 17px; padding: 12px 14px; border-radius: 10px; margin-top: 8px; border-bottom: 0; }
+    .rpFila.final .rpSig { color: inherit; }
+    .rpFila.bien { background: var(--verde-claro); color: var(--verde-osc); }
+    .rpFila.mal { background: var(--rojo-claro); color: var(--rojo); }
+    @media (min-width: 760px) {
+      .rpCuenta.conBarras .rpFila { grid-template-columns: 20px minmax(0, 1fr) auto 120px; }
+      .rpCuenta.conBarras .rpBarra { display: block; height: 4px; border-radius: 999px; }
+      .rpBarra i { display: block; height: 100%; border-radius: 999px; background: var(--g300); }
+    }
+    .rpPista::after { content: ''; display: block; height: 4px; margin-top: 6px; border-radius: 999px; max-width: 220px;
+      background: linear-gradient(var(--verde), var(--verde)) 0 0 / var(--p, 0%) 100% no-repeat, var(--g100); }
+    .rpNunca { color: var(--rojo); }
+    /* Reportes: tablas (solo dentro de #areaRep y solo en pantalla; en papel quedan como antes) */
+    #areaRep tr.tot td { font-weight: 700; border-top: 2px solid var(--g300); }
+    @media screen {
+      #areaRep .tabla { max-height: 70vh; overflow: auto; }
+      #areaRep thead th { position: sticky; top: 0; z-index: 2; background: var(--g50); font-size: 12px; text-transform: uppercase; letter-spacing: .03em;
+        color: var(--g500); font-weight: 600; border-bottom: 0; box-shadow: inset 0 -1px 0 var(--g200); }
+      #areaRep tbody tr:nth-child(even) td { background: rgba(248, 250, 252, .6); }
+      #areaRep tbody tr:hover td { background: var(--verde-claro); }
+      #areaRep tr.tot td { position: sticky; bottom: 0; z-index: 1; background: var(--g50); border-top: 0; box-shadow: inset 0 2px 0 var(--g300); }
+      #areaRep .rpCtrl tbody td:nth-child(8) { background: var(--g50); }
+      #areaRep .rpCtrl tbody tr:hover td:nth-child(8) { background: var(--verde-claro); }
+    }
+    @media screen and (max-width: 759px) {
+      #areaRep .tabla th:first-child, #areaRep .tabla td:first-child { position: sticky; left: 0; z-index: 1; background: #fff;
+        box-shadow: 1px 0 0 var(--g200), 6px 0 6px -6px rgba(15, 23, 42, .18); }
+      #areaRep .tabla thead th:first-child { z-index: 3; background: var(--g50); box-shadow: inset 0 -1px 0 var(--g200), 1px 0 0 var(--g200), 6px 0 6px -6px rgba(15, 23, 42, .18); }
+      #areaRep tbody tr:nth-child(even) td:first-child { background: linear-gradient(rgba(248, 250, 252, .6), rgba(248, 250, 252, .6)), #fff; }
+      #areaRep tbody tr:hover td:first-child { background: var(--verde-claro); }
+      #areaRep tr.tot td:first-child { z-index: 2; background: var(--g50); box-shadow: inset 0 2px 0 var(--g300), 1px 0 0 var(--g200), 6px 0 6px -6px rgba(15, 23, 42, .18); }
+    }
+    .rpMg { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--g100); color: var(--g700); }
+    .rpMg.ok { background: var(--verde-claro); color: var(--verde-osc); }
+    .rpNeg { color: var(--rojo); }
+    .rpBuscar { margin-top: 16px; max-width: 360px; }
+    .rpBuscar small, .rpApoyo { display: block; font-size: 12px; color: var(--g500); margin-top: 6px; }
+    .rpApoyo { font-size: 13px; margin-top: 14px; }
+    #areaRep tr.rpFuera { display: none; }
+    /* Cierres de caja: tarjetas por turno */
+    .rpCajas { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; margin-top: 12px; }
+    .rpCaja { background: #fff; border: 1px solid var(--g200); border-left: 4px solid var(--g300); border-radius: 12px; box-shadow: var(--sombra); padding: 14px 16px; min-width: 0; }
+    .rpCaja.abierta { border-left-color: #f59e0b; }
+    .rpCaja.cuadra { border-left-color: var(--verde); }
+    .rpCaja.falto { border-left-color: var(--rojo); }
+    .rpCaja.sobro { border-left-color: var(--verde-vivo); }
+    .rpCajaCab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .rpCajaCab b { display: block; font-size: 15px; color: var(--g900); }
+    .rpCajaCab small { display: block; font-size: 12px; color: var(--g500); margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .rpCajaCab .chip { margin: 0; flex: none; }
+    .rpCaja dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; margin: 12px 0 0; }
+    .rpCaja dl div { min-width: 0; }
+    .rpCaja dt { font-size: 12px; color: var(--g500); }
+    .rpCaja dd { margin: 1px 0 0; font-size: 15px; color: var(--g900); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rpCaja dd.fuerte { font-weight: 700; }
+    .rpCajaBar { height: 6px; border-radius: 999px; background: var(--g100); margin-top: 12px; overflow: hidden; }
+    .rpCajaBar i { display: block; height: 100%; border-radius: 999px; background: var(--verde); }
+    .rpCajaBar.mal i { background: var(--rojo); }
+    .rpCajaNota { font-size: 13px; background: var(--g50); border-radius: 8px; padding: 6px 10px; margin: 10px 0 0; color: var(--g700); overflow-wrap: anywhere; }
+    .rpCaja details { font-size: 12px; margin-top: 10px; color: var(--g700); }
+    .rpCaja summary { cursor: pointer; color: var(--g500); font-weight: 600; min-height: 40px; display: flex; align-items: center; }
+    .rpCaja details p { margin: 0; overflow-wrap: anywhere; }
+    .rpTablaCajas { margin-top: 16px; }
+    .rpTablaCajas > summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--verde-osc); min-height: 40px; display: flex; align-items: center; gap: 6px; }
+    .rpCaja summary, .rpTablaCajas > summary { list-style: none; gap: 4px; }
+    .rpCaja summary::-webkit-details-marker, .rpTablaCajas > summary::-webkit-details-marker { display: none; }
+    .rpCaja summary .ico, .rpTablaCajas > summary .ico { width: 16px; height: 16px; transition: transform .15s; }
+    .rpCaja details[open] summary .ico, .rpTablaCajas[open] > summary .ico { transform: rotate(180deg); }
+    @media (prefers-reduced-motion: reduce) { .rpCaja summary .ico, .rpTablaCajas > summary .ico { transition: none; } }
+    .rpFaltan { color: var(--rojo); }
+    /* Gráficos */
+    .gTip { position: fixed; z-index: 45; left: 0; top: 0; max-width: 240px; background: var(--g900); color: #fff; font-size: 13px; font-weight: 500; line-height: 1.4;
+      padding: 8px 10px; border-radius: 8px; box-shadow: var(--sombra-alta); pointer-events: none; white-space: pre-line; font-variant-numeric: tabular-nums; }
+    [data-tip] { cursor: default; -webkit-tap-highlight-color: transparent; }
+    [data-tip]:focus { outline: none; }
+    [data-tip]:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; border-radius: 4px; }
+    .gDatos { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 4px 0 12px; }
+    .gDato > small { display: block; font-size: 12px; color: var(--g500); font-weight: 500; }
+    .gDato > b { display: block; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .gDato > span { display: block; font-size: 12px; color: var(--g500); margin-top: 2px; }
+    .gCambio { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+    .gCambio.sube { background: var(--verde-claro); color: var(--verde-osc); }
+    .gCambio.baja { background: var(--rojo-claro); color: var(--rojo); }
+    .gCambioTx { font-size: 12px; color: var(--g500); }
+    .gVacio { text-align: center; color: var(--g500); font-size: 13px; padding: 24px 8px; }
+    .gCol, .gLin { --zona: var(--alto, 160px); display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 6px; font-size: 11px; color: var(--g500);
+      font-variant-numeric: tabular-nums; }
+    .gColY, .gLinY { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; height: calc(var(--zona) + 12px); margin: -6px 0; }
+    .gColY span, .gLinY span { line-height: 12px; }
+    .gColZona, .gLinZona { height: var(--zona); border-bottom: 1px solid var(--g300);
+      background-image: linear-gradient(90deg, var(--g200) 50%, transparent 50%), linear-gradient(90deg, var(--g200) 50%, transparent 50%);
+      background-size: 6px 1px; background-repeat: repeat-x; background-position: 0 0, 0 50%; }
+    .gColZona { display: flex; align-items: flex-end; gap: 3px; }
+    .gCol.denso .gColZona, .gCol.denso .gColX { gap: 1px; }
+    .gColC { flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+    .gColC i { display: block; width: 100%; max-width: 36px; background: var(--verde); opacity: .5; border-radius: 4px 4px 0 0; transition: opacity .15s, background-color .15s; }
+    .gColC.mayor i { opacity: 1; }
+    .gColC.gSel i { opacity: 1; background: var(--verde-osc); }
+    .gColX { grid-column: 2; display: flex; gap: 3px; margin-top: 4px; height: 16px; }
+    .gColX span { flex: 1 1 0; min-width: 0; position: relative; }
+    .gColX em { position: absolute; top: 0; font-style: normal; white-space: nowrap; line-height: 16px; }
+    .gColX em.ini { left: 0; }
+    .gColX em.fin { right: 0; }
+    .gColX em.cen { left: 50%; transform: translateX(-50%); }
+    .gColX em.mayor { color: var(--g900); font-weight: 600; }
+    .gLinZona { position: relative; }
+    .gLinZona svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .gLinTrazo { fill: none; stroke: var(--verde); stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+    .gLinArea { fill: var(--verde); opacity: .12; stroke: none; }
+    .gLinP { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #fff; border: 2.5px solid var(--verde); transform: translate(-50%, -50%); }
+    .gLinP::after { content: ''; position: absolute; left: 50%; top: 50%; width: 32px; height: 32px; transform: translate(-50%, -50%); border-radius: 50%; }
+    .gLinP.mayor { background: var(--verde); }
+    .gLinP.ultimo { box-shadow: 0 0 0 4px rgba(16, 185, 129, .18); }
+    .gLinP.gSel { background: var(--verde-osc); border-color: var(--verde-osc); }
+    .gLinX { grid-column: 2; display: grid; margin-top: 4px; text-align: center; }
+    .gLinX span { white-space: nowrap; overflow: hidden; text-overflow: clip; line-height: 16px; }
+    @media (max-width: 600px) { .gLinX.muchos span:nth-last-child(even) { visibility: hidden; } .gLinX.muchos span { overflow: visible; } }
+    /* Dona: la leyenda va al lado solo si le quedan 240 px; si no, baja y la figura queda centrada arriba. */
+    .gDona { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+    .gDonaFig { position: relative; flex: 0 0 150px; width: 150px; height: 150px; margin: 0 auto; }
+    .gDonaFig svg { display: block; width: 100%; height: 100%; }
+    .gDonaPista { fill: none; stroke: var(--g100); stroke-width: 14; }
+    .gDonaP { fill: none; stroke-width: 14; stroke-linecap: butt; transition: opacity .15s; }
+    .gDona.gFoco .gDonaP:not(.gSel) { opacity: .3; }
+    .gDonaCentro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; line-height: 1.2; }
+    .gDonaCentro small { font-size: 12px; color: var(--g500); }
+    .gDonaCentro b { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+    .gDonaCentro b.largo { font-size: 15px; } .gDonaCentro b.largo2 { font-size: 13px; }
+    .gDonaLey { flex: 1 1 240px; list-style: none; margin: 0; padding: 0; min-width: 0; }
+    .gDonaLey li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 8px; align-items: center; min-height: 32px; font-size: 14px; border-radius: 6px; }
+    .gDonaLey li i { width: 10px; height: 10px; border-radius: 3px; }
+    .gDonaLey li span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gDonaLey li em, .gDonaLey li b { white-space: nowrap; }
+    .gDonaLey li em { font-style: normal; font-size: 13px; color: var(--g500); font-variant-numeric: tabular-nums; }
+    .gDonaLey li b { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+    .gDonaLey li.gSel { background: var(--g50); }
+    @media (min-width: 520px) {
+      /* Separador entre datos: el de cada inicio de renglón queda fuera del recorte. */
+      .gDatos { column-gap: 0; margin-left: -11px; clip-path: inset(0 0 0 11px); }
+      .gDato { border-left: 1px solid var(--g200); padding: 0 10px; }
+    }
+    @media (min-width: 900px) { .gCol { --zona: calc(var(--alto, 160px) + 40px); } }
+    .gBar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--g100); font-size: 14px; }
+    .gBarN { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gBarV { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .gBarV b { font-weight: 600; }
+    .gBarV em { font-style: normal; font-size: 12px; color: var(--g500); margin-left: 6px; }
+    .gBarP { grid-column: 1 / -1; display: block; height: 8px; border-radius: 999px; background: var(--g100); overflow: hidden; }
+    .gBarP i { display: block; height: 100%; border-radius: 999px; background: var(--verde); }
+    .gBarras.gris .gBarP i { background: var(--g500); }
+    .gBarras.rojo .gBarP i { background: var(--rojo); }
+    .gBar.gSel .gBarN { color: var(--verde-osc); font-weight: 600; }
+    @media (prefers-reduced-motion: reduce) { .gColC i, .gDonaP { transition: none; } }
+    /* fin gráficos */
     a { color: var(--verde-osc); }
 
     /* Recibo y colilla */
@@ -340,46 +537,112 @@
     .recetaPend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
     .recetaPend > div { flex: 1; min-width: 220px; } .recetaPend b { color: #1d4ed8; } .recetaPend small { display: block; color: var(--g700); font-size: 13px; }
     /* Indicadores */
-    /* Las 5 tarjetas en una fila; cada parte tiene alto fijo para que todas se vean iguales, con o sin datos.
-       En pantallas angostas la fila se desliza de lado. */
-    .indGrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
-    .indK { background: #fff; border: 1px solid var(--g200); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; box-shadow: var(--sombra); min-width: 0; }
-    .indK .n { font-size: 11px; font-weight: 700; color: var(--g500); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .indK h3 { margin: 3px 0 6px; font-size: 15px; line-height: 1.25; min-height: 2.5em; }
-    .indK .v { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .indK .semafInd { margin: 8px 0 8px; }
-    .indK .meta { font-size: 12.5px; color: var(--g700); font-weight: 600; }
-    .indK .det { font-size: 12.5px; color: var(--g500); min-height: 3.1em; line-height: 1.3; margin-top: 2px; }
-    .indGraf { height: 74px; margin: 8px 0 10px; display: flex; flex-direction: column; justify-content: center; }
-    .indGraf svg.indSp { margin: 0 0 4px; }
+    /* Filtros de período y, en pantalla grande, el rango a la derecha. */
+    .rpIndTope .rpRango { font-size: 13px; color: var(--g500); margin-top: 8px; }
+    @media (min-width: 900px) {
+      .rpIndTope { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin-top: 10px; }
+      .rpIndTope .filtros { margin-top: 0; }
+      .rpIndTope .rpRango { margin-top: 0; text-align: right; }
+    }
+    /* Resumen de estado: cuenta los semáforos recibidos. */
+    .rpSemaforo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px; margin-top: 12px; background: var(--g50);
+      border: 1px solid var(--g200); border-radius: 12px; }
+    .rpSemaforo:empty { display: none; }
+    .rpSemaforo > b { font-size: 15px; font-weight: 600; color: var(--g900); margin-right: 4px; }
+    .rpSemaforo .semafInd { margin: 0; }
+    /* Las 5 tarjetas: cada parte tiene alto fijo para que todas se vean iguales, con o sin datos.
+       1100 px o más: una fila; 900 a 1099: 3 + 2; menos de 900: se deslizan de lado con puntitos debajo. */
+    .indGrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+    .indK { background: #fff; border: 1px solid var(--g200); border-top: 4px solid var(--g300); border-radius: 14px; padding: 12px 14px 14px;
+      display: flex; flex-direction: column; box-shadow: var(--sombra); min-width: 0; }
+    .indKArr { display: flex; align-items: center; align-content: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 4px 8px; min-height: 24px; }
+    .indK .n { font-size: 11px; font-weight: 700; color: var(--g500); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+    .indK .semafInd { margin: 0; font-size: 11.5px; padding: 2px 8px; white-space: nowrap; }
+    .indK h3 { margin: 6px 0 6px; font-size: 15px; line-height: 1.25; min-height: 2.5em; }
+    .indKCifra { display: block; }
+    .indK .v { font-size: 28px; font-weight: 700; color: var(--g900); letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .indK .meta { font-size: 12.5px; color: var(--g700); font-weight: 600; margin-top: 2px; }
+    .indK .det { font-size: 12.5px; color: var(--g500); min-height: 3.1em; line-height: 1.3; margin-top: 4px; }
+    .indGraf { height: 64px; margin: 8px 0 10px; display: flex; flex-direction: column; justify-content: flex-end; }
     .indVacio { height: 100%; border: 1px dashed var(--g300); border-radius: 10px; display: grid; place-items: center; text-align: center;
       font-size: 12px; color: var(--g500); padding: 0 10px; background: var(--g50); }
     .indK .que { border-top: 1px dashed var(--g200); padding-top: 8px; font-size: 12.5px; color: var(--g700); flex: 1; }
-    .indK .meses, .indBarra + .meses { display: flex; justify-content: space-between; font-size: 10px; color: var(--g500); }
-    @media (max-width: 900px) {
+    .indK .meses { display: grid; font-size: 10px; color: var(--g500); text-align: center; margin-top: 4px; line-height: 12px; }
+    /* Línea de 6 meses: SVG estirado (trazos sin deformar) y el punto final en HTML para que salga redondo. */
+    .indLin { position: relative; height: 46px; }
+    .indLin svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .indLinP { position: absolute; width: 9px; height: 9px; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px #fff; pointer-events: none; }
+    .indLinM { position: absolute; top: 0; bottom: 0; }
+    .indLinM:hover, .indLinM:focus-visible { background: rgba(148, 163, 184, .12); border-radius: 4px; }
+    @media (min-width: 1100px) {
+      .indKCifra { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; }
+    }
+    /* 3 + 2 también de 1100 a 1199 px con el menú abierto: a 5 en fila no caben las cifras. */
+    @media (min-width: 900px) and (max-width: 1099.98px) { .indGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); } .indGrid > .indK { grid-column: span 2; }
+      .indGrid > .indK:nth-child(4) { grid-column: 2 / span 2; } }
+    @media (min-width: 1100px) and (max-width: 1199.98px) { body:not(.menuContraido) .indGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      body:not(.menuContraido) .indGrid > .indK { grid-column: span 2; } body:not(.menuContraido) .indGrid > .indK:nth-child(4) { grid-column: 2 / span 2; } }
+    .rpPuntos { display: none; }
+    @media (max-width: 899.98px) {
       .indGrid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(210px, 72%); overflow-x: auto;
-        scroll-snap-type: x mandatory; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
-      .indK, .indChico { scroll-snap-align: start; }
+        scroll-snap-type: x mandatory; scroll-padding: 0 16px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+      .indK { scroll-snap-align: start; }
+      .rpPuntos { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
+      .rpPuntos i { width: 6px; height: 6px; border-radius: 50%; background: var(--g300); transition: background .2s; }
+      .rpPuntos i.activo { background: var(--verde); }
+    }
+    @media (prefers-reduced-motion: reduce) { .rpPuntos i { transition: none; } }
+    @media (max-width: 900px) {
+      .indChico { scroll-snap-align: start; }
     }
     .semafInd { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 3px 10px; margin: 8px 0 6px; align-self: flex-start; }
     .semafInd i { width: 8px; height: 8px; border-radius: 50%; display: block; }
     .semafInd.ok { background: var(--verde-claro); color: var(--verde-osc); } .semafInd.ok i { background: #10b981; }
     .semafInd.am { background: var(--ambar-claro); color: var(--ambar); } .semafInd.am i { background: #f59e0b; }
     .semafInd.ro { background: var(--rojo-claro); color: var(--rojo); } .semafInd.ro i { background: #e11d48; }
-    .semafInd.gr { background: var(--g100); color: var(--g500); } .semafInd.gr i { background: var(--g300); }
-    svg.indSp { width: 100%; height: 46px; margin: 8px 0 2px; overflow: visible; }
-    .indBarra { position: relative; height: 12px; background: var(--g100); border-radius: 999px; margin: 0 0 6px; }
+    .semafInd.gr { background: var(--g100); color: var(--g700); } .semafInd.gr i { background: var(--g300); }
+    /* Barra con marcas de meta (indicadores 4 y 5); la zona tocable es más alta que la barra. */
+    .indBarraT { padding: 8px 0; }
+    .indBarra { position: relative; height: 12px; background: var(--g100); border-radius: 999px; }
     .indBarra > div { height: 100%; border-radius: 999px; }
-    .indBarra i { position: absolute; top: -4px; width: 2px; height: 20px; background: var(--g500); }
-    .indFila2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
-    .indHacer { margin: 0; padding-left: 18px; color: var(--g700); } .indHacer li { margin-bottom: 6px; }
-    #ind_metas input { height: 36px; max-width: 90px; display: inline-block; }
+    .indBarra i { position: absolute; top: -4px; width: 2px; height: 20px; margin-left: -1px; }
+    .indBarraEt { position: relative; height: 12px; font-size: 10px; line-height: 12px; color: var(--g500); font-variant-numeric: tabular-nums; }
+    .indBarraEt span { position: absolute; top: 0; transform: translateX(-50%); font-weight: 600; white-space: nowrap; }
+    .indBarraEt .ini { left: 0; transform: none; font-weight: 400; } .indBarraEt .fin { right: 0; left: auto; transform: none; font-weight: 400; }
+    .indBarraEt .mv { color: var(--verde); } .indBarraEt .ma { color: #b45309; }
+    .indFila2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; align-items: start; }
+    /* Qué hacer: tarjetas de acción */
+    .rpHacerLista { display: flex; flex-direction: column; gap: 8px; }
+    .rpHacer { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #fff; border: 1px solid var(--g200); border-radius: 12px; }
+    .rpHacerIc { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--verde-claro); color: var(--verde); font-style: normal; }
+    .rpHacerIc .ico { width: 18px; height: 18px; }
+    .rpHacer b { display: block; font-size: 14px; font-weight: 600; color: var(--g900); }
+    .rpHacer span { display: block; font-size: 14px; color: var(--g700); line-height: 1.4; margin-top: 2px; }
+    /* Metas: cerrada en celular, abierta desde 900 px */
+    .rpMetas > details > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 40px; cursor: pointer;
+      font-size: 15px; font-weight: 600; color: var(--g900); }
+    .rpMetas > details > summary::-webkit-details-marker { display: none; }
+    .rpMetas > details > summary .ico { width: 18px; height: 18px; color: var(--g500); transition: transform .15s; }
+    .rpMetas > details[open] > summary .ico { transform: rotate(180deg); }
+    .rpMetasTit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .rpMetasTit h3 { margin: 0; }
+    button.rpTexto { min-height: 40px; padding: 0 6px; background: none; border: 0; color: var(--verde); font-size: 13px; font-weight: 600; }
+    button.rpTexto:hover { background: none; color: var(--verde-osc); text-decoration: underline; }
+    #ind_metas td, .rpMetas th { padding: 10px; }
+    #ind_metas td.num { white-space: nowrap; }
+    #ind_metas input { height: 36px; width: 84px; max-width: 84px; display: inline-block; text-align: right; }
+    .rpSigno { color: var(--g500); margin-right: 4px; }
+    .rpMetas .fila { justify-content: flex-end; }
+    @media (min-width: 900px) { .rpMetas > details > summary { display: none; } }
+    @media (max-width: 899.98px) { .rpMetasTit h3 { display: none; } .rpMetasTit { margin-top: 4px; } }
+    @media (prefers-reduced-motion: reduce) { .rpMetas > details > summary .ico { transition: none; } }
     .indMini { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
     .indChico { text-align: left; background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 10px 12px; color: var(--g900); min-height: 0; display: flex; flex-direction: column;
       transition: border-color .15s, box-shadow .15s; }
     .indChico:hover { background: #fff; border-color: var(--verde); box-shadow: var(--sombra-alta); }   /* como las tarjetas de «Hoy» */
-    .indChico small { font-size: 12px; color: var(--g500); font-weight: 500; min-height: 2.6em; line-height: 1.3; }
-    .indChico b { font-size: 20px; margin-top: 2px; }
+    .indChico small { font-size: 12px; color: var(--g500); font-weight: 500; min-height: 2.6em; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .indChico b { font-size: 20px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
     .indChico .semafInd { margin: 6px 0 0; font-size: 11.5px; padding: 2px 8px; }
     @media (max-width: 900px) {
       .indMini { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 45%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
@@ -432,8 +695,17 @@
       body.modoReporte .aImprimir, body.modoReporte .aImprimir * { visibility: visible; }
       body.modoReporte .aImprimir { position: absolute; left: 0; top: 0; width: 100%; }
       .soloImpreso { display: block !important; }
-      .columnas div { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .tabla { border: 0; overflow: visible; }
+      .rpBarra i, .rpPista::after { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #areaRep .cuadro, #areaRep .rpKs .kpi, #areaRep .rpAvisos, #areaRep .rpFila.final, #areaRep .inKIc { background: #fff !important; box-shadow: none; border: 1px solid var(--g300); }
+      #areaRep .cuadro, #areaRep .rpCuenta, #areaRep .rpKs .kpi, #areaRep .rpAvisos { break-inside: avoid; }
+      #areaRep h3 { break-after: avoid; }
+      .gColC i, .gLinZona, .gLinTrazo, .gLinArea, .gLinP, .gDonaPista, .gDonaP, .gDonaLey i, .gBarP, .gBarP i, .gCambio { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .gLinP::after { display: none; }
+      .gCol, .gLin, .gDona { break-inside: avoid; }
+      .tabla { border: 0; overflow: visible; max-height: none; }
+      #areaRep th, #areaRep td { position: static; }
+      #areaRep tr.rpFuera { display: table-row; }
+      #areaRep details.rpTablaCajas::details-content { content-visibility: visible; display: contents; }
     }
     .soloImpreso { display: none; }
     input:disabled, select:disabled { background-color: var(--g100); color: var(--g500); cursor: not-allowed; }
@@ -638,7 +910,7 @@
         <div class="tarjeta" id="inicioHoy">
           <div class="barra cabezaHoy" style="margin-bottom:0">
             <h2 style="flex:1">Hoy</h2>
-            <button class="mini sec conIcono" id="btnHoy" onclick="cargarInicio()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button>
+            <button class="mini sec conIcono" id="btnHoy" onclick="cargarInicio(true)"><svg class="ico" data-ico="recargar"></svg>Actualizar</button>
           </div>
           <div class="asistencia" id="asistencia">
             <span class="punto"></span>
@@ -648,14 +920,22 @@
           <div class="aviso" id="aviso"></div>
           <div class="kpis" id="hoy"><div class="ayuda">Consultando…</div></div>
         </div>
+        <div class="tarjeta soloAdmin" id="inSemana">
+          <div class="barra" style="margin-bottom:0">
+            <h2 style="flex:1">Ventas de los últimos 7 días</h2>
+            <button class="mini sec" onclick="abrirReportes('resumen')">Ver reporte</button>
+          </div>
+          <div id="in_semana"><div class="ayuda">Calculando…</div></div>
+        </div>
         <div class="tarjeta soloAdmin">
           <div class="barra" style="margin-bottom:0">
             <h2 style="flex:1">Indicadores del mes</h2>
             <button class="mini sec" onclick="abrirReportes('indicadores')">Ver detalle</button>
           </div>
           <div class="indMini" id="ind_inicio"><div class="ayuda">Calculando…</div></div>
+          <div class="inDesliza">Desliza para ver los 5 →</div>
         </div>
-        <div class="tarjeta">
+        <div class="tarjeta inModulos">
           <h2>¿Qué vas a hacer?</h2>
           <div class="modulos">
             <button class="modulo" onclick="abrirVenta('vender')"><i><svg class="ico" data-ico="carrito"></svg></i><span><b>Vender</b><small>Cobrar y dar recibo</small></span></button>
@@ -1229,41 +1509,51 @@
 
           <!-- Indicadores (KPI) -->
           <div data-panel="rep:indicadores" class="oculto">
-            <div class="filtros" id="ind_periodos">
-              <button data-p="mes" class="activa" onclick="cargarIndicadores('mes')">Este mes</button>
-              <button data-p="pasado" onclick="cargarIndicadores('pasado')">Mes pasado</button>
-              <button data-p="90" onclick="cargarIndicadores('90')">Últimos 90 días</button>
-              <button data-p="anio" onclick="cargarIndicadores('anio')">Este año</button>
+            <div class="rpIndTope">
+              <div class="filtros" id="ind_periodos">
+                <button data-p="mes" class="activa" onclick="cargarIndicadores('mes')">Este mes</button>
+                <button data-p="pasado" onclick="cargarIndicadores('pasado')">Mes pasado</button>
+                <button data-p="90" onclick="cargarIndicadores('90')">Últimos 90 días</button>
+                <button data-p="anio" onclick="cargarIndicadores('anio')">Este año</button>
+              </div>
+              <div class="rpRango" id="ind_rango"></div>
             </div>
-            <div class="ayuda" id="ind_rango" style="margin-top:8px"></div>
+            <div class="rpSemaforo" id="ind_semaforo"></div>
             <div class="indGrid" id="ind_grid"></div>
+            <div class="rpPuntos" id="ind_puntos" aria-hidden="true"></div>
             <div class="indFila2">
-              <div class="cuadro"><h3>Qué hacer</h3><ul class="indHacer" id="ind_hacer"></ul></div>
-              <div class="cuadro"><h3>Metas</h3>
-                <div class="tabla"><table>
-                  <thead><tr><th>Indicador</th><th class="num">Verde si…</th><th class="num">Amarillo si…</th></tr></thead>
-                  <tbody id="ind_metas"></tbody></table></div>
-                <div class="ayuda">Rojo = peor que el amarillo. Los indicadores 1 a 3: más es mejor. El 4 y el 5: menos es mejor.</div>
-                <div class="fila"><button id="btnMetas" onclick="guardarMetas()">Guardar metas</button></div>
+              <div class="cuadro"><h3>Qué hacer</h3><div class="rpHacerLista" id="ind_hacer"></div></div>
+              <div class="cuadro rpMetas">
+                <details id="ind_metasCaja">
+                  <summary>Cambiar metas <svg class="ico" data-ico="abajo"></svg></summary>
+                  <div class="rpMetasTit"><h3>Metas</h3><button type="button" class="rpTexto" id="ind_metasBtnAyuda" onclick="alternarAyudaMetas()" aria-controls="ind_metasAyuda">¿Qué significan?</button></div>
+                  <div class="ayuda" id="ind_metasAyuda">Rojo = peor que el amarillo. Los indicadores 1 a 3: más es mejor. El 4 y el 5: menos es mejor.</div>
+                  <div class="tabla"><table>
+                    <thead><tr><th>Indicador</th><th class="num">Verde si…</th><th class="num">Amarillo si…</th></tr></thead>
+                    <tbody id="ind_metas"></tbody></table></div>
+                  <div class="fila"><button id="btnMetas" onclick="guardarMetas()">Guardar metas</button></div>
+                </details>
               </div>
             </div>
           </div>
 
           <div data-panel="rep:resumen productos cajas controlados">
-            <div class="fila">
+            <div class="filtros" id="r_rapidos">
+              <button data-p="hoy" onclick="periodo('hoy')">Hoy</button>
+              <button data-p="7" onclick="periodo('7')">Últimos 7 días</button>
+              <button data-p="mes" onclick="periodo('mes')">Este mes</button>
+              <button data-p="pasado" onclick="periodo('pasado')">Mes pasado</button>
+              <button data-p="anio" onclick="periodo('anio')">Este año</button>
+            </div>
+            <div class="fila rpFechas">
               <div><label>Desde</label><input id="r_desde" type="date"></div>
               <div><label>Hasta</label><input id="r_hasta" type="date"></div>
               <div id="r_prodCaja" class="oculto" style="min-width:220px"><label>Producto</label><select id="r_producto"></select></div>
               <button id="btnRep" onclick="cargarReporte()">Ver</button>
-              <button class="sec" onclick="imprimirArea('areaRep', 'avisoRep')">Imprimir</button>
-              <button class="sec" onclick="copiarTabla('areaRep')">Copiar para Excel</button>
-            </div>
-            <div class="rapidos">
-              <button class="mini sec" onclick="periodo('hoy')">Hoy</button>
-              <button class="mini sec" onclick="periodo('7')">Últimos 7 días</button>
-              <button class="mini sec" onclick="periodo('mes')">Este mes</button>
-              <button class="mini sec" onclick="periodo('pasado')">Mes pasado</button>
-              <button class="mini sec" onclick="periodo('anio')">Este año</button>
+              <div class="rpAcc">
+                <button class="sec conIcono" onclick="imprimirArea('areaRep', 'avisoRep')"><svg class="ico" data-ico="imprimir"></svg>Imprimir</button>
+                <button class="sec conIcono" onclick="copiarTabla('areaRep')"><svg class="ico" data-ico="copiar"></svg>Copiar para Excel</button>
+              </div>
             </div>
             <div id="areaRep"></div>
           </div>
@@ -1336,7 +1626,19 @@
           casa: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
           lista: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
           mas: '<path d="M5 12h14"/><path d="M12 5v14"/>',
-          menu: '<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>'
+          menu: '<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>',
+          sube: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+          baja: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+          derecha: '<path d="m9 18 6-6-6-6"/>',
+          aviso: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+          etiqueta: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+          calendarioX: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+          calendarioReloj: '<path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/>',
+          imprimir: '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+          copiar: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+          porcentaje: '<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+          bombilla: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+          visto: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>'
         };
         // Montos de las tarjetas: el «C$» va pequeño y gris al lado de la cifra (en todas las pantallas).
         const marcarMoneda = raiz => raiz.querySelectorAll('.kpi > b').forEach(b => {
@@ -1393,6 +1695,7 @@
         const MENU = { formulario: 'productos', kardex: 'inventario' };   // vistas que pertenecen a otra sección del menú
         let vistaActual = '';
         function ver(vista) {
+          gTipOcultar();
           vistaActual = vista;
           todos('[data-vista]').forEach(v => v.classList.toggle('oculto', v.dataset.vista !== vista));
           todos('#lateral .grupo').forEach(g => {
@@ -1505,8 +1808,12 @@
         function copiarTabla(id) {
           const tablas = todos('#' + id + ' table');
           if (!tablas.length) return tostada('No hay ninguna tabla que copiar.', true);
+          // Una tabla dentro de un <details> cerrado no tiene texto visible: se abre un momento para leerla.
+          const cerrados = todos('#' + id + ' details:not([open])');
+          cerrados.forEach(d => { d.open = true; });
           const texto = tablas.map(t => Array.prototype.map.call(t.rows, f =>
             Array.prototype.map.call(f.cells, c => c.innerText.replace(/\s+/g, ' ').trim()).join('\t')).join('\n')).join('\n\n');
+          cerrados.forEach(d => { d.open = false; });
           const listo = () => tostada('Copiado. Pégalo en Excel o en Google Sheets.');
           const aLaAntigua = () => {
             const a = document.createElement('textarea');
@@ -1714,6 +2021,7 @@
         const actual = {};      // pestaña abierta de cada grupo
         const AL_ABRIR = {};    // AL_ABRIR[grupo](nombre): qué hacer al abrir una pestaña
         function pestana(grupo, nombre) {
+          gTipOcultar();
           todos('[data-tab^="' + grupo + ':"]').forEach(b => b.classList.toggle('activa', b.dataset.tab === grupo + ':' + nombre));
           todos('[data-panel^="' + grupo + ':"]').forEach(p => {
             p.classList.toggle('oculto', p.dataset.panel.split(':')[1].split(' ').indexOf(nombre) === -1);
@@ -1768,26 +2076,57 @@
         });
 
         // ===== Inicio: cómo va el día =====
-        /** Cuadro del panel «Hoy»; con accion es un botón que lleva a esa pantalla. */
-        const cuadroHoy = (texto, valor, sub, clase, accion) => '<' + (accion ? 'button onclick="' + accion + '"' : 'div') + ' class="kpi' + (clase ? ' ' + clase : '') + '">' +
-          '<small>' + texto + '</small><b>' + String(valor).replace(/^C\$\s*/, '<span class="moneda">C$</span>') + '</b>' + (sub ? '<span class="sub">' + sub + '</span>' : '') + '</' + (accion ? 'button' : 'div') + '>';
-        function cargarInicio() {
+        /** Cuadro del panel «Hoy»; con accion es un botón que lleva a esa pantalla (y lleva flecha al pie). icono: nombre en ICONOS. */
+        const cuadroHoy = (texto, valor, sub, clase, accion, icono) => '<' + (accion ? 'button onclick="' + accion + '"' : 'div') + ' class="kpi inK' + (clase ? ' ' + clase : '') + '">' +
+          '<span class="inKCab"><small>' + texto + '</small><i class="inKIc">' + ico(icono) + '</i></span>' +
+          '<b>' + String(valor).replace(/^C\$\s*/, '<span class="moneda">C$</span>') + '</b>' +
+          (sub || accion ? '<span class="sub"><span class="inKTx">' + (sub || '') + '</span>' + (accion ? '<i class="inKFl">' + ico('derecha') + '</i>' : '') + '</span>' : '') +
+          '</' + (accion ? 'button' : 'div') + '>';
+        // Ventas de los últimos 7 días (solo Admin): se guarda 5 minutos para no recalcular cada vez que se vuelve a Inicio.
+        let inSemanaDatos = null, inSemanaClave = '', inSemanaHora = 0;
+        const IN_DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+        function cargarInSemana(forzar) {
+          const hasta = hoyTexto(), desde = sumarDias(hasta, -6), clave = desde + '|' + hasta;
+          if (!forzar && inSemanaDatos && inSemanaClave === clave && Date.now() - inSemanaHora < 5 * 60000) return pintarInSemana(inSemanaDatos);
+          llamar('tablero', [desde, hasta], r => {
+            inSemanaDatos = r; inSemanaClave = clave; inSemanaHora = Date.now();
+            pintarInSemana(r);
+          }, { falla: () => { el('in_semana').innerHTML = '<div class="inFallo">No se pudo calcular la semana.</div>'; } });
+        }
+        function pintarInSemana(r) {
+          const v = r.ventas;
+          const mejor = v.serie.reduce((m, x) => !m || x.total > m.total ? x : m, null);
+          const datos = [
+            { t: 'Vendido en 7 días', v: cs(v.total), d: gCambio(gVar(v.total, v.anterior), 'vs. los 7 días anteriores') },
+            { t: 'Ventas', v: v.numero },
+            { t: 'Venta promedio', v: cs(v.promedio) }
+          ];
+          if (v.numero && mejor) datos.push({ t: 'Mejor día', v: fechaCorta(mejor.clave), d: cs(mejor.total) });
+          const etq = x => v.serie_por_mes ? nombreMes(x.clave) : IN_DIAS[new Date(x.clave + 'T12:00:00').getDay()] + ' ' + Number(x.clave.slice(8, 10));
+          const tip = x => (v.serie_por_mes ? nombreMes(x.clave) : fechaCorta(x.clave)) + '\n' + cs(x.total) + '\n' + x.ventas + ' venta(s)';
+          el('in_semana').innerHTML = gDatos(datos) + (!v.numero ? gVacio('No hubo ventas en los últimos 7 días.') :
+            '<div class="inDos"><div>' + (v.serie_por_mes ? gColumnas(v.serie, { alto: 150, etq, tip }) : gLinea(v.serie, { alto: 150, etq, tip })) + '</div>' +
+            '<div><h3>Por forma de pago</h3>' + gDona(v.por_forma, { titulo: 'Cobrado' }) + '</div></div>');
+        }
+        function cargarInicio(forzar) {
           llamar('resumenInicio', [], r => {
             pintarAsistencia(r.asistencia);
             const a = r.alertas, urgentes = a.vencidos + a.por_vencer + a.bajo_minimo + a.agotados;
             const detalle = [a.vencidos && a.vencidos + ' lote(s) vencido(s)', a.por_vencer && a.por_vencer + ' por vencer', a.bajo_minimo && a.bajo_minimo + ' bajo el mínimo',
               a.agotados && a.agotados + ' sin existencia'].filter(Boolean).join(' · ');
             el('hoy').innerHTML =
-              cuadroHoy('Mi caja', r.caja ? 'Abierta' : 'Cerrada', r.caja ? 'Desde ' + esc(r.caja.desde) : ico('candado') + 'Ábrela para vender', r.caja ? 'fuerte' : 'alerta', 'abrirVenta(\'caja\')') +
-              cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)', '', 'abrirVenta(\'historial\')') +
-              cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')') +
-              (r.por_cobrar ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')') +
-                cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')') : '') +
+              cuadroHoy('Mi caja', r.caja ? 'Abierta' : 'Cerrada', r.caja ? 'Desde ' + esc(r.caja.desde) : 'Ábrela para vender', r.caja ? 'fuerte' : 'alerta', 'abrirVenta(\'caja\')',
+                r.caja ? 'billetera' : 'candado') +
+              cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)', '', 'abrirVenta(\'historial\')', 'carrito') +
+              cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')', 'paquete') +
+              (r.por_cobrar ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')', 'personas') +
+                cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')', 'billetera') : '') +
               (r.gastos_pendientes && r.gastos_pendientes.numero ? cuadroHoy('Gastos por aprobar', r.gastos_pendientes.numero,
-                cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')') : '') +
+                cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')', 'calculadora') : '') +
               (r.productos_por_revisar ? cuadroHoy('Productos por revisar', r.productos_por_revisar,
-                'Nuevos, creados por otra persona · tócalo para revisar', 'naranja', 'abrirRevisarProductos()') : '');
+                'Nuevos, creados por otra persona · tócalo para revisar', 'naranja', 'abrirRevisarProductos()', 'pastilla') : '');
             PUEDE_REVISAR = r.productos_por_revisar !== undefined;
+            if (ES_ADMIN) cargarInSemana(forzar);
           }, { boton: 'btnHoy', falla: e => { el('estado').textContent = el('hoy').textContent = e.message || String(e); } });
           if (ES_ADMIN) llamar('indicadores', ['mes'], pintarIndInicio, { falla: e => { el('ind_inicio').textContent = e.message || String(e); } });
         }
@@ -3082,7 +3421,7 @@
               '<div class="ayuda">Cifras en córdobas. Preparado por el sistema; revisar con el contador.</div></div>' + PINTORES[tipo](r);
           }, { aviso: 'avisoConta', espera: 'Calculando…', boton: 'btnReporte' });
         }
-        const tablaReporte = (encabezados, filas) => '<div class="tabla"><table><thead><tr>' +
+        const tablaReporte = (encabezados, filas, clase) => '<div class="tabla' + (clase ? ' ' + clase : '') + '"><table><thead><tr>' +
           encabezados.map(e => '<th' + (e.charAt(0) === '#' ? ' class="num">' + e.slice(1) : '>' + e) + '</th>').join('') + '</tr></thead><tbody>' + filas + '</tbody></table></div>';
         const filaMonto = (texto, monto, clase) => tr([td(texto), num(dinero(monto))], clase ? ' class="' + clase + '"' : '');
         /** Bloque de un estado financiero: título, sus cuentas y la fila de total. */
@@ -3302,8 +3641,12 @@
           if (tipo === 'anio') desde = hoy.slice(0, 4) + '-01-01';
           el('r_desde').value = desde;
           el('r_hasta').value = hasta;
+          marcarPeriodo(tipo);
           if (!sinCargar) cargarReporte();
         }
+        /** Marca el botón rápido del rango cargado; con fechas escritas a mano no queda ninguno marcado. */
+        const marcarPeriodo = tipo => todos('#r_rapidos button').forEach(b => b.classList.toggle('activa', b.dataset.p === tipo));
+        ['r_desde', 'r_hasta'].forEach(id => el(id).addEventListener('input', () => marcarPeriodo('')));
         function cargarReporte() {
           const tipo = actual.rep, desde = el('r_desde').value, hasta = el('r_hasta').value;
           if (!desde || !hasta) return aviso('avisoRep', 'Elige las dos fechas.', true);
@@ -3343,28 +3686,37 @@
           return Math.round(v).toLocaleString('en-US') + ' días';
         }
         const metaTxt = (k, n) => k.unidad === 'C$' ? 'C$ ' + n : n + (k.unidad === '%' ? '%' : ' días');
-        /** Línea de tendencia de 6 meses con la meta punteada. */
-        function lineaInd(valores, meta, color) {
+        /** Línea de tendencia de 6 meses con la meta punteada, área suave, punto final redondo (HTML)
+            y una franja tocable por mes con su globo. meses = nombres cortos; k = el indicador (para valorInd). */
+        function lineaInd(valores, meta, color, meses, k) {
           const nums = valores.filter(v => v !== null);
           if (nums.length < 2) return '<div class="indVacio">La tendencia aparece cuando haya 2 meses con datos</div>';
           const todos2 = nums.concat(meta !== null ? [meta] : []);
           let min = Math.min.apply(null, todos2), max = Math.max.apply(null, todos2);
           if (max === min) { max += 1; min -= 1; }
-          const y = v => (40 - (v - min) / (max - min) * 34).toFixed(1);
-          const pts = valores.map((v, i) => v === null ? null : (i * 40) + ',' + y(v)).filter(Boolean);
-          const ult = pts[pts.length - 1].split(',');
-          return '<svg class="indSp" viewBox="-4 0 208 46" preserveAspectRatio="none">' +
-            (meta !== null ? '<line x1="0" x2="200" y1="' + y(meta) + '" y2="' + y(meta) + '" stroke="#94a3b8" stroke-dasharray="4 4"/>' : '') +
-            '<polyline fill="none" stroke="' + color + '" stroke-width="2.5" points="' + pts.join(' ') + '"/>' +
-            '<circle cx="' + ult[0] + '" cy="' + ult[1] + '" r="3.5" fill="' + color + '"/></svg>';
+          const n = valores.length, x = i => gNum((i + 0.5) / n * 100), y = v => gNum(10 + (1 - (v - min) / (max - min)) * 80);
+          const pts = valores.map((v, i) => v === null ? null : [x(i), y(v)]).filter(Boolean);
+          const ult = pts[pts.length - 1], linea = pts.map(p => p.join(',')).join(' ');
+          const marcas = valores.map((v, i) => '<span class="indLinM" style="left:' + gNum(i / n * 100) + '%;width:' + gNum(100 / n) + '%" data-tip="' +
+            esc(meses[i] + '\n' + valorInd(k, v)) + '" tabindex="0"></span>').join('');
+          return '<div class="indLin"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+            (meta !== null ? '<line x1="0" x2="100" y1="' + y(meta) + '" y2="' + y(meta) + '" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>' : '') +
+            '<polygon fill="' + color + '" opacity=".1" points="' + pts[0][0] + ',100 ' + linea + ' ' + ult[0] + ',100"/>' +
+            '<polyline fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="' + linea + '"/></svg>' +
+            '<span class="indLinP" style="left:' + ult[0] + '%;top:' + ult[1] + '%;background:' + color + '"></span>' + marcas + '</div>' +
+            '<div class="meses" style="grid-template-columns:repeat(' + n + ', minmax(0, 1fr))">' + meses.map(m => '<span>' + esc(m) + '</span>').join('') + '</div>';
         }
-        /** Barra de 0 al doble de la meta amarilla, con marcas de verde y amarillo (indicadores 4 y 5). */
-        function barraInd(v, meta, color) {
+        /** Barra de 0 al doble de la meta amarilla, con marcas de verde y amarillo y su número debajo (indicadores 4 y 5). */
+        function barraInd(v, meta, color, k) {
           if (v === null) return '<div class="indVacio">Aparece cuando haya ventas con costo</div>';
           const tope = Math.max(meta[1] * 1.5, v * 1.1, 1), p = x => Math.min(100, x / tope * 100).toFixed(1);
-          return '<div class="indBarra"><div style="width:' + p(v) + '%;background:' + color + '"></div>' +
-            '<i style="left:' + p(meta[0]) + '%" title="verde"></i><i style="left:' + p(meta[1]) + '%" title="amarillo"></i></div>' +
-            '<div class="meses"><span>0</span><span>meta ' + meta[0] + '</span><span>' + Math.round(tope) + '</span></div>';
+          // El 0 y el tope solo se escriben si no chocan con los números de las marcas.
+          const lejos = (a, b) => Math.abs(a - b) >= 14, pv = Number(p(meta[0])), pa = Number(p(meta[1]));
+          return '<div class="indBarraT" data-tip="' + esc(k.nombre + '\n' + valorInd(k, v)) + '" tabindex="0"><div class="indBarra"><div style="width:' + p(v) + '%;background:' + color + '"></div>' +
+            '<i style="left:' + pv + '%;background:var(--verde)"></i><i style="left:' + pa + '%;background:#b45309"></i></div></div>' +
+            '<div class="indBarraEt">' + (lejos(pv, 0) ? '<span class="ini">0</span>' : '') +
+            '<span class="mv" style="left:' + pv + '%">' + meta[0] + '</span><span class="ma" style="left:' + pa + '%">' + meta[1] + '</span>' +
+            (lejos(pa, 100) ? '<span class="fin">' + Math.round(tope) + '</span>' : '') + '</div>';
         }
         function detalleInd(k, r) {
           const d = k.detalle;
@@ -3387,25 +3739,88 @@
           const meses = r.tendencia.map(t => MES_CORTO[Number(t.mes.slice(5, 7)) - 1]);
           const serieDe = { crecimiento: r.tendencia.map(t => t.numero ? t.ventas : null), margen: r.tendencia.map(t => t.margen),
             promedio: r.tendencia.map(t => t.numero ? t.promedio : null) };
+          el('ind_semaforo').innerHTML = semaforoInd(r.indicadores);
           el('ind_grid').innerHTML = r.indicadores.map(k => {
-            const e = ESTADO_IND[k.estado], color = COLOR_IND[e[0]], det = detalleInd(k, r);
-            const serie = serieDe[k.clave], linea = serie && lineaInd(serie, k.clave === 'crecimiento' ? null : k.meta[0], color);
-            const grafica = !serie ? barraInd(k.valor, k.meta, color) :
-              linea + (linea.indexOf('indVacio') === -1 ? '<div class="meses">' + meses.map(m => '<span>' + m + '</span>').join('') + '</div>' : '');
-            return '<div class="indK"><div class="n">' + ETIQUETA_IND[k.clave] + '</div><h3>' + esc(k.nombre) + '</h3>' +
-              '<div class="v">' + valorInd(k, k.valor) + '</div>' +
-              '<span class="semafInd ' + e[0] + '"><i></i>' + e[1] + '</span>' +
-              '<div class="meta">Meta: ' + (k.mayor_mejor ? '' : 'máximo ') + metaTxt(k, k.meta[0]) + '</div>' +
+            const e = ESTADO_IND[k.estado], color = COLOR_IND[e[0]], det = detalleInd(k, r), serie = serieDe[k.clave];
+            const grafica = serie ? lineaInd(serie, k.clave === 'crecimiento' ? null : k.meta[0], color, meses, k) : barraInd(k.valor, k.meta, color, k);
+            return '<div class="indK" style="border-top-color:' + color + '"><div class="indKArr"><span class="n">' + ETIQUETA_IND[k.clave] + '</span>' +
+              '<span class="semafInd ' + e[0] + '"><i></i>' + e[1] + '</span></div><h3>' + esc(k.nombre) + '</h3>' +
+              '<div class="indKCifra"><div class="v">' + valorInd(k, k.valor) + '</div>' +
+              '<div class="meta">Meta: ' + (k.mayor_mejor ? '' : 'máximo ') + metaTxt(k, k.meta[0]) + '</div></div>' +
               '<div class="det">' + det[0] + '</div>' +
               '<div class="indGraf">' + grafica + '</div>' +
               '<div class="que">' + det[1] + '<br>' + det[2] + '</div></div>';
           }).join('');
-          el('ind_hacer').innerHTML = r.hacer.map(h => '<li><b>' + esc(h.tema) + ':</b> ' + esc(h.texto) + '</li>').join('') ||
-            '<li>Todo en orden. Siga así.</li>';
+          el('ind_puntos').innerHTML = r.indicadores.map(() => '<i></i>').join('');
+          el('ind_grid').onscroll = puntosInd;
+          puntosInd();
+          igualarInd();
+          el('ind_hacer').innerHTML = r.hacer.map(h => '<div class="rpHacer"><i class="rpHacerIc">' + ico(iconoHacer(h.tema)) + '</i><div><b>' + esc(h.tema) +
+            '</b><span>' + esc(h.texto) + '</span></div></div>').join('') ||
+            '<div class="rpHacer"><i class="rpHacerIc">' + ico('visto') + '</i><div><span>Todo en orden. Siga así.</span></div></div>';
+          const signo = k => '<span class="rpSigno">' + (k.mayor_mejor ? '≥' : '≤') + '</span>';
           el('ind_metas').innerHTML = r.indicadores.map(k => tr([td(esc(k.nombre) + ' <small>(' + k.unidad + ')</small>'),
-            td((k.mayor_mejor ? '≥ ' : '≤ ') + '<input type="number" step="any" data-m="' + k.clave + '" data-i="0" value="' + k.meta[0] + '">', 'num'),
-            td((k.mayor_mejor ? '≥ ' : '≤ ') + '<input type="number" step="any" data-m="' + k.clave + '" data-i="1" value="' + k.meta[1] + '">', 'num')])).join('');
+            td(signo(k) + '<input type="number" step="any" data-m="' + k.clave + '" data-i="0" value="' + k.meta[0] + '">', 'num'),
+            td(signo(k) + '<input type="number" step="any" data-m="' + k.clave + '" data-i="1" value="' + k.meta[1] + '">', 'num')])).join('');
         }
+        /** Franja de resumen: solo cuenta los estados recibidos. */
+        function semaforoInd(lista) {
+          const c = { ok: 0, am: 0, ro: 0, gr: 0 };
+          lista.forEach(k => { c[ESTADO_IND[k.estado][0]]++; });
+          const conDatos = lista.length - c.gr;
+          const frase = conDatos ? c.ok + ' de ' + conDatos + (conDatos === 1 ? ' indicador ' : ' indicadores ') + (c.ok === 1 ? 'va bien' : 'van bien') :
+            'Todavía no hay datos suficientes';
+          const pildora = (cl, txt) => c[cl] ? '<span class="semafInd ' + cl + '"><i></i>' + c[cl] + ' ' + txt + '</span>' : '';
+          return '<b>' + frase + '</b>' + pildora('ok', c.ok === 1 ? 'va bien' : 'van bien') + pildora('am', 'cerca de la meta') +
+            pildora('ro', c.ro === 1 ? 'necesita atención' : 'necesitan atención') + pildora('gr', 'sin datos todavía');
+        }
+        /** Puntitos bajo las tarjetas deslizables: marca la tarjeta que está a la vista. */
+        function puntosInd() {
+          const g = el('ind_grid'), cards = g.children, puntos = el('ind_puntos').children;
+          if (!cards.length) return;
+          const borde = g.getBoundingClientRect().left;
+          let activa = 0, mejor = Infinity;
+          for (let i = 0; i < cards.length; i++) {
+            const d = Math.abs(cards[i].getBoundingClientRect().left - borde);
+            if (d < mejor) { mejor = d; activa = i; }
+          }
+          if (g.scrollLeft >= g.scrollWidth - g.clientWidth - 2 && g.scrollLeft > 0) activa = cards.length - 1;
+          for (let i = 0; i < puntos.length; i++) puntos[i].classList.toggle('activo', i === activa);
+        }
+        /** Si en una tarjeta angosta el semáforo baja bajo la etiqueta, todas reservan esa misma altura para que las cifras queden parejas. */
+        function igualarInd() {
+          const filas = todos('#ind_grid .indKArr');
+          filas.forEach(f => { f.style.minHeight = ''; });
+          const alto = Math.max.apply(null, filas.map(f => f.offsetHeight).concat([0]));
+          if (alto) filas.forEach(f => { f.style.minHeight = alto + 'px'; });
+        }
+        /** Ícono de cada recomendación según la palabra del tema (sin tocar el texto). */
+        function iconoHacer(tema) {
+          const t = String(tema || '').toLowerCase();
+          if (/cobr|cr[eé]dito/.test(t)) return 'personas';
+          if (/ganar|margen/.test(t)) return 'porcentaje';
+          if (/vender|promedio/.test(t)) return 'carrito';
+          if (/compr|inventario/.test(t)) return 'paquete';
+          if (/crec|ventas/.test(t)) return 'grafica';
+          return 'bombilla';
+        }
+        /** Nota de ayuda de Metas: se muestra o se oculta con «¿Qué significan?». */
+        function alternarAyudaMetas(ver) {
+          const a = el('ind_metasAyuda'), mostrarla = typeof ver === 'boolean' ? ver : a.classList.contains('oculto');
+          a.classList.toggle('oculto', !mostrarla);
+          el('ind_metasBtnAyuda').setAttribute('aria-expanded', String(mostrarla));
+        }
+        // Metas abierta y con la nota a la vista desde 900 px; en celular, cerrada y sin la nota.
+        (function () {
+          const mq = window.matchMedia('(min-width: 900px)');
+          const ajustar = () => { el('ind_metasCaja').open = mq.matches; alternarAyudaMetas(mq.matches); };
+          if (mq.addEventListener) mq.addEventListener('change', ajustar); else mq.addListener(ajustar);
+          ajustar();
+          // También al abrir o contraer el menú lateral (cambia el ancho de la rejilla sin cambiar la ventana).
+          let anchoInd = 0;
+          const reacomodar = () => { const w = el('ind_grid').clientWidth; if (w === anchoInd || !el('ind_grid').children.length) return; anchoInd = w; puntosInd(); igualarInd(); };
+          if (window.ResizeObserver) new ResizeObserver(reacomodar).observe(el('ind_grid')); else window.addEventListener('resize', reacomodar);
+        })();
         function guardarMetas() {
           const m = {};
           todos('#ind_metas input').forEach(i => { (m[i.dataset.m] = m[i.dataset.m] || [])[Number(i.dataset.i)] = i.value === '' ? '' : Number(i.value); });
@@ -3414,36 +3829,220 @@
         function pintarIndInicio(r) {
           el('ind_inicio').innerHTML = r.indicadores.map(k => {
             const e = ESTADO_IND[k.estado];
-            return '<button class="indChico ' + e[0] + '" onclick="abrirReportes(\'indicadores\')"><small>' + esc(k.nombre) + '</small><b>' +
+            return '<button class="indChico ' + e[0] + '" style="border-top:3px solid ' + COLOR_IND[e[0]] + '" onclick="abrirReportes(\'indicadores\')"><small>' + esc(k.nombre) + '</small><b>' +
               valorInd(k, k.valor) + '</b><span class="semafInd ' + e[0] + '"><i></i>' + e[1] + '</span></button>';
           }).join('');
         }
 
-        const kpiR = (texto, valor, sub, clase) => '<div class="kpi' + (clase ? ' ' + clase : '') + '"><small>' + texto + '</small><b>' + valor + '</b>' +
-          (sub ? '<span class="sub">' + sub + '</span>' : '') + '</div>';
-        /** Barras horizontales: lista de {nombre, total}. */
-        const barrasH = (lista, extra) => {
-          if (!lista.length) return '<div class="ayuda">Nada en este período.</div>';
-          const max = Math.max.apply(null, lista.map(x => x.total)) || 1;
-          return lista.map(x => '<div class="barraH"><span>' + esc(x.nombre) + '</span><div class="pista"><div style="width:' +
-            Math.max(1, x.total / max * 100) + '%"></div></div><span class="num">' + cs(x.total) + (extra ? extra(x) : '') + '</span></div>').join('');
+        // ===== Gráficos =====
+        // Piezas de dibujo para Inicio y Reportes: cada función devuelve HTML y no toca el documento.
+        // Las marcas con data-tip (texto plano) muestran el globo de detalle #gTip con ratón, dedo o teclado.
+        const G_COLORES = ['var(--verde)', 'var(--verde-vivo)', '#f59e0b', 'var(--g500)', '#a7f3d0', 'var(--g300)'];
+        /** Tope «redondo» de la escala: 1, 2, 2.5, 5 o 10 por la potencia de 10. */
+        const gTope = v => {
+          if (!(v > 0)) return 1;
+          const p = 10 ** Math.floor(Math.log10(v)), f = v / p;
+          return p * (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10);
         };
-        function comparacion(v) {
-          if (!v.anterior) return v.total ? 'Período anterior sin ventas' : '';
-          const cambio = (v.total - v.anterior) / v.anterior * 100;
-          return '<span class="' + (cambio >= 0 ? 'sube' : 'baja') + '">' + (cambio >= 0 ? '▲ ' : '▼ ') + pct(Math.abs(cambio)) + '</span> vs. ' +
-            fechaCorta(v.anterior_desde) + '–' + fechaCorta(v.anterior_hasta) + ' (' + cs(v.anterior) + ')';
+        /** Cifra abreviada dentro de un gráfico (el monto completo va en el globo). */
+        const gCorto = n => n >= 1000 ? (Math.round(n / 100) / 10) + 'k' : String(Math.round(n));
+        /** Participaciones con un decimal que suman exactamente 100: el redondeo que falta va a las que más perdieron. */
+        const gRepartir = (valores, total) => {
+          if (!(total > 0)) return valores.map(() => 0);
+          const exactos = valores.map(v => v / total * 1000), base = exactos.map(v => Math.floor(v));
+          let falta = 1000 - base.reduce((a, b) => a + b, 0);
+          exactos.map((e, i) => [e - base[i], i]).sort((a, b) => b[0] - a[0]).forEach(p => { if (falta > 0) { base[p[1]]++; falta--; } });
+          return base.map(b => b / 10);
+        };
+        /** Variación en % entre dos valores ya recibidos; null si no hay con qué comparar. */
+        const gVar = (ahora, antes) => !antes ? null : (ahora - antes) / antes * 100;
+        /** Píldora de variación con flecha. `texto` ya viene listo para HTML. */
+        const gCambio = (v, texto) => v == null ? '' :
+          '<span class="gCambio ' + (v < 0 ? 'baja' : 'sube') + '">' + ico(v < 0 ? 'baja' : 'sube') + pct(Math.abs(v)) + '</span>' +
+          (texto ? ' <span class="gCambioTx">' + texto + '</span>' : '');
+        /** Fila de datos de resumen: [{t, v, d}] (ya listos para HTML; d opcional). */
+        const gDatos = lista => '<div class="gDatos">' + lista.map(x => '<div class="gDato"><small>' + x.t + '</small><b>' + x.v + '</b>' +
+          (x.d ? '<span>' + x.d + '</span>' : '') + '</div>').join('') + '</div>';
+        const gVacio = texto => '<div class="gVacio">' + esc(texto) + '</div>';
+        const gNum = v => Math.round(v * 100) / 100;
+        const gEjeY = (clase, tope) => '<div class="' + clase + '"><span>' + gCorto(tope) + '</span><span>' + gCorto(tope / 2) + '</span><span>0</span></div>';
+
+        /** Globo de detalle: uno solo para toda la página. Solo usa el documento (puede llamarse desde ver() en cualquier momento). */
+        function gTipOcultar() {
+          const t = document.getElementById('gTip');
+          if (t) { t.classList.add('oculto'); t.marca = null; }
+          document.querySelectorAll('.gSel, .gFoco').forEach(x => x.classList.remove('gSel', 'gFoco'));
         }
-        function grafico(v) {
-          const s = v.serie;
-          if (!s.length || !v.total) return '<div class="ayuda">No hubo ventas en este período.</div>';
-          const max = Math.max.apply(null, s.map(x => x.total)) || 1;
-          const etiqueta = x => v.serie_por_mes ? nombreMes(x.clave) : fechaCorta(x.clave);
-          const mejor = s.reduce((a, b) => b.total > a.total ? b : a);
-          return '<div class="columnas" role="img" aria-label="Ventas por ' + (v.serie_por_mes ? 'mes' : 'día') + '">' + s.map(x =>
-            '<div style="height:' + (x.total ? Math.max(2, x.total / max * 100) : 0) + '%" title="' + etiqueta(x) + ': ' + cs(x.total) + ' (' + x.ventas + ' ventas)"></div>').join('') +
-            '</div><div class="ejeX"><span>' + etiqueta(s[0]) + '</span>' + (s.length > 1 ? '<span>' + etiqueta(s[s.length - 1]) + '</span>' : '') + '</div>' +
-            '<div class="ayuda">Mejor ' + (v.serie_por_mes ? 'mes' : 'día') + ': ' + etiqueta(mejor) + ' con ' + cs(mejor.total) + '. Toca o pasa el dedo sobre una barra para ver su monto.</div>';
+        function gTipUbicar(m, t) {
+          const r = (m.classList.contains('gColC') && m.firstElementChild ? m.firstElementChild : m).getBoundingClientRect();
+          const an = document.documentElement.clientWidth, al = window.innerHeight, w = t.offsetWidth, h = t.offsetHeight;
+          let x = r.left + r.width / 2 - w / 2, y = r.top - h - 8;
+          if (y < 8) y = r.bottom + 8;
+          x = Math.max(8, Math.min(x, an - w - 8));
+          y = Math.max(8, Math.min(y, al - h - 8));
+          t.style.transform = 'translate(' + Math.round(x) + 'px, ' + Math.round(y) + 'px)';
+        }
+        function gTipMostrar(m) {
+          let t = document.getElementById('gTip');
+          if (t && t.marca === m) return;
+          gTipOcultar();
+          if (!t) {
+            t = document.createElement('div');
+            t.id = 'gTip'; t.className = 'gTip oculto noImprimir'; t.setAttribute('role', 'status');
+            document.body.appendChild(t);
+          }
+          m.classList.add('gSel');
+          const dona = m.closest('.gDona');
+          if (dona && m.getAttribute('data-i') != null) {
+            dona.classList.add('gFoco');
+            dona.querySelectorAll('[data-i="' + m.getAttribute('data-i') + '"]').forEach(x => x.classList.add('gSel'));
+          }
+          t.textContent = m.getAttribute('data-tip');
+          t.classList.remove('oculto');
+          gTipUbicar(m, t);
+          t.marca = m; t.desde = Date.now();
+        }
+        const gMarca = e => e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+        document.addEventListener('mouseover', e => { const m = gMarca(e); if (m) gTipMostrar(m); });
+        document.addEventListener('mouseout', e => {
+          const m = gMarca(e), t = el('gTip');
+          if (m && t && t.marca === m && !(e.relatedTarget && m.contains(e.relatedTarget))) gTipOcultar();
+        });
+        document.addEventListener('click', e => { const m = gMarca(e); if (m) gTipMostrar(m); else gTipOcultar(); });
+        document.addEventListener('focusin', e => { const m = gMarca(e); if (m) gTipMostrar(m); else gTipOcultar(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') gTipOcultar(); });
+        // Al deslizar se cierra; el desplazamiento que provoca el propio foco (Tab) solo lo reacomoda.
+        window.addEventListener('scroll', () => {
+          const t = el('gTip');
+          if (!t || !t.marca) return;
+          if (Date.now() - t.desde < 400) gTipUbicar(t.marca, t); else gTipOcultar();
+        }, { passive: true, capture: true });
+
+        /** Columnas: lista con `total`. o = {etq(x), tip(x), alto (160), vacio}. etq y tip devuelven texto plano. En el eje: primera, última y la mayor. */
+        function gColumnas(lista, o) {
+          o = o || {};
+          if (!lista || !lista.length) return gVacio(o.vacio || 'Nada en este período.');
+          const etq = o.etq || (() => ''), tip = o.tip || (x => etq(x) + '\n' + cs(x.total));
+          const n = lista.length, vals = lista.map(x => Number(x.total) || 0), max = Math.max.apply(null, vals), tope = gTope(max);
+          const im = max > 0 ? vals.indexOf(max) : -1, textos = lista.map(x => String(etq(x)));
+          const cols = lista.map((x, i) => '<div class="gColC' + (i === im ? ' mayor' : '') + '" data-tip="' + esc(tip(x)) + '" tabindex="0"><i style="height:' +
+            gNum(vals[i] > 0 ? Math.max(2, vals[i] / tope * 100) : 0) + '%"></i></div>').join('');
+          // La del mayor se omite si chocaría con un extremo (cálculo aproximado al ancho de celular).
+          const ult = n - 1, zona = 260, ancho = t => t.length * 6.5, centro = i => (i + 0.5) / n * zona;
+          const choca = im > 0 && im < ult && (centro(im) - ancho(textos[im]) / 2 < ancho(textos[0]) + 6 ||
+            centro(im) + ancho(textos[im]) / 2 > zona - ancho(textos[ult]) - 6);
+          const ejes = textos.map((t, i) => {
+            const c = n === 1 ? 'cen' : i === 0 ? 'ini' : i === ult ? 'fin' : i === im && !choca ? 'cen' : '';
+            return '<span>' + (c ? '<em class="' + c + (i === im ? ' mayor' : '') + '">' + esc(t) + '</em>' : '') + '</span>';
+          });
+          const aria = 'Gráfico de columnas: ' + n + ' datos' + (im >= 0 ? '; el mayor es ' + textos[im] + ' con ' + cs(max) : '');
+          return '<div class="gCol' + (n > 31 ? ' denso' : '') + '" style="--alto:' + (o.alto || 160) + 'px" role="img" aria-label="' + esc(aria) + '">' +
+            gEjeY('gColY', tope) + '<div class="gColZona">' + cols + '</div>' +
+            '<div class="gColX">' + ejes.join('') + '</div></div>';
+        }
+
+        /** Línea con área (hasta 14 puntos): lista con `total`. o = {etq(x), tip(x), alto (150), vacio}. */
+        function gLinea(lista, o) {
+          o = o || {};
+          if (!lista || !lista.length) return gVacio(o.vacio || 'Nada en este período.');
+          const etq = o.etq || (() => ''), tip = o.tip || (x => etq(x) + '\n' + cs(x.total));
+          const n = lista.length, vals = lista.map(x => Number(x.total) || 0), max = Math.max.apply(null, vals), tope = gTope(max);
+          const im = max > 0 ? vals.indexOf(max) : -1, textos = lista.map(x => String(etq(x)));
+          const pts = vals.map((v, i) => [gNum((i + 0.5) / n * 100), gNum(100 - v / tope * 100)]);
+          let d, x0 = pts[0][0], x1 = pts[n - 1][0];
+          if (n === 1) { x0 -= 10; x1 += 10; d = 'M' + x0 + ' ' + pts[0][1] + ' L' + x1 + ' ' + pts[0][1]; }
+          else d = 'M' + pts[0].join(' ') + pts.slice(1).map((p, k) => {
+            const a = pts[k], cx = gNum(a[0] + (p[0] - a[0]) / 2);
+            return ' C' + cx + ' ' + a[1] + ', ' + cx + ' ' + p[1] + ', ' + p[0] + ' ' + p[1];
+          }).join('');
+          const puntos = lista.map((x, i) => '<span class="gLinP' + (i === im ? ' mayor' : '') + (i === n - 1 ? ' ultimo' : '') + '" style="left:' + pts[i][0] +
+            '%;top:' + pts[i][1] + '%" data-tip="' + esc(tip(x)) + '" tabindex="0"></span>').join('');
+          const aria = 'Gráfico de línea: ' + n + ' datos' + (im >= 0 ? '; el mayor es ' + textos[im] + ' con ' + cs(max) : '');
+          return '<div class="gLin" style="--alto:' + (o.alto || 150) + 'px" role="img" aria-label="' + esc(aria) + '">' + gEjeY('gLinY', tope) +
+            '<div class="gLinZona"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="gLinArea" d="' + d + ' L' + x1 + ' 100 L' + x0 +
+            ' 100 Z"/><path class="gLinTrazo" d="' + d + '"/></svg>' + puntos + '</div>' +
+            '<div class="gLinX' + (n > 7 ? ' muchos' : '') + '" style="grid-template-columns:repeat(' + n + ', minmax(0, 1fr))">' +
+            textos.map(t => '<span>' + esc(t) + '</span>').join('') + '</div></div>';
+        }
+
+        /** Dona: [{nombre, total}], mayor a menor; más de 6 partes → las que sobran van en «Otros». o = {titulo ('Total'), vacio}. */
+        function gDona(lista, o) {
+          o = o || {};
+          let partes = (lista || []).map(x => ({ nombre: x.nombre, total: Number(x.total) || 0 })).sort((a, b) => b.total - a.total);
+          if (partes.length > 6) partes = partes.slice(0, 5).concat([{ nombre: 'Otros', total: partes.slice(5).reduce((s, x) => s + x.total, 0) }]);
+          const total = partes.reduce((s, x) => s + x.total, 0);
+          if (!partes.length || !(total > 0)) return gVacio(o.vacio || 'Nada en este período.');
+          const por = gRepartir(partes.map(x => x.total), total), C = 2 * Math.PI * 48;
+          const hueco = partes.filter(x => x.total > 0).length > 1 ? 1.5 : 0;
+          const tipDe = (x, i) => x.nombre + '\n' + cs(x.total) + ' · ' + pct(por[i]);
+          let ini = 0;
+          const arcos = partes.map((x, i) => {
+            if (!(x.total > 0)) return '';
+            const largo = x.total / total * C;
+            const s = '<circle class="gDonaP" data-i="' + i + '" data-tip="' + esc(tipDe(x, i)) + '" cx="60" cy="60" r="48" transform="rotate(-90 60 60)" style="stroke:' +
+              G_COLORES[i] + '" stroke-dasharray="' + gNum(Math.max(2, largo - hueco)) + ' ' + gNum(C) + '" stroke-dashoffset="' + gNum(-ini) + '"/>';
+            ini += largo;
+            return s;
+          }).join('');
+          // Dentro del anillo caben unos 95 px: desde C$ 1,000.00 la cifra baja a 15 px y desde C$ 10,000.00 a 13 px.
+          const textoCentro = total >= 100000 ? 'C$ ' + gCorto(total) : cs(total);
+          const centro = '<b' + (textoCentro.length >= 12 ? ' class="largo2"' : textoCentro.length >= 10 ? ' class="largo"' : '') + '>' + textoCentro + '</b>';
+          const aria = 'Gráfico de dona: ' + partes.length + ' partes; la mayor es ' + partes[0].nombre + ' con ' + cs(partes[0].total) + ' (' + pct(por[0]) + ')';
+          return '<div class="gDona"><div class="gDonaFig"><svg viewBox="0 0 120 120" role="img" aria-label="' + esc(aria) + '">' +
+            '<circle class="gDonaPista" cx="60" cy="60" r="48"/>' + arcos + '</svg><div class="gDonaCentro"><small>' + esc(o.titulo || 'Total') + '</small>' +
+            centro + '</div></div><ul class="gDonaLey">' +
+            partes.map((x, i) => '<li data-i="' + i + '" data-tip="' + esc(tipDe(x, i)) + '" tabindex="0"><i style="background:' + G_COLORES[i] + '"></i><span>' +
+              esc(x.nombre) + '</span><em>' + pct(por[i]) + '</em><b>' + cs(x.total) + '</b></li>').join('') + '</ul></div>';
+        }
+
+        /** Barras horizontales: [{nombre, total}], mayor a menor. o = {extra(x) (HTML tras el monto), max (filas; el resto en «Otros»), tono ('verde' | 'gris' | 'rojo'), vacio}. */
+        function gBarras(lista, o) {
+          o = o || {};
+          let filas = (lista || []).slice().sort((a, b) => (Number(b.total) || 0) - (Number(a.total) || 0));
+          if (!filas.length) return gVacio(o.vacio || 'Nada en este período.');
+          if (o.max && filas.length > o.max) filas = filas.slice(0, o.max).concat([{ nombre: 'Otros', total: filas.slice(o.max).reduce((s, x) => s + (Number(x.total) || 0), 0), gOtros: true }]);
+          const vals = filas.map(x => Number(x.total) || 0), max = Math.max.apply(null, vals), por = gRepartir(vals, vals.reduce((a, b) => a + b, 0));
+          return '<div class="gBarras' + (o.tono === 'gris' || o.tono === 'rojo' ? ' ' + o.tono : '') + '">' + filas.map((x, i) =>
+            '<div class="gBar" data-tip="' + esc(x.nombre + '\n' + cs(vals[i]) + ' · ' + pct(por[i])) + '" tabindex="0"><span class="gBarN">' + esc(x.nombre) +
+            '</span><span class="gBarV"><b>' + cs(vals[i]) + '</b>' + (o.extra && !x.gOtros ? o.extra(x) : '') + '<em>' + pct(por[i]) + '</em></span>' +
+            '<span class="gBarP"><i style="width:' + gNum(vals[i] > 0 && max > 0 ? Math.max(2, vals[i] / max * 100) : 0) + '%"></i></span></div>').join('') + '</div>';
+        }
+        // ===== fin gráficos =====
+
+        /** Tarjeta del Resumen: misma forma que las de Inicio (rótulo, cuadro de ícono, cifra, pie). */
+        const rpK = (texto, valor, sub, clase, icono) => cuadroHoy(texto, valor, sub, 'rpK' + (clase ? ' ' + clase : ''), '', icono);
+        /** Renglón del estado «Ganancia aproximada». barra = parte de la venta que se come (0–100) o null. */
+        const rpFila = (signo, nombre, valor, clase, barra) => '<div class="rpFila' + (clase ? ' ' + clase : '') + '"><span class="rpSig">' + signo +
+          '</span><span>' + nombre + '</span><span class="rpVal">' + valor + '</span><span class="rpBarra">' +
+          (barra != null ? '<i style="width:' + gNum(Math.min(100, Math.max(0, barra))) + '%"></i>' : '') + '</span></div>';
+        function rpGanancia(r) {
+          const v = r.ventas, dif = r.caja.sobrantes - r.caja.faltantes, conBarras = v.netas > 0;
+          const parte = n => conBarras ? n / v.netas * 100 : null;
+          return '<div class="cuadro"><h3>Ganancia aproximada</h3><div class="rpCuenta' + (conBarras ? ' conBarras' : '') + '">' +
+            rpFila('', 'Ventas sin IVA', cs(v.netas)) +
+            rpFila('−', 'Costo de lo vendido', cs(r.costo), '', parte(r.costo)) +
+            rpFila('=', 'Utilidad bruta', cs(r.utilidad_bruta) + chip('Margen ' + pct(r.margen), 'verde'), 'sub') +
+            rpFila('−', 'Mermas y vencidos', cs(r.mermas), '', parte(r.mermas)) +
+            rpFila('−', 'Gastos de operación', cs(r.gastos.total), '', parte(r.gastos.total)) +
+            rpFila(dif < 0 ? '−' : dif > 0 ? '+' : '±', 'Diferencias de caja', cs(Math.abs(dif)), '', dif < 0 ? parte(-dif) : null) +
+            rpFila('=', r.resultado >= 0 ? 'Queda (antes de nómina)' : 'Pérdida (antes de nómina)', cs(r.resultado), 'final ' + (r.resultado >= 0 ? 'bien' : 'mal')) +
+            '</div><div class="ayuda">Queda = utilidad bruta − mermas − gastos ± diferencias de caja. No incluye la nómina ni sus provisiones. El resultado oficial está en Contabilidad → Estado de resultados.</div></div>';
+        }
+        /** Ventas por día (o por mes) con sus datos, y la dona de formas de pago. */
+        function rpVentasSerie(v) {
+          const s = v.serie, porMes = v.serie_por_mes, etq = x => porMes ? nombreMes(x.clave) : fechaCorta(x.clave);
+          let izq;
+          if (!s.length || !v.total) izq = gVacio('No hubo ventas en este período.');
+          else {
+            const mejor = s.reduce((a, b) => b.total > a.total ? b : a);
+            izq = gDatos([
+              { t: porMes ? 'Mejor mes' : 'Mejor día', v: esc(etq(mejor)), d: cs(mejor.total) },
+              { t: porMes ? 'Promedio por mes' : 'Promedio por día', v: cs(v.total / s.length) },
+              { t: porMes ? 'Meses con venta' : 'Días con venta', v: s.filter(x => x.total > 0).length }
+            ]) + gColumnas(s, { alto: 160, etq, tip: x => etq(x) + '\n' + cs(x.total) + '\n' + x.ventas + ' ventas' });
+          }
+          return '<div class="cuadro rpDos"><div><h3>' + (porMes ? 'Ventas por mes' : 'Ventas por día') + '</h3>' + izq + '</div>' +
+            '<div><h3>Por forma de pago</h3>' + gDona(v.por_forma, { titulo: 'Cobrado' }) + '</div></div>';
         }
         function pintarResumen(r) {
           const v = r.ventas, inv = r.inventario;
@@ -3452,71 +4051,137 @@
           if (inv.lotes_sin_costo) avisos.push(inv.lotes_sin_costo + ' lote(s) en existencia sin costo (revisa la pestaña PorRevisar de la hoja).');
           if (!r.ultimo_respaldo) avisos.push('Todavía no hay ningún respaldo. Ve a la pestaña Respaldos.');
           const caja = r.caja.abiertas.length ? r.caja.abiertas.map(a => esc(a.vendedor) + ' (desde ' + esc(a.desde) + ')').join(', ') : 'ninguna';
-          return '<h3>Ventas</h3><div class="kpis">' +
-              kpiR('Ventas del período', cs(v.total), comparacion(v), 'fuerte') +
-              kpiR('Número de ventas', v.numero, v.anuladas ? v.anuladas + ' anulada(s), no se cuentan' : '') +
-              kpiR('Venta promedio', cs(v.promedio)) +
-              kpiR('Descuentos dados', cs(v.descuentos)) +
-            '</div>' + grafico(v) +
-            '<div class="dosCol"><div><h3>Por forma de pago</h3>' + barrasH(v.por_forma) + '</div>' +
-            '<div><h3>Por vendedor</h3>' + barrasH(v.por_vendedor) + '</div></div>' +
-            '<h3>Ganancia aproximada</h3><div class="kpis">' +
-              kpiR('Ventas sin IVA', cs(v.netas)) +
-              kpiR('Costo de lo vendido', cs(r.costo)) +
-              kpiR('Utilidad bruta', cs(r.utilidad_bruta), 'Margen ' + pct(r.margen), 'fuerte') +
-              kpiR('Mermas y vencidos', cs(r.mermas)) +
-              kpiR('Gastos de operación', cs(r.gastos.total)) +
-              kpiR('Diferencias de caja', cs(r.caja.sobrantes - r.caja.faltantes)) +
-              kpiR(r.resultado >= 0 ? 'Queda (antes de nómina)' : 'Pérdida (antes de nómina)', cs(r.resultado), '', r.resultado >= 0 ? 'fuerte' : 'malo') +
-            '</div><div class="ayuda">Queda = utilidad bruta − mermas − gastos ± diferencias de caja. No incluye la nómina ni sus provisiones. El resultado oficial está en Contabilidad → Estado de resultados.</div>' +
-            '<div class="dosCol"><div><h3>Gastos de operación</h3>' + barrasH(r.gastos.cuentas) + '</div>' +
-            '<div><h3>Otras salidas de dinero</h3>' + barrasH(r.otras_salidas.cuentas) +
+          // Misma regla que antes: sin período anterior con ventas no hay porcentaje.
+          const comparado = !v.anterior ? (v.total ? 'Período anterior sin ventas' : '') :
+            gCambio(gVar(v.total, v.anterior), 'vs. ' + fechaCorta(v.anterior_desde) + '–' + fechaCorta(v.anterior_hasta) + ' <span class="rpNoCorta">(' + cs(v.anterior) + ')</span>');
+          return (avisos.length ? '<ul class="rpAvisos">' + avisos.map(a => '<li>' + ico('aviso') + '<span>' + esc(a) + '</span></li>').join('') + '</ul>' : '') +
+            '<h3>Ventas</h3><div class="rpKs">' +
+              rpK('Ventas del período', cs(v.total), comparado, 'fuerte', 'grafica') +
+              rpK('Número de ventas', v.numero, v.anuladas ? v.anuladas + ' anulada(s), no se cuentan' : '', '', 'carrito') +
+              rpK('Venta promedio', cs(v.promedio), '', '', 'billetera') +
+              rpK('Descuentos dados', cs(v.descuentos), '', '', 'etiqueta') +
+            '</div>' + rpVentasSerie(v) +
+            '<div class="cuadro"><h3>Por vendedor</h3>' + gBarras(v.por_vendedor) + '</div>' +
+            rpGanancia(r) +
+            '<div class="dosCol"><div class="cuadro"><h3>Gastos de operación</h3>' + gBarras(r.gastos.cuentas, { tono: 'gris' }) + '</div>' +
+            '<div class="cuadro"><h3>Otras salidas de dinero</h3>' + gBarras(r.otras_salidas.cuentas, { tono: 'gris' }) +
               '<div class="ayuda">Pagos a proveedores, retiros del dueño, depósitos al banco, etc. No son gasto.</div></div></div>' +
             '<div class="ayuda">Compras registradas en el período: ' + r.compras.numero + ' factura(s) por ' + cs(r.compras.total) + '.</div>' +
             '<h3>Más vendidos (por importe)</h3>' + tablaProductos(r.productos.slice(0, 10)) +
             (r.productos.length > 10 ? '<div class="ayuda">Lista completa en la pestaña «Ventas por producto».</div>' : '') +
-            '<h3>Hoy en el negocio</h3><div class="kpis">' +
-              kpiR('Inventario al costo', cs(inv.valor_costo), 'A precio de venta: ' + cs(inv.valor_venta)) +
-              kpiR('Lotes vencidos', inv.vencidos, inv.vencidos ? 'Valor ' + cs(inv.valor_vencido) + '. Dar de baja.' : '', inv.vencidos ? 'malo' : '') +
-              kpiR('Vencen en ' + inv.dias_alerta + ' días', inv.por_vencer + ' lote(s)', '', inv.por_vencer ? 'alerta' : '') +
-              kpiR('Bajo el mínimo', inv.bajo_minimo + ' producto(s)', inv.agotados + ' sin existencia', inv.bajo_minimo || inv.agotados ? 'alerta' : '') +
-              kpiR('Clientes nos deben', cs(r.credito.por_cobrar), r.credito.clientes + ' cliente(s)') +
+            '<h3>Hoy en el negocio</h3><div class="rpKs cinco">' +
+              rpK('Inventario al costo', cs(inv.valor_costo), 'A precio de venta: ' + cs(inv.valor_venta), '', 'paquete') +
+              rpK('Lotes vencidos', inv.vencidos, inv.vencidos ? 'Valor ' + cs(inv.valor_vencido) + '. Dar de baja.' : '', inv.vencidos ? 'malo' : '', 'calendarioX') +
+              rpK('Vencen en ' + inv.dias_alerta + ' días', inv.por_vencer + ' lote(s)', '', inv.por_vencer ? 'alerta' : '', 'calendarioReloj') +
+              rpK('Bajo el mínimo', inv.bajo_minimo + ' producto(s)', inv.agotados + ' sin existencia', inv.bajo_minimo || inv.agotados ? 'alerta' : '', 'baja') +
+              rpK('Clientes nos deben', cs(r.credito.por_cobrar), r.credito.clientes + ' cliente(s)', '', 'personas') +
             '</div><div class="fila noImprimir"><button class="mini sec" onclick="abrirInventario(); pestana(\'inv\', \'alertas\')">Ver alertas de inventario</button>' +
               '<button class="mini sec" onclick="abrirVenta(\'creditos\')">Ver clientes y abonos</button></div>' +
             (r.credito.mayores.length ? '<h3>Clientes que más deben</h3>' + tablaReporte(['Cliente', '#Debe', '#Límite'],
               r.credito.mayores.map(c => tr([td(esc(c.nombre)), num(dinero(c.saldo)), num(dinero(c.limite))])).join('')) : '') +
-            '<h3>Caja</h3><div class="ayuda">Cajas abiertas ahora: ' + caja + '.<br>En el período: ' + r.caja.cierres + ' cierre(s), faltantes ' + cs(r.caja.faltantes) +
-              ', sobrantes ' + cs(r.caja.sobrantes) + '. Detalle en «Cierres de caja».</div>' +
-            '<div class="ayuda">Último respaldo: ' + (r.ultimo_respaldo || 'nunca') + '.</div>' +
-            (avisos.length ? '<div class="aviso error">' + avisos.map(esc).join('<br>') + '</div>' : '');
+            '<div class="cuadro"><h3>Caja y respaldo</h3>' + gDatos([
+              { t: 'Cajas abiertas ahora', v: caja },
+              { t: 'Cierres en el período', v: r.caja.cierres },
+              { t: 'Faltantes / sobrantes', v: cs(r.caja.faltantes) + ' / ' + cs(r.caja.sobrantes) }
+            ]) + '<div class="ayuda">Detalle en «Cierres de caja».</div>' +
+            gDatos([{ t: 'Último respaldo', v: r.ultimo_respaldo ? esc(r.ultimo_respaldo) : '<span class="rpNunca">nunca</span>' }]) + '</div>';
         }
-        function tablaProductos(lista) {
+        /** Meta verde de «margen» si los indicadores ya están cargados en pantalla; si no, null (no se pide al servidor). */
+        const metaMargen = () => {
+          const k = indDatos && indDatos.indicadores && indDatos.indicadores.filter(x => x.clave === 'margen')[0];
+          return k && k.meta && k.meta[0] !== '' && k.meta[0] != null && !isNaN(Number(k.meta[0])) ? Number(k.meta[0]) : null;
+        };
+        /** Totales de la lista: los mismos que daba la antigua línea «Total: …». */
+        const totalProductos = lista => lista.reduce((s, p) => ({ u: s.u + p.unidades, i: s.i + p.importe, c: s.c + p.costo }), { u: 0, i: 0, c: 0 });
+        const rpSinTildes = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+        const rpUtilidad = n => n < 0 ? '<span class="rpNeg">' + dinero(n) + '</span>' : dinero(n);
+        /** Tabla de productos. conTotal: agrega la fila de totales y deja las filas listas para «Buscar producto». */
+        function tablaProductos(lista, conTotal) {
           if (!lista.length) return '<div class="ayuda">No hubo ventas en este período.</div>';
-          return tablaReporte(['Producto', '#Unidades', '#Vendido', '#Costo', '#Utilidad', '#Margen'], lista.map(p => tr([
-            td(esc(p.nombre) + (p.sin_costo ? ' ' + chip('sin costo', 'ambar') : '')), num(p.unidades), num(dinero(p.importe)),
-            num(dinero(p.costo)), num(dinero(p.utilidad)), num(pct(p.margen))])).join(''));
+          // Pista bajo el nombre, relativa al importe del primero: es un ::after de CSS, así no sale al copiar para Excel.
+          const tope = Math.max.apply(null, lista.map(p => Number(p.importe) || 0)), meta = metaMargen();
+          let filas = lista.map(p => tr([
+            '<td class="rpPista" style="--p:' + gNum(tope > 0 && p.importe > 0 ? p.importe / tope * 100 : 0) + '%">' +
+              esc(p.nombre) + (p.sin_costo ? ' ' + chip('sin costo', 'ambar') : '') + '</td>', num(p.unidades), num(dinero(p.importe)),
+            num(dinero(p.costo)), num(rpUtilidad(p.utilidad)),
+            num('<span class="rpMg' + (meta != null && p.margen >= meta ? ' ok' : '') + '">' + pct(p.margen) + '</span>')],
+            conTotal ? ' data-b="' + esc(rpSinTildes(p.nombre)) + '"' : '')).join('');
+          if (conTotal) {
+            const t = totalProductos(lista), u = t.i - t.c;
+            filas += tr([td('Total'), num(t.u), num(dinero(t.i)), num(dinero(t.c)), num(rpUtilidad(u)), num(t.i ? pct(u / t.i * 100) : '')], ' class="tot"');
+          }
+          return tablaReporte(['Producto', '#Unidades', '#Vendido', '#Costo', '#Utilidad', '#Margen'], filas);
         }
         function pintarPorProducto(r) {
-          const t = r.productos.reduce((s, p) => ({ u: s.u + p.unidades, i: s.i + p.importe, c: s.c + p.costo }), { u: 0, i: 0, c: 0 });
-          return tablaProductos(r.productos) + (r.productos.length ? '<div class="total">Total: ' + t.u + ' unidades · vendido ' + cs(t.i) +
-            ' · costo ' + cs(t.c) + ' · utilidad ' + cs(t.i - t.c) + '</div><div class="ayuda">Importes sin IVA y después de descuentos. Las ventas anuladas no se cuentan.</div>' : '');
+          const lista = r.productos;
+          if (!lista.length) return tablaProductos(lista);
+          const t = totalProductos(lista), util = t.i - t.c;
+          return gDatos([
+            { t: 'Productos', v: lista.length },
+            { t: 'Unidades', v: t.u },
+            { t: 'Vendido', v: cs(t.i) },
+            { t: 'Costo', v: cs(t.c) },
+            { t: 'Utilidad', v: (util < 0 ? '<span class="rpNeg">' + cs(util) + '</span>' : cs(util)) + (t.i ? ' ' + chip(pct(util / t.i * 100), util < 0 ? 'rojo' : 'verde') : '') }
+          ]) +
+            (lista.length > 5 ? '<div class="cuadro noImprimir"><h3>Los 5 que más venden (por importe)</h3>' +
+              gBarras(lista.slice(0, 5).map(p => ({ nombre: p.nombre, total: p.importe })), {}) + '</div>' : '') +
+            '<div class="rpBuscar noImprimir"><input type="search" id="rp_buscar" placeholder="Buscar producto…" aria-label="Buscar producto" autocomplete="off" oninput="filtrarProductos()">' +
+              '<small id="rp_mostrando">Mostrando ' + lista.length + ' de ' + lista.length + '</small></div>' +
+            tablaProductos(lista, true) + '<div class="ayuda">Importes sin IVA y después de descuentos. Las ventas anuladas no se cuentan.</div>';
+        }
+        /** Solo pantalla: oculta las filas que no coinciden. Totales y datos de arriba no cambian; imprimir y copiar llevan todas las filas. */
+        function filtrarProductos() {
+          const q = rpSinTildes(el('rp_buscar').value).trim(), filas = todos('#areaRep tr[data-b]');
+          let n = 0;
+          filas.forEach(f => { const si = !q || f.dataset.b.indexOf(q) !== -1; f.classList.toggle('rpFuera', !si); if (si) n++; });
+          el('rp_mostrando').textContent = 'Mostrando ' + n + ' de ' + filas.length;
+        }
+        /** Tarjeta de un turno de caja (solo pantalla). Misma regla de la tabla: diferencia = contado − esperado; negativa es faltante. */
+        function tarjetaCaja(k) {
+          const d = k.abierta ? 0 : Number(k.diferencia) || 0;
+          const tipo = k.abierta ? 'abierta' : !d ? 'cuadra' : d < 0 ? 'falto' : 'sobro';
+          const etiqueta = { abierta: chip('abierta', 'ambar'), cuadra: chip('Cuadró', 'verde'), falto: chip('Faltó ' + cs(-d), 'rojo'), sobro: chip('Sobró ' + cs(d), 'verde') }[tipo];
+          const dato = (t, v, fuerte) => '<div><dt>' + t + '</dt><dd' + (fuerte ? ' class="fuerte"' : '') + '>' + v + '</dd></div>';
+          return '<div class="rpCaja ' + tipo + '"><div class="rpCajaCab"><div><b>Caja ' + esc(k.id) + ' · ' + esc(k.vendedor) + '</b><small>' + esc(k.apertura) +
+              (k.abierta ? '' : ' → ' + esc(k.cierre)) + '</small></div>' + etiqueta + '</div>' +
+            '<dl>' + dato('Inicial', cs(k.monto_inicial)) + dato('Ventas efectivo', cs(k.ventas_efectivo)) + dato('Abonos', cs(k.abonos)) + dato('Gastos', cs(k.gastos)) +
+              dato('Esperado', cs(k.esperado), true) + dato('Contado', k.abierta ? '—' : cs(k.contado), true) + '</dl>' +
+            (!k.abierta && k.esperado > 0 ? '<div class="rpCajaBar' + (d < 0 ? ' mal' : '') + '"><i style="width:' + gNum(Math.min(100, Math.max(0, k.contado / k.esperado * 100))) + '%"></i></div>' : '') +
+            (k.nota ? '<p class="rpCajaNota">' + esc(k.nota) + '</p>' : '') +
+            (k.conteo ? '<details><summary>Billetes contados' + ico('abajo') + '</summary><p>' + esc(k.conteo) + '</p></details>' : '') + '</div>';
         }
         function pintarCajas(lista) {
           if (!lista.length) return '<p>No hubo turnos de caja en este período.</p>';
           const tot = lista.reduce((s, k) => k.abierta ? s : { f: s.f + Math.min(0, k.diferencia), so: s.so + Math.max(0, k.diferencia) }, { f: 0, so: 0 });
-          return tablaReporte(['Caja', 'Vendedor', 'Abrió', 'Cerró', '#Inicial', '#Ventas efectivo', '#Abonos', '#Gastos', '#Esperado', '#Contado', '#Diferencia', 'Nota', 'Billetes contados'],
+          const abiertas = lista.filter(k => k.abierta), cerrados = lista.filter(k => !k.abierta), falta = -tot.f || 0;
+          return gDatos([
+            { t: 'Turnos', v: lista.length, d: abiertas.length ? abiertas.length + ' abierta(s)' : '' },
+            { t: 'Cuadraron', v: cerrados.filter(k => !Number(k.diferencia)).length },
+            { t: 'Faltantes', v: falta > 0 ? '<span class="rpFaltan">' + cs(falta) + '</span>' : cs(falta) },
+            { t: 'Sobrantes', v: cs(tot.so) }
+          ]) +
+            '<div class="rpCajas noImprimir">' + abiertas.concat(cerrados).map(tarjetaCaja).join('') + '</div>' +
+            // La tabla completa se conserva: al imprimir sale siempre (beforeprint abre el <details>) y «Copiar para Excel» la lee aunque esté cerrado.
+            '<details class="rpTablaCajas"' + (window.matchMedia('(min-width: 900px)').matches ? ' open' : '') + '><summary class="noImprimir">Ver como tabla (para imprimir o copiar)' + ico('abajo') + '</summary>' +
+            tablaReporte(['Caja', 'Vendedor', 'Abrió', 'Cerró', '#Inicial', '#Ventas efectivo', '#Abonos', '#Gastos', '#Esperado', '#Contado', '#Diferencia', 'Nota', 'Billetes contados'],
             lista.map(k => tr([td(k.id), td(esc(k.vendedor)), td(esc(k.apertura)), td(k.abierta ? chip('abierta', 'ambar') : esc(k.cierre)), num(dinero(k.monto_inicial)),
               num(dinero(k.ventas_efectivo)), num(dinero(k.abonos)), num(dinero(k.gastos)), num(dinero(k.esperado)), num(dinero(k.contado)),
               num(k.abierta ? '' : k.diferencia ? '<span class="' + (k.diferencia < 0 ? 'error' : 'ok') + '">' + dinero(k.diferencia) + '</span>' : '0.00'), td(esc(k.nota)), td('<small>' + esc(k.conteo || '') + '</small>')])).join('')) +
-            '<div class="total">Faltantes ' + cs(-tot.f) + ' · sobrantes ' + cs(tot.so) + '</div>' +
+            '<div class="total">Faltantes ' + cs(-tot.f) + ' · sobrantes ' + cs(tot.so) + '</div></details>' +
             '<div class="ayuda">Diferencia = contado − esperado. Negativa es faltante. «Ventas efectivo» incluye los dólares pasados a córdobas.</div>';
         }
+        /** Al imprimir (con el botón o con Ctrl+P) la tabla de cierres sale siempre, aunque su <details> esté cerrado. */
+        window.addEventListener('beforeprint', () => todos('#areaRep details.rpTablaCajas').forEach(d => { d.dataset.cerrado = d.open ? '' : '1'; d.open = true; }));
+        window.addEventListener('afterprint', () => todos('#areaRep details.rpTablaCajas').forEach(d => { if (d.dataset.cerrado) d.open = false; }));
         function pintarControlados(r) {
           if (!r.filas.length) return '<p>No hubo movimientos de productos controlados en este período.</p>';
-          return tablaReporte(['Fecha', 'Producto', 'Lote', 'Vence', 'Movimiento', '#Entrada', '#Salida', '#Saldo', 'Receta', 'Médico', 'Cód. MINSA', 'Paciente', 'Cédula', 'Venta', 'Usuario'],
+          const nMov = r.filas.length, nProd = r.filas.map(f => f.producto).filter((p, i, a) => a.indexOf(p) === i).length;
+          // Formato del MINSA: columnas, orden, textos y firma sin cambios. Solo se agrega el dato de apoyo (no se imprime).
+          return '<div class="rpApoyo noImprimir">' + nMov + (nMov === 1 ? ' movimiento' : ' movimientos') + ' · ' + nProd + (nProd === 1 ? ' producto' : ' productos') + '</div>' +
+            tablaReporte(['Fecha', 'Producto', 'Lote', 'Vence', 'Movimiento', '#Entrada', '#Salida', '#Saldo', 'Receta', 'Médico', 'Cód. MINSA', 'Paciente', 'Cédula', 'Venta', 'Usuario'],
             r.filas.map(f => tr([td(esc(f.fecha)), td(esc(f.producto)), td(esc(f.lote)), td(fechaCorta(f.vencimiento)), td(esc(f.tipo.replace(/_/g, ' ').toLowerCase())),
               num(f.entrada), num(f.salida), num('<b>' + f.saldo + '</b>'), td(esc(f.num_receta)), td(esc(f.medico)), td(esc(f.codigo_minsa_medico)),
-              td(esc(f.paciente)), td(esc(f.cedula_paciente)), td(esc(f.id_venta)), td(esc(f.usuario))])).join('')) +
+              td(esc(f.paciente)), td(esc(f.cedula_paciente)), td(esc(f.id_venta)), td(esc(f.usuario))])).join(''), 'rpCtrl') +
             '<div class="ayuda">El saldo es la existencia total del producto después de cada movimiento. Guarda las recetas originales en orden de fecha.</div>' +
             '<p style="margin-top:40px">______________________________<br>Firma y sello del regente farmacéutico</p>';
         }
