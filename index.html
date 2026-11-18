@@ -518,6 +518,25 @@
       background: #fff; border: 1px solid var(--g200); border-radius: 10px; padding: 8px; box-shadow: 0 10px 30px rgba(17, 24, 39, .15); }
     #bannerVista { background: var(--ambar-claro); color: var(--ambar); font-size: 13px; font-weight: 500; padding: 6px 16px; display: flex;
       align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    /* Modo de pantalla (quien elige al entrar qué va a hacer): solo oculta secciones; los permisos no cambian */
+    #bannerModo { background: var(--verde-claro); color: var(--verde-osc); font-size: 13px; font-weight: 500; padding: 6px 16px; display: flex;
+      align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .modoElegir #lateral, .modoElegir #btnMenu, .modoElegir #ruta, .modoElegir #velo { display: none !important; }
+    body.modoElegir:not(.sinSesion) { padding-left: 0 !important; }
+    .modoElegir header .marca { display: block !important; }
+    .modoElegir header h1 { display: block !important; }
+    .modoElegir #menuCuenta .soloModoTodo { display: none !important; }
+    .modoLimitado .soloTodo, .modoLimitado #menuCuenta .soloModoTodo { display: none !important; }
+    .modoVender #lateral .grupo[data-ir="inicio"], .modoVender #lateral .grupo[data-ir="productos"], .modoVender #lateral .grupo[data-ir="conta"],
+    .modoVender #lateral .grupo[data-ir="pacientes"], .modoVender #lateral .grupo[data-ir="nomina"], .modoVender #lateral .grupo[data-ir="reportes"],
+    .modoVender #lateral button[data-tab="inv:pedido"], .modoVender #lateral button[data-tab="inv:compra"], .modoVender #lateral button[data-tab="inv:ajuste"],
+    .modoConsulta #lateral .grupo[data-ir="inicio"], .modoConsulta #lateral .grupo[data-ir="productos"], .modoConsulta #lateral .grupo[data-ir="inventario"],
+    .modoConsulta #lateral .grupo[data-ir="conta"], .modoConsulta #lateral .grupo[data-ir="nomina"], .modoConsulta #lateral .grupo[data-ir="reportes"],
+    .modoConsulta #lateral button[data-tab="venta:recargas"], .modoConsulta #lateral button[data-tab="venta:creditos"], .modoConsulta #lateral button[data-tab="venta:caja"] { display: none !important; }
+    .modoPregunta { max-width: 640px; margin: 8vh auto 0; }
+    .modoPregunta h2 { margin-bottom: 4px; }
+    .modoPregunta .modulos { margin-top: 16px; grid-template-columns: 1fr; }
+    #modo_claveCaja { margin-top: 14px; padding: 14px; border: 1px solid var(--g200); border-radius: 12px; background: var(--g50); }
     .asistencia { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 8px 8px 8px 14px;
       border: 1px solid var(--g200); border-radius: 10px; background: var(--g50); font-size: 14px; }
     .asistencia #estado { flex: 1; min-width: 150px; }
@@ -778,7 +797,8 @@
       <details class="cuenta noImprimir conSesion" id="menuCuenta">
         <summary class="quien"><span class="avatar" id="quienIniciales"></span><span><b id="quienNombre"></b><span id="quienRol"></span></span><svg class="ico flechita" data-ico="abajo"></svg></summary>
         <div class="menuCuenta">
-          <button class="sec soloAdmin" onclick="vistaVendedor(true)">Ver como vendedor</button>
+          <button class="sec oculto" id="btnCambiarModo" onclick="pedirModo()">Cambiar modo (vender, consulta, todo)</button>
+          <button class="sec soloAdmin soloModoTodo" onclick="vistaVendedor(true)">Ver como vendedor</button>
           <button class="sec" onclick="pedirCambioClave(false)">Cambiar mi clave</button>
           <button class="peligro" onclick="salir()">Cerrar sesión</button>
         </div>
@@ -786,6 +806,8 @@
     </header>
     <div id="bannerVista" class="oculto noImprimir">Estás viendo la pantalla como la ve un vendedor. Lo que hagas se guarda a tu nombre, como Admin.
       <button class="mini sec" onclick="vistaVendedor(false)">Volver a vista Admin</button></div>
+    <div id="bannerModo" class="oculto noImprimir"><span id="modoEtiqueta"></span>
+      <button class="mini sec" onclick="pedirModo()">Cambiar modo</button></div>
   </div>
   <!-- Menú lateral en cascada: secciones (data-ir) y sus submenús (data-tab = las pestañas de cada pantalla) -->
   <aside id="lateral" class="noImprimir conSesion" aria-label="Menú principal">
@@ -902,6 +924,26 @@
             <button class="sec" id="btnClaveCancelar" onclick="ver('inicio')">Cancelar</button>
           </div>
           <div class="aviso" id="avisoClave"></div>
+        </div>
+      </div>
+
+      <!-- Modo: quien entra elige qué va a hacer (no muestra ningún dato del negocio) -->
+      <div data-vista="modo" class="oculto">
+        <div class="tarjeta modoPregunta">
+          <h2 id="modo_saludo">¿Qué vas a hacer?</h2>
+          <div class="ayuda">Se muestra solo lo que necesitas. Puedes cambiar de modo cuando quieras.</div>
+          <div class="modulos">
+            <button class="modulo" onclick="elegirModoPantalla('vender')"><i><svg class="ico" data-ico="carrito"></svg></i><span><b>Vender en la farmacia</b><small>Cobrar, caja, clientes y existencias</small></span></button>
+            <button class="modulo" onclick="elegirModoPantalla('consulta')"><i><svg class="ico" data-ico="personas"></svg></i><span><b>Dar consulta</b><small>Pacientes, recetas y cobro de la consulta</small></span></button>
+            <button class="modulo" onclick="elegirModoPantalla('todo')"><i><svg class="ico" data-ico="candado"></svg></i><span><b>Ver todo</b><small>Reportes, gastos y administración (pide tu clave)</small></span></button>
+          </div>
+          <div id="modo_claveCaja" class="oculto">
+            <label for="modo_clave">Escribe tu clave para ver todo</label>
+            <div class="fila"><input id="modo_clave" class="crece" type="password" autocomplete="current-password" onkeydown="if (event.key === 'Enter') confirmarModoTodo()">
+              <button id="btnModoTodo" onclick="confirmarModoTodo()">Entrar</button>
+              <button class="sec" onclick="mostrar('modo_claveCaja', false)">Cancelar</button></div>
+          </div>
+          <div class="aviso" id="avisoModo"></div>
         </div>
       </div>
 
@@ -1174,6 +1216,7 @@
                   <div><label>Cliente (obligatorio al crédito)</label><select id="v_cliente" onchange="calcularVuelto()"></select></div>
                   <div id="v_pagadoCaja"><label id="v_pagadoEtiqueta">Recibido (C$)</label><input id="v_pagado" type="number" min="0" step="0.01" oninput="calcularVuelto()"></div>
                 </div>
+                <div class="soloAdmin"><label for="v_nota">Nota para el recibo (opcional)</label><input id="v_nota" maxlength="200" placeholder="Ej.: indicaciones, abono pendiente, dato del paciente"></div>
                 <div class="filtros" id="v_billetes"></div>
                 <div class="total" id="v_vuelto"></div>
                 <div class="fila">
@@ -1189,7 +1232,7 @@
             <div class="filtros">
               <button data-tab="rec:vender" class="activa">Vender recarga</button>
               <button data-tab="rec:comprar">Comprar saldo</button>
-              <button data-tab="rec:control" class="soloAdmin">Control y cargos</button>
+              <button data-tab="rec:control" class="soloAdmin soloTodo">Control y cargos</button>
             </div>
             <div class="ciasRec" id="rc_cias"></div>
 
@@ -1306,8 +1349,8 @@
                 <div><label>Cédula</label><input id="cl_cedula"></div>
                 <div><label>Teléfono</label><input id="cl_telefono"></div>
                 <div><label>Dirección</label><input id="cl_direccion"></div>
-                <div class="soloAdmin"><label>Límite de crédito (C$)</label><input id="cl_limite_credito" type="number" min="0" step="0.01"></div>
-                <div class="soloAdmin"><label>Activo</label><select id="cl_activo"><option>SI</option><option>NO</option></select></div>
+                <div class="soloAdmin soloTodo"><label>Límite de crédito (C$)</label><input id="cl_limite_credito" type="number" min="0" step="0.01"></div>
+                <div class="soloAdmin soloTodo"><label>Activo</label><select id="cl_activo"><option>SI</option><option>NO</option></select></div>
               </div>
               <div class="ayuda" id="cl_ayuda"></div>
               <div class="fila"><button id="btnCliente" onclick="guardarMiCliente()">Guardar cliente</button></div>
@@ -1332,7 +1375,7 @@
               <div class="fila"><button id="btnCerrarCaja" class="peligro" onclick="cerrarMiCaja()">Cerrar caja</button></div>
             </div>
             <div class="aviso" id="avisoCaja"></div>
-            <div class="cuadro soloAdmin" id="cj_todasCaja">
+            <div class="cuadro soloAdmin soloTodo" id="cj_todasCaja">
               <div class="barra" style="margin-bottom:0"><h3 style="flex:1;margin:0">Cajas abiertas de todos</h3>
                 <button class="mini sec conIcono" id="btnCajasTodas" onclick="cargarCajasTodas()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button></div>
               <div id="cj_todas"><div class="ayuda">Consultando…</div></div>
@@ -1601,6 +1644,10 @@
       <script>
         var ES_ADMIN = false;        // se fija al entrar
         let ES_ADMIN_REAL = false;   // rol real (la «vista de vendedor» solo cambia ES_ADMIN)
+        // Modo de pantalla de quien elige al entrar: todo | elegir (pantalla de selección) | vender | consulta. Solo oculta; no cambia permisos.
+        let MODO = 'todo';
+        const MODO_VISTAS = { elegir: ['modo', 'clave'], vender: ['venta', 'inventario', 'clave'], consulta: ['pacientes', 'venta', 'clave'] };
+        const MODO_MINUTOS = 10;     // sin tocar la pantalla en «Ver todo» → vuelve a preguntar
         let TOKEN = '';              // código de la sesión
         let USUARIO = null;          // {correo, nombre, rol}
         document.body.classList.add('sinSesion', 'vendedor');
@@ -1695,8 +1742,11 @@
         const MENU = { formulario: 'productos', kardex: 'inventario' };   // vistas que pertenecen a otra sección del menú
         let vistaActual = '';
         function ver(vista) {
+          // Modo de pantalla: fuera de lo que ese modo permite, se vuelve a la pantalla del modo
+          if (MODO !== 'todo' && vista !== 'entrada' && MODO_VISTAS[MODO].indexOf(vista) === -1) return MODO === 'elegir' ? ver('modo') : modoInicio();
           gTipOcultar();
           vistaActual = vista;
+          if (vista === 'modo') prepararModo();
           todos('[data-vista]').forEach(v => v.classList.toggle('oculto', v.dataset.vista !== vista));
           todos('#lateral .grupo').forEach(g => {
             const es = g.dataset.ir === (MENU[vista] || vista);
@@ -1940,6 +1990,7 @@
           mostrar('capaRecibo', false);
           mostrar('capaDialogo', false);
           mostrar('bannerVista', false);
+          aplicarModo('todo');
           ver('entrada');
           aviso('avisoEntrada', mensaje || '', !!mensaje);
           entrada.elegido = null;
@@ -1983,8 +2034,68 @@
           el('quienNombre').textContent = usuario.nombre;
           el('quienRol').textContent = usuario.rol === 'Admin' ? 'Administrador' : usuario.rol;
           el('quienIniciales').textContent = String(usuario.nombre || '?').trim().split(/\s+/).slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('');
-          if (cambiarClave) pedirCambioClave(true); else ver('inicio');
+          // A quien debe elegir su modo (Héctor) no se le muestra nada del negocio hasta que elija
+          aplicarModo(ES_ADMIN_REAL && usuario.pregunta_modo ? 'elegir' : 'todo');
+          // Inicio no se abre en los modos limitados; sin esto «Cerrar sesión» no sabría si hay una entrada sin salida
+          if (MODO === 'elegir') consultarAsistencia();
+          if (cambiarClave) pedirCambioClave(true); else ver(MODO === 'elegir' ? 'modo' : 'inicio');
         }
+
+        // ===== Modo de pantalla: «¿vender, dar consulta o ver todo?» =====
+        const MODO_TEXTO = { vender: 'Modo vender: solo se ve lo de la venta.', consulta: 'Modo consulta: pacientes y cobro de la consulta.' };
+        function aplicarModo(m) {
+          MODO = m;
+          const b = document.body.classList;
+          b.toggle('modoElegir', m === 'elegir');
+          b.toggle('modoVender', m === 'vender');
+          b.toggle('modoConsulta', m === 'consulta');
+          b.toggle('modoLimitado', m === 'vender' || m === 'consulta');
+          mostrar('bannerModo', m === 'vender' || m === 'consulta');
+          el('modoEtiqueta').textContent = MODO_TEXTO[m] || '';
+          mostrar('btnCambiarModo', !!(USUARIO && USUARIO.pregunta_modo) && m !== 'elegir');
+          modoActividad = Date.now();
+        }
+        /** Primera pantalla de cada modo limitado. */
+        function modoInicio() { if (MODO === 'consulta') abrirExpedientes(); else abrirVenta('vender'); }
+        function prepararModo() {
+          const n = String((USUARIO && USUARIO.nombre) || '').trim().split(/\s+/)[0];
+          el('modo_saludo').textContent = 'Hola' + (n ? ', ' + n : '') + '. ¿Qué vas a hacer?';
+          el('modo_clave').value = '';
+          mostrar('modo_claveCaja', false);
+          aviso('avisoModo', '');
+        }
+        /** Vuelve a la pantalla de selección (botón «Cambiar modo», o sola tras un rato sin usar). */
+        function pedirModo() {
+          el('menuCuenta').open = false;
+          cerrarMenuCel();
+          cerrarExpediente();   // el expediente vuelve a pedir el PIN del médico
+          mostrar('capaRecibo', false);
+          mostrar('capaDialogo', false);
+          aplicarModo('elegir');
+          ver('modo');
+        }
+        function elegirModoPantalla(m) {
+          if (m === 'todo') {
+            mostrar('modo_claveCaja', true);
+            el('modo_clave').focus();
+            return;
+          }
+          llamar('elegirModo', [m, ''], () => { aplicarModo(m); modoInicio(); }, { aviso: 'avisoModo', espera: 'Abriendo…' });
+        }
+        function confirmarModoTodo() {
+          if (!el('modo_clave').value) return aviso('avisoModo', 'Escribe tu clave.', true);
+          llamar('elegirModo', ['todo', el('modo_clave').value], () => {
+            el('modo_clave').value = '';
+            aplicarModo('todo');
+            ver('inicio');
+          }, { aviso: 'avisoModo', espera: 'Revisando…', boton: 'btnModoTodo' });
+        }
+        // En «Ver todo» (como pasa en una tablet que se queda abierta): sin tocar nada por un rato, vuelve a preguntar.
+        let modoActividad = Date.now();
+        ['click', 'keydown', 'touchstart', 'input'].forEach(ev => document.addEventListener(ev, () => { modoActividad = Date.now(); }, true));
+        setInterval(() => {
+          if (MODO === 'todo' && USUARIO && USUARIO.pregunta_modo && ES_ADMIN_REAL && Date.now() - modoActividad > MODO_MINUTOS * 60000) pedirModo();
+        }, 15000);
         function pedirCambioClave(obligatorio) {
           el('menuCuenta').open = false;
           limpiar(['cc_actual', 'cc_nueva', 'cc_repite']);
@@ -2844,7 +2955,7 @@
         function vaciarCarrito() {
           carrito = [];
           recetaEnCarrito = null;
-          limpiar(CAMPOS_RECETA.map(c => 'r_' + c).concat(['v_pagado', 'v_cliente']));
+          limpiar(CAMPOS_RECETA.map(c => 'r_' + c).concat(['v_pagado', 'v_cliente', 'v_nota']));
           el('v_forma').value = 'Efectivo';
           cambioForma();
           pintarCarrito();
@@ -2954,7 +3065,7 @@
           const v = {
             forma_pago: el('v_forma').value, id_cliente: el('v_cliente').value, pagado: el('v_pagado').value,
             lineas: carrito.map(l => ({ codigo: l.codigo, modo: l.modo, cantidad: l.cantidad, descuento: l.descuento, indicacion: l.indicacion || '' })),
-            receta: leer('r_', CAMPOS_RECETA)
+            receta: leer('r_', CAMPOS_RECETA), nota: ES_ADMIN ? el('v_nota').value.trim() : ''
           };
           if (recetaEnCarrito) v.id_receta = recetaEnCarrito.id;
           llamar('registrarVenta', [v], r => {
@@ -3162,7 +3273,7 @@
                 td(v.id), td(esc(v.hora)), td(esc(v.cliente)), td(esc(v.forma_pago)), num(dinero(v.total)),
                 td(chip(v.estado.toLowerCase(), anulada ? 'rojo' : v.estado === 'CREDITO' ? 'ambar' : 'verde')),
                 td('<button class="mini sec" onclick="verRecibo(' + v.id + ')">Recibo</button>' +
-                  (ES_ADMIN && !anulada ? ' <button class="mini peligro" onclick="anular(' + v.id + ')">Anular</button>' : ''), 'num')
+                  (ES_ADMIN && MODO === 'todo' && !anulada ? ' <button class="mini peligro" onclick="anular(' + v.id + ')">Anular</button>' : ''), 'num')
               ], anulada ? ' class="inactivo"' : '');
             }).join('');
             const anuladas = lista.filter(v => v.estado === 'ANULADA').length;
@@ -3235,7 +3346,7 @@
             (c.telefono ? ' · Tel. ' + esc(c.telefono) : '') +
             '<div class="kpis"><div class="kpi' + (c.saldo > 0 ? ' fuerte' : '') + '"><small>Debe</small><b>' + cs(c.saldo) + '</b></div>' +
             '<div class="kpi"><small>Límite de crédito</small><b>' + cs(c.limite_credito) + '</b></div></div>' +
-            '<div class="fila"><button class="sec mini soloAdmin" onclick="formCliente(' + c.id + ')">Editar cliente</button>' +
+            '<div class="fila"><button class="sec mini soloAdmin soloTodo" onclick="formCliente(' + c.id + ')">Editar cliente</button>' +
             (c.saldo > 0 ? '<button class="sec mini" onclick="recordarSaldo()">Recordar saldo por WhatsApp</button>' : '') + '</div>' +
             '<div id="cr_ventas" class="ayuda">Cargando créditos…</div></div>';
           llamar('creditosCliente', [c.id], lista => {
