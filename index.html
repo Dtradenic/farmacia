@@ -1813,11 +1813,7 @@
           el('latLogo').outerHTML = h;
         })();
 
-        /**
-         * Ventana de confirmación. o = {titulo, texto, si: texto del botón, peligro: botón rojo,
-         * campo: etiqueta de un dato que se pide (obligatorio), otro: texto de un tercer botón}.
-         * Llama alAceptar(valor del campo); el tercer botón llama alOtro().
-         */
+        /** Ventana de confirmación. o = {titulo, texto, si, peligro, campo (dato obligatorio), otro (tercer botón → alOtro)}. */
         function preguntar(o, alAceptar, alOtro) {
           el('dg_titulo').textContent = o.titulo;
           el('dg_texto').textContent = o.texto || '';
@@ -1901,17 +1897,11 @@
           if (el(id).selectedIndex === -1) el(id).selectedIndex = 0;
         }
 
-        /**
-         * Llama una función del servidor. o = {aviso: id donde mostrar el error, espera: texto mientras carga,
-         * boton: id del botón que se desactiva mientras tanto, falla: función extra si hay error,
-         * directo: llamar sin sesión (solo para la pantalla de entrada)}.
-         * Todo lo demás pasa por api(token, función, argumentos). Si la sesión se venció, vuelve a la entrada.
-         */
-        // Dirección del servidor (Implementar > Administrar implementaciones > URL de la aplicación web, termina en /exec).
-        // Solo la usa la copia publicada en GitHub Pages; dentro de Google se usa google.script.run.
+        // Servidor publicado (la URL que termina en /exec). Solo lo usa la copia de GitHub Pages.
         const API_URL = 'https://script.google.com/macros/s/AKfycbyYryM1C0NRT-2tMMIcc9-oC66WlLhPjgGiclX1sOhYnYAVx8HZgnhsNeeZfGGC8L3F/exec';
         const DENTRO_DE_GOOGLE = typeof google !== 'undefined' && !!(google.script && google.script.run);
         let pendientes = 0;   // llamadas al servidor en curso (mientras haya, se ve la barra de carga)
+        /** Llama al servidor. o = {aviso, espera, boton, falla, directo (sin sesión)}. Si la sesión venció, vuelve a la entrada. */
         function llamar(funcion, args, alTerminar, o) {
           o = o || {};
           const boton = o.boton && el(o.boton);
@@ -1941,8 +1931,7 @@
             else servidor.api(TOKEN, funcion, args);
             return;
           }
-          // Fuera de Google (GitHub Pages): se habla con el servidor por internet (doPost en Code.gs).
-          // text/plain evita la consulta previa del navegador, que Apps Script no contesta.
+          // GitHub Pages: va por doPost; text/plain evita la consulta previa que Apps Script no contesta.
           fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ f: funcion, a: args || [], t: TOKEN, directo: !!o.directo }) })
             .then(resp => { if (!resp.ok) throw new Error('El servidor no respondió (' + resp.status + '). Intenta otra vez.'); return resp.json(); })
@@ -1956,8 +1945,7 @@
         const leerGuardado = () => { try { return localStorage.getItem(GUARDA) || ''; } catch (e) { return ''; } };
         const guardar = v => { try { if (v) localStorage.setItem(GUARDA, v); else localStorage.removeItem(GUARDA); } catch (e) { /* sin almacenamiento */ } };
         let entrada = { usuarios: [], elegido: null };
-        // Entrada privada: se abre con el enlace ?acceso=privado y este equipo la recuerda
-        // (así la app instalada en la computadora de la oficina también la muestra).
+        // Entrada privada: el enlace ?acceso=privado la abre y este equipo la recuerda.
         const PRIVADO = 'farmaciaAccesoPrivado';
         (function () {
           try {
@@ -2998,10 +2986,7 @@
           calcularVuelto();
         }
 
-        /**
-         * Muestra el expediente clínico dentro del sistema. Se carga una vez y queda abierto mientras se usan
-         * otras pantallas; al cerrar la sesión del sistema se quita (el médico tendrá que volver a entrar).
-         */
+        /** Expediente clínico dentro del sistema: se carga una vez y se quita al cerrar la sesión. */
         function abrirExpedientes() {
           cerrarMenuCel();
           ver('pacientes');
@@ -3907,8 +3892,7 @@
           return Math.round(v).toLocaleString('en-US') + ' días';
         }
         const metaTxt = (k, n) => k.unidad === 'C$' ? 'C$ ' + n : n + (k.unidad === '%' ? '%' : ' días');
-        /** Línea de tendencia de 6 meses con la meta punteada, área suave, punto final redondo (HTML)
-            y una franja tocable por mes con su globo. meses = nombres cortos; k = el indicador (para valorInd). */
+        /** Línea de tendencia de 6 meses con la meta punteada y un globo por mes. k = el indicador. */
         function lineaInd(valores, meta, color, meses, k) {
           const nums = valores.filter(v => v !== null);
           if (nums.length < 2) return '<div class="indVacio">La tendencia aparece cuando haya 2 meses con datos</div>';
@@ -4056,8 +4040,7 @@
         }
 
         // ===== Gráficos =====
-        // Piezas de dibujo para Inicio y Reportes: cada función devuelve HTML y no toca el documento.
-        // Las marcas con data-tip (texto plano) muestran el globo de detalle #gTip con ratón, dedo o teclado.
+        // Cada función devuelve HTML; las marcas con data-tip muestran el globo #gTip.
         const G_COLORES = ['var(--verde)', 'var(--verde-vivo)', '#f59e0b', 'var(--g500)', '#a7f3d0', 'var(--g300)'];
         /** Tope «redondo» de la escala: 1, 2, 2.5, 5 o 10 por la potencia de 10. */
         const gTope = v => {
