@@ -3068,21 +3068,18 @@
         function reciboWhatsApp() {
           const r = reciboActual;
           if (!r) return;
-          if (r.tipo === 'ABONO') {
-            abrirWhatsApp('*' + r.negocio.nombre + '*\n' + (r.cancelado ? 'Recibo de cancelación de crédito' : 'Recibo de abono') + ' N° ' + r.numero + '\n' + r.fecha +
-              '\nCliente: ' + r.cliente + '\n\n' +
+          const ab = r.tipo === 'ABONO';
+          const cuerpo = ab
+            ? (r.cancelado ? 'Recibo de cancelación de crédito' : 'Recibo de abono') + ' N° ' + r.numero + '\n' + r.fecha + '\nCliente: ' + r.cliente + '\n\n' +
               r.lineas.map(l => 'Venta N° ' + l.venta + (l.fecha_venta ? ' (' + l.fecha_venta + ')' : '') + '\n   Saldo anterior: C$ ' + dinero(l.saldo_antes) +
                 '\n   Abono: C$ ' + dinero(l.abono) + '\n   Queda: C$ ' + dinero(l.saldo)).join('\n') +
               '\n\n*Total abonado: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago +
               '\nDebía antes: C$ ' + dinero(r.deuda_antes) + '\n*Saldo pendiente: C$ ' + dinero(r.deuda_despues) + '*' +
-              (r.cancelado ? '\n\n✅ *CRÉDITO CANCELADO.* No queda deuda pendiente.' : '') +
-              '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su pago!', r.telefono);
-            return;
-          }
-          abrirWhatsApp('*' + r.negocio.nombre + '*\nComprobante ' + (r.numero ? 'de recarga N° ' + r.numero : 'de venta N° ' + r.id) + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
-            r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total) + (l.indicacion ? '\n   _Indicación: ' + l.indicacion + '_' : '')).join('\n') +
-            (r.descuento ? '\nDescuento: -C$ ' + dinero(r.descuento) : '') + '\n*Total: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago +
-            '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su compra!', r.telefono);
+              (r.cancelado ? '\n\n✅ *CRÉDITO CANCELADO.* No queda deuda pendiente.' : '')
+            : 'Comprobante ' + (r.numero ? 'de recarga N° ' + r.numero : 'de venta N° ' + r.id) + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
+              r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total) + (l.indicacion ? '\n   _Indicación: ' + l.indicacion + '_' : '')).join('\n') +
+              (r.descuento ? '\nDescuento: -C$ ' + dinero(r.descuento) : '') + '\n*Total: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago;
+          abrirWhatsApp('*' + r.negocio.nombre + '*\n' + cuerpo + '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su ' + (ab ? 'pago' : 'compra') + '!', r.telefono);
         }
         // Recibo en imagen (PNG) para compartir por WhatsApp. Se dibuja a mano en un <canvas>, sin librerías.
         function reciboImagen(r) {
@@ -3132,26 +3129,45 @@
                 [n.direccion, n.telefono ? 'Tel. ' + n.telefono : '', n.ruc ? 'RUC ' + n.ruc : ''].filter(Boolean).forEach(t => {
                   y += 28; texto(t, W / 2, 'center', GRIS);
                 });
-                // Título
+                // Título y datos
                 const ab = r.tipo === 'ABONO';
                 y += 22;
                 if (pintar) { ctx.fillStyle = '#e8f3ef'; ctx.fillRect(M, y, ANCHO, 70); }
                 fuente(26, 700); y += 34; texto(ab ? (r.cancelado ? 'RECIBO DE CANCELACIÓN' : 'RECIBO DE ABONO') : 'COMPROBANTE DE VENTA', W / 2, 'center', VERDE);
                 fuente(19); y += 26; texto('Comprobante interno · No es factura fiscal', W / 2, 'center', GRIS);
                 y += 18;
-                // Datos de la venta
                 fila('Recibo N°', r.numero || ('00000' + r.id).slice(-6), 23, 700);
                 fila('Fecha', r.fecha, 22);
                 fila(ab ? 'Recibió' : 'Atendió', r.vendedor, 22);
                 if (r.cliente) fila('Cliente', r.cliente, 22);
                 if (ab && r.cedula) fila('Cédula', r.cedula, 22);
-                if (ab) {
-                  // Recibo de abono: un bloque por venta al crédito, totales y saldo que queda
-                  if (r.cancelado) {
-                    y += 16;
-                    if (pintar) { ctx.save(); ctx.strokeStyle = VERDE; ctx.lineWidth = 4; ctx.strokeRect(M + 60, y, ANCHO - 120, 56); ctx.restore(); }
-                    fuente(30, 800); y += 40; texto('CRÉDITO CANCELADO', W / 2, 'center', VERDE); y += 16;
+                // Piezas comunes: sello (CRÉDITO CANCELADO o ANULADA), barra del total y pie
+                const sello = (t, color, sangria, px) => {
+                  y += 16;
+                  if (pintar) { ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.strokeRect(M + sangria, y, ANCHO - 2 * sangria, 56); ctx.restore(); }
+                  fuente(px, 800); y += 40; texto(t, W / 2, 'center', color); y += 16;
+                };
+                const barraTotal = (etiqueta, monto) => {
+                  y += 18;
+                  if (pintar) { ctx.fillStyle = VERDE; ctx.fillRect(M, y, ANCHO, 76); }
+                  fuente(34, 800); y += 50;
+                  if (pintar) {
+                    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText(etiqueta, M + 22, y);
+                    ctx.textAlign = 'right'; ctx.fillText('C$ ' + dinero(monto), W - M - 22, y);
                   }
+                  y += 26;
+                };
+                const pie = gracias => {
+                  y += 26; raya(2, '#d1d5db', true);
+                  fuente(26, 700); y += 44; texto(gracias, W / 2, 'center', VERDE);
+                  fuente(20);
+                  if (n.pie) partir(n.pie, ANCHO).forEach(t => { y += 28; texto(t, W / 2, 'center', GRIS); });
+                  y += 28; texto('Conserve este comprobante.', W / 2, 'center', GRIS);
+                  return y + M;
+                };
+                if (ab) {
+                  // Abono: un bloque por venta al crédito y el saldo que queda
+                  if (r.cancelado) sello('CRÉDITO CANCELADO', VERDE, 60, 30);
                   y += 18; raya(2, NEGRO); y += 4;
                   fuente(19, 700); y += 24; texto('ABONO APLICADO A', M, 'left', GRIS);
                   y += 12; raya(1);
@@ -3162,29 +3178,13 @@
                     fila('Queda', 'C$ ' + dinero(l.saldo), 21, 400, GRIS);
                     y += 12; raya(1, '#e5e7eb', true);
                   });
-                  y += 18;
-                  if (pintar) { ctx.fillStyle = VERDE; ctx.fillRect(M, y, ANCHO, 76); }
-                  fuente(34, 800); y += 50;
-                  if (pintar) {
-                    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText('ABONO', M + 22, y);
-                    ctx.textAlign = 'right'; ctx.fillText('C$ ' + dinero(r.total), W - M - 22, y);
-                  }
-                  y += 26;
+                  barraTotal('ABONO', r.total);
                   fila('Forma de pago', r.forma_pago, 22);
                   fila('Debía antes', 'C$ ' + dinero(r.deuda_antes), 22);
                   fila('Saldo pendiente', 'C$ ' + dinero(r.deuda_despues), 25, 800, r.cancelado ? VERDE : '#b45309');
-                  y += 26; raya(2, '#d1d5db', true);
-                  fuente(26, 700); y += 44; texto('¡Gracias por su pago!', W / 2, 'center', VERDE);
-                  fuente(20);
-                  if (n.pie) partir(n.pie, ANCHO).forEach(t => { y += 28; texto(t, W / 2, 'center', GRIS); });
-                  y += 28; texto('Conserve este comprobante.', W / 2, 'center', GRIS);
-                  return y + M;
+                  return pie('¡Gracias por su pago!');
                 }
-                if (r.estado === 'ANULADA') {
-                  y += 16;
-                  if (pintar) { ctx.save(); ctx.strokeStyle = '#be123c'; ctx.lineWidth = 4; ctx.strokeRect(M + 120, y, ANCHO - 240, 56); ctx.restore(); }
-                  fuente(32, 800); y += 40; texto('ANULADA', W / 2, 'center', '#be123c'); y += 16;
-                }
+                if (r.estado === 'ANULADA') sello('ANULADA', '#be123c', 120, 32);
                 // Productos
                 y += 18; raya(2, NEGRO); y += 4;
                 fuente(19, 700); y += 24;
@@ -3206,14 +3206,7 @@
                 fila(articulos + (articulos === 1 ? ' artículo' : ' artículos'), '', 20, 400, GRIS);
                 if (r.descuento) { fila('Subtotal', 'C$ ' + dinero(r.subtotal), 22); fila('Descuento', '-C$ ' + dinero(r.descuento), 22); }
                 if (r.iva) fila('IVA incluido', 'C$ ' + dinero(r.iva), 22);
-                y += 18;
-                if (pintar) { ctx.fillStyle = VERDE; ctx.fillRect(M, y, ANCHO, 76); }
-                fuente(34, 800); y += 50;
-                if (pintar) {
-                  ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText('TOTAL', M + 22, y);
-                  ctx.textAlign = 'right'; ctx.fillText('C$ ' + dinero(r.total), W - M - 22, y);
-                }
-                y += 26;
+                barraTotal('TOTAL', r.total);
                 fila('Forma de pago', r.forma_pago, 22);
                 if ((r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares') && !r.sin_vuelto) {
                   fila('Recibido', 'C$ ' + dinero(r.pagado), 22);
@@ -3221,13 +3214,7 @@
                 }
                 if (r.estado === 'CREDITO') fila('Estado', 'Al crédito', 22, 700, '#b45309');
                 if (r.nota) { fuente(19); partir(r.nota, ANCHO).forEach(t => { y += 26; texto(t, M, 'left', GRIS); }); }
-                // Pie
-                y += 26; raya(2, '#d1d5db', true);
-                fuente(26, 700); y += 44; texto('¡Gracias por su compra!', W / 2, 'center', VERDE);
-                fuente(20);
-                if (n.pie) partir(n.pie, ANCHO).forEach(t => { y += 28; texto(t, W / 2, 'center', GRIS); });
-                y += 28; texto('Conserve este comprobante.', W / 2, 'center', GRIS);
-                return y + M;
+                return pie('¡Gracias por su compra!');
               };
               const medir = document.createElement('canvas').getContext('2d');
               const alto = Math.ceil(dibujar(medir, false));
@@ -3271,46 +3258,41 @@
           mostrar('btnReciboDescargar', false);
           mostrar('reciboImg', false);
           mostrar('recibo', true);
-          const n = r.negocio, f = (t, v) => tr([td(t), num(v)]);
-          if (r.tipo === 'ABONO') {
-            el('recibo').innerHTML =
-              '<div class="centro"><img class="rLogo" alt="' + esc(n.nombre) + '" src="' + LOGO_SRC + '">' + esc(n.direccion) +
-                (n.telefono ? '<br>Tel. ' + esc(n.telefono) : '') + (n.ruc ? '<br>RUC ' + esc(n.ruc) : '') + '</div>' +
-              '<div class="rTipo">' + (r.cancelado ? 'RECIBO DE CANCELACIÓN' : 'RECIBO DE ABONO') + '<br><small>Comprobante interno · No es factura fiscal</small></div>' +
-              '<table>' + f('Recibo N°', '<b>' + esc(r.numero) + '</b>') + f('Fecha', esc(r.fecha)) + f('Recibió', esc(r.vendedor)) +
-                f('Cliente', esc(r.cliente)) + (r.cedula ? f('Cédula', esc(r.cedula)) : '') + '</table>' +
-              (r.cancelado ? '<div class="rAnulada">CRÉDITO CANCELADO</div>' : '') +
-              '<hr><b>Abono aplicado a:</b>' +
-              r.lineas.map(l => '<table class="rAbono">' + f('<b>Venta N° ' + esc(l.venta) + '</b>', esc(l.fecha_venta)) +
-                f('Saldo anterior', dinero(l.saldo_antes)) + f('Abono', '<b>' + dinero(l.abono) + '</b>') + f('Queda', dinero(l.saldo)) + '</table>').join('<hr>') +
-              '<hr><div class="rTotal"><span>ABONO C$</span><span>' + dinero(r.total) + '</span></div>' +
-              '<table>' + f('Pago', esc(r.forma_pago)) + f('Debía antes C$', dinero(r.deuda_antes)) +
-                f('<b>Saldo pendiente C$</b>', '<b>' + dinero(r.deuda_despues) + '</b>') + '</table>' +
-              '<hr><div class="centro"><b>¡Gracias por su pago!</b>' + (n.pie ? '<br>' + esc(n.pie) : '') +
-                '<br><br>_______________________<br><small>Firma de quien recibe</small><br><small>Conserve este comprobante.</small></div>';
-            mostrar('capaRecibo', true);
-            return;
-          }
-          const articulos = r.lineas.reduce((s, l) => s + l.unidades, 0);
-          const efectivo = r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares';
+          const n = r.negocio, f = (t, v) => tr([td(t), num(v)]), ab = r.tipo === 'ABONO';
+          const total = (etiqueta, monto) => '<div class="rTotal"><span>' + etiqueta + ' C$</span><span>' + dinero(monto) + '</span></div>';
+          // Lo que cambia entre abono y venta; encabezado, datos, sello y pie son comunes.
+          const cuerpoAbono = () => '<hr><b>Abono aplicado a:</b>' +
+            r.lineas.map(l => '<table class="rAbono">' + f('<b>Venta N° ' + esc(l.venta) + '</b>', esc(l.fecha_venta)) +
+              f('Saldo anterior', dinero(l.saldo_antes)) + f('Abono', '<b>' + dinero(l.abono) + '</b>') + f('Queda', dinero(l.saldo)) + '</table>').join('<hr>') +
+            '<hr>' + total('ABONO', r.total) +
+            '<table>' + f('Pago', esc(r.forma_pago)) + f('Debía antes C$', dinero(r.deuda_antes)) +
+              f('<b>Saldo pendiente C$</b>', '<b>' + dinero(r.deuda_despues) + '</b>') + '</table>';
+          const cuerpoVenta = () => {
+            const articulos = r.lineas.reduce((s, l) => s + l.unidades, 0);
+            const efectivo = r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares';
+            return '<hr><table class="rLineas"><tr><th>Cant</th><th>Descripción</th><th class="num">Importe</th></tr>' +
+              r.lineas.map(l => tr([td(l.unidades), td(esc(l.nombre) + '<br><small>' + dinero(l.unidades ? (l.total + l.descuento) / l.unidades : 0) + ' c/u' +
+                (l.descuento ? ' · desc. ' + dinero(l.descuento) : '') + '</small>' +
+                (l.indicacion ? '<div class="rIndica">Indicación: ' + esc(l.indicacion) + '</div>' : '')), num(dinero(l.total))])).join('') + '</table><hr>' +
+              '<table>' + f(articulos + (articulos === 1 ? ' artículo' : ' artículos'), '') +
+                (r.descuento ? f('Subtotal', dinero(r.subtotal)) + f('Descuento', '-' + dinero(r.descuento)) : '') +
+                (r.iva ? f('IVA incluido', dinero(r.iva)) : '') + '</table>' +
+              total('TOTAL', r.total) +
+              '<table>' + f('Pago', esc(r.forma_pago)) + (efectivo && !r.sin_vuelto ? f('Recibido C$', dinero(r.pagado)) + f('<b>Vuelto C$</b>', '<b>' + dinero(r.vuelto) + '</b>') : '') + '</table>' +
+              (r.nota ? '<div style="margin-top:4px">' + esc(r.nota) + '</div>' : '');
+          };
+          const sello = ab ? (r.cancelado ? 'CRÉDITO CANCELADO' : '') : (r.estado === 'ANULADA' ? 'ANULADA' : '');
           el('recibo').innerHTML =
             '<div class="centro"><img class="rLogo" alt="' + esc(n.nombre) + '" src="' + LOGO_SRC + '">' + esc(n.direccion) +
               (n.telefono ? '<br>Tel. ' + esc(n.telefono) : '') + (n.ruc ? '<br>RUC ' + esc(n.ruc) : '') + '</div>' +
-            '<div class="rTipo">COMPROBANTE INTERNO<br><small>No es factura fiscal</small></div>' +
-            '<table>' + f('Recibo N°', '<b>' + (r.numero || ('00000' + r.id).slice(-6)) + '</b>') + f('Fecha', esc(r.fecha)) + f('Atendió', esc(r.vendedor)) +
-              (r.cliente ? f('Cliente', esc(r.cliente)) : '') + '</table>' +
-            (r.estado === 'ANULADA' ? '<div class="rAnulada">ANULADA</div>' : '') +
-            '<hr><table class="rLineas"><tr><th>Cant</th><th>Descripción</th><th class="num">Importe</th></tr>' +
-            r.lineas.map(l => tr([td(l.unidades), td(esc(l.nombre) + '<br><small>' + dinero(l.unidades ? (l.total + l.descuento) / l.unidades : 0) + ' c/u' +
-              (l.descuento ? ' · desc. ' + dinero(l.descuento) : '') + '</small>' +
-              (l.indicacion ? '<div class="rIndica">Indicación: ' + esc(l.indicacion) + '</div>' : '')), num(dinero(l.total))])).join('') + '</table><hr>' +
-            '<table>' + f(articulos + (articulos === 1 ? ' artículo' : ' artículos'), '') +
-              (r.descuento ? f('Subtotal', dinero(r.subtotal)) + f('Descuento', '-' + dinero(r.descuento)) : '') +
-              (r.iva ? f('IVA incluido', dinero(r.iva)) : '') + '</table>' +
-            '<div class="rTotal"><span>TOTAL C$</span><span>' + dinero(r.total) + '</span></div>' +
-            '<table>' + f('Pago', esc(r.forma_pago)) + (efectivo && !r.sin_vuelto ? f('Recibido C$', dinero(r.pagado)) + f('<b>Vuelto C$</b>', '<b>' + dinero(r.vuelto) + '</b>') : '') + '</table>' +
-            (r.nota ? '<div style="margin-top:4px">' + esc(r.nota) + '</div>' : '') +
-            '<hr><div class="centro"><b>¡Gracias por su compra!</b>' + (n.pie ? '<br>' + esc(n.pie) : '') + '<br><small>Conserve este comprobante.</small></div>';
+            '<div class="rTipo">' + (ab ? (r.cancelado ? 'RECIBO DE CANCELACIÓN' : 'RECIBO DE ABONO') + '<br><small>Comprobante interno · No es factura fiscal</small>'
+              : 'COMPROBANTE INTERNO<br><small>No es factura fiscal</small>') + '</div>' +
+            '<table>' + f('Recibo N°', '<b>' + esc(r.numero || ('00000' + r.id).slice(-6)) + '</b>') + f('Fecha', esc(r.fecha)) + f(ab ? 'Recibió' : 'Atendió', esc(r.vendedor)) +
+              (ab || r.cliente ? f('Cliente', esc(r.cliente)) : '') + (ab && r.cedula ? f('Cédula', esc(r.cedula)) : '') + '</table>' +
+            (sello ? '<div class="rAnulada">' + sello + '</div>' : '') +
+            (ab ? cuerpoAbono() : cuerpoVenta()) +
+            '<hr><div class="centro"><b>¡Gracias por su ' + (ab ? 'pago' : 'compra') + '!</b>' + (n.pie ? '<br>' + esc(n.pie) : '') +
+              (ab ? '<br><br>_______________________<br><small>Firma de quien recibe</small>' : '') + '<br><small>Conserve este comprobante.</small></div>';
           mostrar('capaRecibo', true);
         }
 
