@@ -506,6 +506,7 @@
     #reciboImg img { width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
     #reciboImg p { background: #fff; border-radius: 6px; padding: 8px; margin: 8px 0 0; }
     #recibo .rAnulada { text-align: center; font-weight: 700; font-size: 18px; border: 2px solid #000; margin: 8px 0; padding: 2px; letter-spacing: .2em; }
+    #recibo .rAbono { margin: 2px 0; }
     #recibo .rIndica { font-size: 12px; font-style: italic; margin-top: 2px; }
     .vIndica { display: block; width: 100%; min-width: 180px; margin-top: 4px; font-size: 13px; color: var(--g700); }
 
@@ -3081,6 +3082,17 @@
         function reciboWhatsApp() {
           const r = reciboActual;
           if (!r) return;
+          if (r.tipo === 'ABONO') {
+            abrirWhatsApp('*' + r.negocio.nombre + '*\n' + (r.cancelado ? 'Recibo de cancelación de crédito' : 'Recibo de abono') + ' N° ' + r.numero + '\n' + r.fecha +
+              '\nCliente: ' + r.cliente + '\n\n' +
+              r.lineas.map(l => 'Venta N° ' + l.venta + (l.fecha_venta ? ' (' + l.fecha_venta + ')' : '') + '\n   Saldo anterior: C$ ' + dinero(l.saldo_antes) +
+                '\n   Abono: C$ ' + dinero(l.abono) + '\n   Queda: C$ ' + dinero(l.saldo)).join('\n') +
+              '\n\n*Total abonado: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago +
+              '\nDebía antes: C$ ' + dinero(r.deuda_antes) + '\n*Saldo pendiente: C$ ' + dinero(r.deuda_despues) + '*' +
+              (r.cancelado ? '\n\n✅ *CRÉDITO CANCELADO.* No queda deuda pendiente.' : '') +
+              '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su pago!', r.telefono);
+            return;
+          }
           abrirWhatsApp('*' + r.negocio.nombre + '*\nComprobante ' + (r.numero ? 'de recarga N° ' + r.numero : 'de venta N° ' + r.id) + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
             r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total) + (l.indicacion ? '\n   _Indicación: ' + l.indicacion + '_' : '')).join('\n') +
             (r.descuento ? '\nDescuento: -C$ ' + dinero(r.descuento) : '') + '\n*Total: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago +
@@ -3135,16 +3147,53 @@
                   y += 28; texto(t, W / 2, 'center', GRIS);
                 });
                 // Título
+                const ab = r.tipo === 'ABONO';
                 y += 22;
                 if (pintar) { ctx.fillStyle = '#e8f3ef'; ctx.fillRect(M, y, ANCHO, 70); }
-                fuente(26, 700); y += 34; texto('COMPROBANTE DE VENTA', W / 2, 'center', VERDE);
+                fuente(26, 700); y += 34; texto(ab ? (r.cancelado ? 'RECIBO DE CANCELACIÓN' : 'RECIBO DE ABONO') : 'COMPROBANTE DE VENTA', W / 2, 'center', VERDE);
                 fuente(19); y += 26; texto('Comprobante interno · No es factura fiscal', W / 2, 'center', GRIS);
                 y += 18;
                 // Datos de la venta
                 fila('Recibo N°', r.numero || ('00000' + r.id).slice(-6), 23, 700);
                 fila('Fecha', r.fecha, 22);
-                fila('Atendió', r.vendedor, 22);
+                fila(ab ? 'Recibió' : 'Atendió', r.vendedor, 22);
                 if (r.cliente) fila('Cliente', r.cliente, 22);
+                if (ab && r.cedula) fila('Cédula', r.cedula, 22);
+                if (ab) {
+                  // Recibo de abono: un bloque por venta al crédito, totales y saldo que queda
+                  if (r.cancelado) {
+                    y += 16;
+                    if (pintar) { ctx.save(); ctx.strokeStyle = VERDE; ctx.lineWidth = 4; ctx.strokeRect(M + 60, y, ANCHO - 120, 56); ctx.restore(); }
+                    fuente(30, 800); y += 40; texto('CRÉDITO CANCELADO', W / 2, 'center', VERDE); y += 16;
+                  }
+                  y += 18; raya(2, NEGRO); y += 4;
+                  fuente(19, 700); y += 24; texto('ABONO APLICADO A', M, 'left', GRIS);
+                  y += 12; raya(1);
+                  r.lineas.forEach(l => {
+                    fila('Venta N° ' + l.venta, l.fecha_venta, 23, 700);
+                    fila('Saldo anterior', 'C$ ' + dinero(l.saldo_antes), 21, 400, GRIS);
+                    fila('Abono', 'C$ ' + dinero(l.abono), 21, 600);
+                    fila('Queda', 'C$ ' + dinero(l.saldo), 21, 400, GRIS);
+                    y += 12; raya(1, '#e5e7eb', true);
+                  });
+                  y += 18;
+                  if (pintar) { ctx.fillStyle = VERDE; ctx.fillRect(M, y, ANCHO, 76); }
+                  fuente(34, 800); y += 50;
+                  if (pintar) {
+                    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText('ABONO', M + 22, y);
+                    ctx.textAlign = 'right'; ctx.fillText('C$ ' + dinero(r.total), W - M - 22, y);
+                  }
+                  y += 26;
+                  fila('Forma de pago', r.forma_pago, 22);
+                  fila('Debía antes', 'C$ ' + dinero(r.deuda_antes), 22);
+                  fila('Saldo pendiente', 'C$ ' + dinero(r.deuda_despues), 25, 800, r.cancelado ? VERDE : '#b45309');
+                  y += 26; raya(2, '#d1d5db', true);
+                  fuente(26, 700); y += 44; texto('¡Gracias por su pago!', W / 2, 'center', VERDE);
+                  fuente(20);
+                  if (n.pie) partir(n.pie, ANCHO).forEach(t => { y += 28; texto(t, W / 2, 'center', GRIS); });
+                  y += 28; texto('Conserve este comprobante.', W / 2, 'center', GRIS);
+                  return y + M;
+                }
                 if (r.estado === 'ANULADA') {
                   y += 16;
                   if (pintar) { ctx.save(); ctx.strokeStyle = '#be123c'; ctx.lineWidth = 4; ctx.strokeRect(M + 120, y, ANCHO - 240, 56); ctx.restore(); }
@@ -3237,6 +3286,25 @@
           mostrar('reciboImg', false);
           mostrar('recibo', true);
           const n = r.negocio, f = (t, v) => tr([td(t), num(v)]);
+          if (r.tipo === 'ABONO') {
+            el('recibo').innerHTML =
+              '<div class="centro"><img class="rLogo" alt="' + esc(n.nombre) + '" src="' + LOGO_SRC + '">' + esc(n.direccion) +
+                (n.telefono ? '<br>Tel. ' + esc(n.telefono) : '') + (n.ruc ? '<br>RUC ' + esc(n.ruc) : '') + '</div>' +
+              '<div class="rTipo">' + (r.cancelado ? 'RECIBO DE CANCELACIÓN' : 'RECIBO DE ABONO') + '<br><small>Comprobante interno · No es factura fiscal</small></div>' +
+              '<table>' + f('Recibo N°', '<b>' + esc(r.numero) + '</b>') + f('Fecha', esc(r.fecha)) + f('Recibió', esc(r.vendedor)) +
+                f('Cliente', esc(r.cliente)) + (r.cedula ? f('Cédula', esc(r.cedula)) : '') + '</table>' +
+              (r.cancelado ? '<div class="rAnulada">CRÉDITO CANCELADO</div>' : '') +
+              '<hr><b>Abono aplicado a:</b>' +
+              r.lineas.map(l => '<table class="rAbono">' + f('<b>Venta N° ' + esc(l.venta) + '</b>', esc(l.fecha_venta)) +
+                f('Saldo anterior', dinero(l.saldo_antes)) + f('Abono', '<b>' + dinero(l.abono) + '</b>') + f('Queda', dinero(l.saldo)) + '</table>').join('<hr>') +
+              '<hr><div class="rTotal"><span>ABONO C$</span><span>' + dinero(r.total) + '</span></div>' +
+              '<table>' + f('Pago', esc(r.forma_pago)) + f('Debía antes C$', dinero(r.deuda_antes)) +
+                f('<b>Saldo pendiente C$</b>', '<b>' + dinero(r.deuda_despues) + '</b>') + '</table>' +
+              '<hr><div class="centro"><b>¡Gracias por su pago!</b>' + (n.pie ? '<br>' + esc(n.pie) : '') +
+                '<br><br>_______________________<br><small>Firma de quien recibe</small><br><small>Conserve este comprobante.</small></div>';
+            mostrar('capaRecibo', true);
+            return;
+          }
           const articulos = r.lineas.reduce((s, l) => s + l.unidades, 0);
           const efectivo = r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares';
           el('recibo').innerHTML =
@@ -3348,14 +3416,25 @@
             '<div class="kpi"><small>Límite de crédito</small><b>' + cs(c.limite_credito) + '</b></div></div>' +
             '<div class="fila"><button class="sec mini soloAdmin soloTodo" onclick="formCliente(' + c.id + ')">Editar cliente</button>' +
             (c.saldo > 0 ? '<button class="sec mini" onclick="recordarSaldo()">Recordar saldo por WhatsApp</button>' : '') + '</div>' +
-            '<div id="cr_ventas" class="ayuda">Cargando créditos…</div></div>';
+            '<div id="cr_ventas" class="ayuda">Cargando créditos…</div>' +
+            '<div id="cr_recibos"></div></div>';
           llamar('creditosCliente', [c.id], lista => {
             el('cr_ventas').innerHTML = !lista.length ? 'No tiene créditos pendientes.'
               : '<div class="tabla"><table><thead><tr><th>Venta</th><th>Fecha</th><th class="num">Total</th><th class="num">Abonado</th><th class="num">Saldo</th></tr></thead><tbody>' +
                 lista.map(p => tr([td(p.id_venta), td(esc(p.fecha)), num(dinero(p.total)), num(dinero(p.abonado)), num(dinero(p.saldo))])).join('') +
                 '</tbody></table></div>';
           }, { aviso: 'avisoCreditos' });
+          // Abonos ya recibidos: para volver a imprimir o mandar el recibo
+          llamar('abonosCliente', [c.id], lista => {
+            if (!el('cr_recibos')) return;
+            el('cr_recibos').innerHTML = !lista.length ? '' : '<h3 style="margin-top:14px">Abonos recibidos</h3>' +
+              '<div class="tabla"><table><thead><tr><th>Recibo</th><th>Fecha</th><th>Forma</th><th class="num">Monto</th><th></th></tr></thead><tbody>' +
+              lista.map(a => tr([td(esc(a.numero)), td(esc(a.fecha)), td(esc(a.forma_pago)), num(dinero(a.monto)),
+                td(a.mio ? '<button class="mini sec" onclick="verReciboAbono(' + a.recibo + ')">Recibo</button>' : '')])).join('') +
+              '</tbody></table></div>';
+          }, { aviso: 'avisoCreditos' });
         }
+        function verReciboAbono(n) { llamar('reciboAbono', [n], mostrarRecibo, { aviso: 'avisoCreditos', espera: 'Preparando recibo…' }); }
         function recordarSaldo() {
           const c = clienteSel();
           if (!c) return;
@@ -3382,9 +3461,10 @@
         function abonar() {
           const c = clienteSel();
           if (!c) return;
-          llamar('registrarAbono', [{ id_cliente: c.id, monto: el('cr_monto').value, forma_pago: el('cr_forma').value }], aplicado => {
+          llamar('registrarAbono', [{ id_cliente: c.id, monto: el('cr_monto').value, forma_pago: el('cr_forma').value }], r => {
             el('cr_monto').value = '';
-            cargarVenta(() => { verCliente(); aviso('avisoCreditos', 'Abono guardado en ' + aplicado.length + ' venta(s).'); });
+            mostrarRecibo(r);   // recibo de abono (o de cancelación si ya no debe nada)
+            cargarVenta(() => { verCliente(); aviso('avisoCreditos', (r.cancelado ? 'Crédito cancelado. ' : 'Abono guardado. ') + 'Recibo ' + r.numero + '.'); });
           }, { aviso: 'avisoCreditos', espera: 'Guardando abono…', boton: 'btnAbono' });
         }
 
