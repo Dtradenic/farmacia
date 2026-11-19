@@ -959,7 +959,7 @@
         <div class="tarjeta" id="inicioHoy">
           <div class="barra cabezaHoy" style="margin-bottom:0">
             <h2 style="flex:1">Hoy</h2>
-            <button class="mini sec conIcono" id="btnHoy" onclick="cargarInicio(true)"><svg class="ico" data-ico="recargar"></svg>Actualizar</button>
+            <button class="mini sec conIcono" id="btnHoy" onclick="cargarInicio()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button>
           </div>
           <div class="asistencia" id="asistencia">
             <span class="punto"></span>
@@ -2188,17 +2188,7 @@
           '<b>' + String(valor).replace(/^C\$\s*/, '<span class="moneda">C$</span>') + '</b>' +
           (sub || accion ? '<span class="sub"><span class="inKTx">' + (sub || '') + '</span>' + (accion ? '<i class="inKFl">' + ico('derecha') + '</i>' : '') + '</span>' : '') +
           '</' + (accion ? 'button' : 'div') + '>';
-        // Ventas de los últimos 7 días (solo Admin): se guarda 5 minutos para no recalcular cada vez que se vuelve a Inicio.
-        let inSemanaDatos = null, inSemanaClave = '', inSemanaHora = 0;
         const IN_DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
-        function cargarInSemana(forzar) {
-          const hasta = hoyTexto(), desde = sumarDias(hasta, -6), clave = desde + '|' + hasta;
-          if (!forzar && inSemanaDatos && inSemanaClave === clave && Date.now() - inSemanaHora < 5 * 60000) return pintarInSemana(inSemanaDatos);
-          llamar('tablero', [desde, hasta], r => {
-            inSemanaDatos = r; inSemanaClave = clave; inSemanaHora = Date.now();
-            pintarInSemana(r);
-          }, { falla: () => { el('in_semana').innerHTML = '<div class="inFallo">No se pudo calcular la semana.</div>'; } });
-        }
         function pintarInSemana(r) {
           const v = r.ventas;
           const mejor = v.serie.reduce((m, x) => !m || x.total > m.total ? x : m, null);
@@ -2214,8 +2204,9 @@
             '<div class="inDos"><div>' + (v.serie_por_mes ? gColumnas(v.serie, { alto: 150, etq, tip }) : gLinea(v.serie, { alto: 150, etq, tip })) + '</div>' +
             '<div><h3>Por forma de pago</h3>' + gDona(v.por_forma, { titulo: 'Cobrado' }) + '</div></div>');
         }
-        function cargarInicio(forzar) {
-          llamar('resumenInicio', [], r => {
+        /** Inicio: una sola llamada (al Admin también trae la semana y los indicadores). */
+        function cargarInicio() {
+          llamar('resumenInicio', [ES_ADMIN], r => {
             pintarAsistencia(r.asistencia);
             const a = r.alertas, urgentes = a.vencidos + a.por_vencer + a.bajo_minimo + a.agotados;
             const detalle = [a.vencidos && a.vencidos + ' lote(s) vencido(s)', a.por_vencer && a.por_vencer + ' por vencer', a.bajo_minimo && a.bajo_minimo + ' bajo el mínimo',
@@ -2232,9 +2223,9 @@
               (r.productos_por_revisar ? cuadroHoy('Productos por revisar', r.productos_por_revisar,
                 'Nuevos, creados por otra persona · tócalo para revisar', 'naranja', 'abrirRevisarProductos()', 'pastilla') : '');
             PUEDE_REVISAR = r.productos_por_revisar !== undefined;
-            if (ES_ADMIN) cargarInSemana(forzar);
+            if (r.semana) pintarInSemana(r.semana);
+            if (r.indicadores) pintarIndInicio(r.indicadores);
           }, { boton: 'btnHoy', falla: e => { el('estado').textContent = el('hoy').textContent = e.message || String(e); } });
-          if (ES_ADMIN) llamar('indicadores', ['mes'], pintarIndInicio, { falla: e => { el('ind_inicio').textContent = e.message || String(e); } });
         }
 
         // Al abrir: si este navegador tiene una sesión guardada y sigue vigente, entra directo; si no, pide la clave.
