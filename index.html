@@ -756,7 +756,13 @@
     .cajaOtraCabeza { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
     .cajaOtra table { font-size: 13.5px; margin-top: 10px; }
     .cajaOtra td { padding: 6px 2px; }
-    .cajaOtra tr.aparte td { color: var(--g500); }
+    .cajaOtra tr.aparte td, #cj_resumen tr.aparte td, .rpCaja tr.aparte td { color: var(--g500); }
+    .cuadreGastos { margin-top: 10px; font-size: 13.5px; }
+    .cuadreGastos > div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 2px; border-bottom: 1px dashed var(--g200); }
+    .cuadreGastos > div span:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .rpCaja .tabla { margin-top: 8px; }
+    .rpCaja table { font-size: 13px; }
+    .rpCaja td { padding: 5px 2px; }
     /* Gastos por aprobar */
     .porAprobar { background: #fffbeb; border-color: #fde68a; }
     .pendiente { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 14px; margin-top: 12px; box-shadow: var(--sombra); }
@@ -2822,21 +2828,29 @@
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
           pintarConteo();
           sumarConteo();
-          const f = (t, n) => tr([td(t), num(cs(n))]);
           el('cj_resumen').innerHTML = '<div class="cuadro"><b>Caja ' + c.id + '</b> · abierta ' + esc(c.apertura) + ' · ' + c.num_ventas + ' ventas' +
             '<div class="kpis"><div class="kpi fuerte"><small>Debe haber en el cajón</small><b>' + cs(c.esperado) + '</b></div>' +
-            '<div class="kpi"><small>Ventas por transferencia</small><b>' + cs(c.ventas['Transferencia']) + '</b></div>' +
-            '<div class="kpi"><small>Ventas al crédito</small><b>' + cs(c.ventas['Crédito']) + '</b></div></div>' +
-            '<div class="tabla"><table>' + f('Efectivo inicial', c.monto_inicial) + f('Ventas en efectivo', c.ventas['Efectivo']) +
+            '<div class="kpi"><small>Total vendido</small><b>' + cs(c.total_ventas) + '</b></div>' +
+            '<div class="kpi"><small>Gastos del cajón</small><b>' + cs(c.gastos) + '</b></div></div>' + cuadreCaja(c) + '</div>';
+        }
+        /** Cuadre de una caja abierta (resumenCaja_ del servidor). Lo usan Mi caja, las cajas de todos y Reportes. */
+        function cuadreCaja(c) {
+          const f = (t, n, clase) => tr([td(t), num(cs(n))], clase ? ' class="' + clase + '"' : '');
+          const gastos = c.lista_gastos || [];
+          return '<div class="tabla"><table>' + f('Efectivo inicial', c.monto_inicial) + f('Ventas en efectivo', c.ventas['Efectivo']) +
             f('Ventas en dólares (en C$)', c.ventas['Dólares']) + f('Abonos en efectivo', c.abonos_efectivo) +
             f('Menos gastos pagados del cajón', -c.gastos || 0) +
             (c.num_recargas || c.compras_saldo ? f('Recargas cobradas en efectivo (' + (c.num_recargas || 0) + ')', c.recargas_efectivo) +
               f('Menos saldo de recargas comprado con efectivo', -c.compras_saldo || 0) : '') +
-            tr([td('Debe haber en el cajón'), num(cs(c.esperado))], ' class="totalR"') +
-            (c.recargas_transferencia ? f('Recargas por transferencia (no entran al cajón)', c.recargas_transferencia) : '') +
-            f('Abonos por transferencia (no entran al cajón)', c.abonos_transferencia) + '</table></div></div>';
+            f('Debe haber en el cajón', c.esperado, 'totalR') +
+            f('Ventas por transferencia (no entran al cajón)', c.ventas['Transferencia'], 'aparte') +
+            f('Ventas al crédito (no entran al cajón)', c.ventas['Crédito'], 'aparte') +
+            (c.recargas_transferencia ? f('Recargas por transferencia (no entran al cajón)', c.recargas_transferencia, 'aparte') : '') +
+            f('Abonos por transferencia (no entran al cajón)', c.abonos_transferencia, 'aparte') + '</table></div>' +
+            (gastos.length ? '<div class="cuadreGastos"><b>Gastos pagados del cajón</b>' + gastos.map(g => '<div><span>' + esc(g.descripcion) +
+              (g.estado === 'PENDIENTE' ? ' ' + chip('por aprobar', 'ambar') : '') + '</span><span>' + cs(g.monto) + '</span></div>').join('') + '</div>' : '');
         }
-        // Cajas abiertas de todos los usuarios (solo Admin), con lo que debe haber en cada cajón ahora.
+        // Cajas abiertas de todos los usuarios (solo Admin), con su cuadre de este momento.
         function cargarCajasTodas() {
           if (!ES_ADMIN) return;
           llamar('cajasAbiertas', [], lista => {
@@ -2844,11 +2858,7 @@
               '<div class="cajasTodas">' + lista.map(k => '<div class="cajaOtra">' +
                 '<div class="cajaOtraCabeza"><b>' + esc(k.vendedor) + '</b><span class="chip ambar">Caja ' + k.id + ' · desde ' + esc(k.desde) + '</span></div>' +
                 '<div class="kpi fuerte"><small>Debe haber en el cajón</small><b>' + cs(k.esperado) + '</b></div>' +
-                '<table>' + [['Efectivo inicial', k.monto_inicial], ['Ventas en efectivo', k.ventas['Efectivo']], ['Ventas en dólares (en C$)', k.ventas['Dólares']],
-                  ['Abonos en efectivo', k.abonos_efectivo], ['Menos gastos del cajón', -k.gastos || 0]].map(f => tr([td(f[0]), num(cs(f[1]))])).join('') +
-                tr([td('Ventas por transferencia'), num(cs(k.ventas['Transferencia']))], ' class="aparte"') +
-                tr([td('Ventas al crédito'), num(cs(k.ventas['Crédito']))], ' class="aparte"') +
-                tr([td('Número de ventas'), num(k.num_ventas)], ' class="aparte"') + '</table></div>').join('') + '</div>';
+                '<div class="ayuda">' + k.num_ventas + ' venta(s) · total vendido ' + cs(k.total_ventas) + '</div>' + cuadreCaja(k) + '</div>').join('') + '</div>';
           }, { aviso: 'avisoCaja', boton: 'btnCajasTodas' });
         }
         function abrirMiCaja() {
@@ -3813,7 +3823,9 @@
 
         function abrirReportes(tab) {
           ver('reportes');
-          if (!el('r_hasta').value) periodo('mes', true);
+          // Un período rápido («Este mes», «Hoy»…) se recalcula al día de hoy: si la app quedó abierta desde ayer, no se queda en la fecha vieja.
+          const rapido = document.querySelector('#r_rapidos button.activa');
+          if (!el('r_hasta').value || rapido) periodo(rapido ? rapido.dataset.p : 'mes', true);
           pestana('rep', tab || 'indicadores');
         }
         AL_ABRIR.rep = nombre => {
@@ -3822,7 +3834,20 @@
           if (nombre === 'respaldos') return cargarRespaldos();
           if (nombre === 'indicadores') return cargarIndicadores(indPeriodo);
           cargarReporte();
+          if (nombre === 'cajas') vigilarCajas();
         };
+        // Cierres de caja: mientras está a la vista se actualiza solo cada minuto (las cajas abiertas cambian con cada venta o gasto).
+        let relojCajas = null;
+        function vigilarCajas() {
+          clearInterval(relojCajas);
+          relojCajas = setInterval(() => {
+            if (vistaActual !== 'reportes' || actual.rep !== 'cajas') return clearInterval(relojCajas);
+            if (document.hidden || pendientes) return;
+            const rapido = document.querySelector('#r_rapidos button.activa');
+            if (rapido) periodo(rapido.dataset.p, true);
+            cargarReporte(true);
+          }, 60000);
+        }
         function periodo(tipo, sinCargar) {
           const hoy = hoyTexto();
           let desde = hoy, hasta = hoy;
@@ -3838,13 +3863,18 @@
         /** Marca el botón rápido del rango cargado; con fechas escritas a mano no queda ninguno marcado. */
         const marcarPeriodo = tipo => todos('#r_rapidos button').forEach(b => b.classList.toggle('activa', b.dataset.p === tipo));
         ['r_desde', 'r_hasta'].forEach(id => el(id).addEventListener('input', () => marcarPeriodo('')));
-        function cargarReporte() {
+        /** silencioso: actualización automática (sin borrar lo que se ve ni mostrar «Calculando…»). */
+        function cargarReporte(silencioso) {
           const tipo = actual.rep, desde = el('r_desde').value, hasta = el('r_hasta').value;
           if (!desde || !hasta) return aviso('avisoRep', 'Elige las dos fechas.', true);
           const pintar = html => {
             el('areaRep').innerHTML = LOGO_IMPRESO + '<div style="text-align:center"><b>' +
               TITULOS_REP[tipo] + '</b><br>Del ' + fechaCorta(desde) + ' al ' + fechaCorta(hasta) + '</div>' + html;
           };
+          if (silencioso) {
+            const y = window.scrollY;
+            return llamar('cierresCaja', [desde, hasta], r => { pintar(pintarCajas(r)); window.scrollTo(0, y); }, { falla: () => {} });
+          }
           el('areaRep').innerHTML = '';
           const opc = { aviso: 'avisoRep', espera: 'Calculando…', boton: 'btnRep' };
           if (tipo === 'resumen' || tipo === 'productos') {
@@ -4335,8 +4365,11 @@
           const dato = (t, v, fuerte) => '<div><dt>' + t + '</dt><dd' + (fuerte ? ' class="fuerte"' : '') + '>' + v + '</dd></div>';
           return '<div class="rpCaja ' + tipo + '"><div class="rpCajaCab"><div><b>Caja ' + esc(k.id) + ' · ' + esc(k.vendedor) + '</b><small>' + esc(k.apertura) +
               (k.abierta ? '' : ' → ' + esc(k.cierre)) + '</small></div>' + etiqueta + '</div>' +
-            '<dl>' + dato('Inicial', cs(k.monto_inicial)) + dato('Ventas efectivo', cs(k.ventas_efectivo)) + dato('Abonos', cs(k.abonos)) + dato('Gastos', cs(k.gastos)) +
-              dato('Esperado', cs(k.esperado), true) + dato('Contado', k.abierta ? '—' : cs(k.contado), true) + '</dl>' +
+            (k.vivo ? '<dl>' + dato('Total vendido', cs(k.vivo.total_ventas) + ' <small>(' + k.vivo.num_ventas + ')</small>', true) +
+                dato('Ventas efectivo', cs(k.ventas_efectivo)) + dato('Gastos', cs(k.gastos)) + dato('Debe haber en el cajón', cs(k.esperado), true) + '</dl>' +
+                '<details open><summary>Cuadre completo' + ico('abajo') + '</summary>' + cuadreCaja(k.vivo) + '</details>'
+              : '<dl>' + dato('Inicial', cs(k.monto_inicial)) + dato('Ventas efectivo', cs(k.ventas_efectivo)) + dato('Abonos', cs(k.abonos)) + dato('Gastos', cs(k.gastos)) +
+                dato('Esperado', cs(k.esperado), true) + dato('Contado', cs(k.contado), true) + '</dl>') +
             (!k.abierta && k.esperado > 0 ? '<div class="rpCajaBar' + (d < 0 ? ' mal' : '') + '"><i style="width:' + gNum(Math.min(100, Math.max(0, k.contado / k.esperado * 100))) + '%"></i></div>' : '') +
             (k.nota ? '<p class="rpCajaNota">' + esc(k.nota) + '</p>' : '') +
             (k.conteo ? '<details><summary>Billetes contados' + ico('abajo') + '</summary><p>' + esc(k.conteo) + '</p></details>' : '') + '</div>';
