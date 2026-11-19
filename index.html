@@ -1136,6 +1136,7 @@
                   <option value="AJUSTE_SALIDA">Ajuste: falta (sale)</option>
                   <option value="MERMA">Merma o dañado (sale)</option>
                   <option value="VENCIDO">Vencido (sale)</option>
+                  <option value="CORRECCION_INICIAL">Corregir conteo inicial de más o repetido (sale, va a capital)</option>
                 </select></div>
               <div><label>Producto</label><input id="a_producto" list="listaProductos" placeholder="Escribe para buscar" onchange="elegirProductoAjuste()"></div>
               <div class="aEntrada"><label>Lote</label><input id="a_lote"></div>
@@ -4200,10 +4201,12 @@
             rpFila('−', 'Costo de lo vendido', cs(r.costo), '', parte(r.costo)) +
             rpFila('=', 'Utilidad bruta', cs(r.utilidad_bruta) + chip('Margen ' + pct(r.margen), 'verde'), 'sub') +
             rpFila('−', 'Mermas y vencidos', cs(r.mermas), '', parte(r.mermas)) +
+            rpFila(r.diferencias_conteo < 0 ? '−' : r.diferencias_conteo > 0 ? '+' : '±', 'Diferencias de conteo', cs(Math.abs(r.diferencias_conteo)), '',
+              r.diferencias_conteo < 0 ? parte(-r.diferencias_conteo) : null) +
             rpFila('−', 'Gastos de operación', cs(r.gastos.total), '', parte(r.gastos.total)) +
             rpFila(dif < 0 ? '−' : dif > 0 ? '+' : '±', 'Diferencias de caja', cs(Math.abs(dif)), '', dif < 0 ? parte(-dif) : null) +
             rpFila('=', r.resultado >= 0 ? 'Queda (antes de nómina)' : 'Pérdida (antes de nómina)', cs(r.resultado), 'final ' + (r.resultado >= 0 ? 'bien' : 'mal')) +
-            '</div><div class="ayuda">Queda = utilidad bruta − mermas − gastos ± diferencias de caja. No incluye la nómina ni sus provisiones. El resultado oficial está en Contabilidad → Estado de resultados.</div></div>';
+            '</div><div class="ayuda">Queda = utilidad bruta − mermas ± diferencias de conteo − gastos ± diferencias de caja. Las correcciones del conteo inicial van a Capital y no salen aquí. No incluye la nómina ni sus provisiones. El resultado oficial está en Contabilidad → Estado de resultados.</div></div>';
         }
         /** Ventas por día (o por mes) con sus datos, y la dona de formas de pago. */
         function rpVentasSerie(v) {
