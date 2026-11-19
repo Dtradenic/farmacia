@@ -25,7 +25,7 @@
     * { box-sizing: border-box; }
     body { margin: 0; font: 16px/1.5 Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; background: var(--g50); color: var(--g900); }
     svg.ico { width: 1em; height: 1em; flex: none; vertical-align: -.125em; }
-    .oculto, .vendedor .soloAdmin { display: none !important; }
+    .oculto, .vendedor .soloAdmin, .vendedor:not(.conAlertas) .siAlertas { display: none !important; }
 
     /* Encabezado */
     #tope { position: sticky; top: 0; z-index: 5; }
@@ -833,10 +833,10 @@
           <button data-tab="venta:caja">Caja</button>
         </div>
       </div>
-      <div class="grupo" data-ir="productos">
+      <div class="grupo soloAdmin" data-ir="productos">
         <button class="secc" onclick="irSeccion('productos')" title="Productos"><svg class="ico" data-ico="pastilla"></svg><span>Productos</span></button>
       </div>
-      <div class="grupo" data-ir="inventario">
+      <div class="grupo siAlertas" data-ir="inventario">
         <button class="secc" onclick="irSeccion('inventario')" title="Inventario"><svg class="ico" data-ico="paquete"></svg><span>Inventario</span><svg class="ico giro" data-ico="abajo"></svg></button>
         <div class="subs"><b class="subTitulo">Inventario</b>
           <button data-tab="inv:existencias">Existencias</button>
@@ -846,7 +846,7 @@
           <button data-tab="inv:ajuste" class="soloAdmin">Conteo y ajustes</button>
         </div>
       </div>
-      <div class="grupo" data-ir="conta">
+      <div class="grupo soloAdmin" data-ir="conta">
         <button class="secc" onclick="irSeccion('conta')" title="Gastos y contabilidad"><svg class="ico" data-ico="calculadora"></svg><span>Gastos y contabilidad</span><svg class="ico giro soloAdmin" data-ico="abajo"></svg></button>
         <div class="subs soloAdmin"><b class="subTitulo">Gastos y contabilidad</b>
           <button data-tab="conta:gastos">Gastos</button>
@@ -989,9 +989,9 @@
           <div class="modulos">
             <button class="modulo" onclick="abrirVenta('vender')"><i><svg class="ico" data-ico="carrito"></svg></i><span><b>Vender</b><small>Cobrar y dar recibo</small></span></button>
             <button class="modulo" onclick="abrirVenta('caja')"><i><svg class="ico" data-ico="billetera"></svg></i><span><b>Caja y créditos</b><small>Abrir, cerrar, abonos</small></span></button>
-            <button class="modulo" onclick="abrirProductos()"><i><svg class="ico" data-ico="pastilla"></svg></i><span><b>Productos</b><small>Catálogo y precios</small></span></button>
-            <button class="modulo" onclick="abrirInventario()"><i><svg class="ico" data-ico="paquete"></svg></i><span><b>Inventario</b><small>Existencias y compras</small></span></button>
-            <button class="modulo" onclick="abrirConta()"><i><svg class="ico" data-ico="calculadora"></svg></i><span><b>Gastos y contabilidad</b><small>Gastos, libros, balances</small></span></button>
+            <button class="modulo soloAdmin" onclick="abrirProductos()"><i><svg class="ico" data-ico="pastilla"></svg></i><span><b>Productos</b><small>Catálogo y precios</small></span></button>
+            <button class="modulo siAlertas" onclick="abrirInventario()"><i><svg class="ico" data-ico="paquete"></svg></i><span><b>Inventario</b><small>Existencias y compras</small></span></button>
+            <button class="modulo soloAdmin" onclick="abrirConta()"><i><svg class="ico" data-ico="calculadora"></svg></i><span><b>Gastos y contabilidad</b><small>Gastos, libros, balances</small></span></button>
             <button class="modulo soloAdmin" onclick="abrirNomina()"><i><svg class="ico" data-ico="personas"></svg></i><span><b>Empleados y nómina</b><small>Planilla y colillas</small></span></button>
             <button class="modulo soloAdmin" onclick="abrirReportes()"><i><svg class="ico" data-ico="grafica"></svg></i><span><b>Reportes</b><small>Tablero, cajas, controlados, respaldos</small></span></button>
           </div>
@@ -1415,9 +1415,10 @@
                 <div><label>Cuenta</label><select id="g_cuenta"></select></div>
                 <div><label>Descripción</label><input id="g_descripcion" placeholder="Ej.: recibo de luz de octubre"></div>
                 <div><label>Monto (C$)</label><input id="g_monto" type="number" min="0" step="0.01"></div>
-                <div><label>Pagado con</label><select id="g_forma_pago"><option value="Efectivo">Efectivo del cajón</option><option value="Transferencia">Banco o transferencia</option></select></div>
+                <div><label>Pagado con</label><select id="g_forma_pago" onchange="mostrarCajaGasto()"><option value="Efectivo">Efectivo del cajón</option><option value="Transferencia">Banco o transferencia</option></select></div>
+                <div id="g_cajaCaja"><label for="g_caja">Sale del cajón de</label><select id="g_caja"></select></div>
               </div>
-              <div class="ayuda">Efectivo del cajón: necesitas tu caja abierta y se resta en el cierre. Pagos a proveedores: cuenta 2101. Salarios y adelantos: 2108. Lo que el dueño saca para sí: 3104.</div>
+              <div class="ayuda">Efectivo del cajón: elige de qué caja abierta salió el dinero (la tuya o la de un vendedor que pagó y te avisó); se resta en el cierre de esa caja. Pagos a proveedores: cuenta 2101. Salarios y adelantos: 2108. Lo que el dueño saca para sí: 3104.</div>
               <div class="fila"><button id="btnGasto" onclick="guardarGasto()">Guardar gasto</button></div>
             </div>
             <h3>Gastos del mes</h3>
@@ -2209,19 +2210,22 @@
         function cargarInicio() {
           llamar('resumenInicio', [ES_ADMIN], r => {
             pintarAsistencia(r.asistencia);
-            const a = r.alertas, urgentes = a.vencidos + a.por_vencer + a.bajo_minimo + a.agotados;
+            // Las alertas solo llegan al Admin, o al Vendedor si Config «vendedor_ve_alertas» = SI.
+            document.body.classList.toggle('conAlertas', !!r.vendedor_ve_alertas);
+            const verAl = r.alertas && (ES_ADMIN || r.vendedor_ve_alertas);   // en «Ver como vendedor», igual que un vendedor
+            const a = r.alertas || {}, urgentes = verAl ? a.vencidos + a.por_vencer + a.bajo_minimo + a.agotados : 0;
             const detalle = [a.vencidos && a.vencidos + ' lote(s) vencido(s)', a.por_vencer && a.por_vencer + ' por vencer', a.bajo_minimo && a.bajo_minimo + ' bajo el mínimo',
               a.agotados && a.agotados + ' sin existencia'].filter(Boolean).join(' · ');
             el('hoy').innerHTML =
               cuadroHoy('Mi caja', r.caja ? 'Abierta' : 'Cerrada', r.caja ? 'Desde ' + esc(r.caja.desde) : 'Ábrela para vender', r.caja ? 'fuerte' : 'alerta', 'abrirVenta(\'caja\')',
                 r.caja ? 'billetera' : 'candado') +
               cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)', '', 'abrirVenta(\'historial\')', 'carrito') +
-              cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')', 'paquete') +
-              (r.por_cobrar ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')', 'personas') +
+              (verAl ? cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')', 'paquete') : '') +
+              (r.por_cobrar && ES_ADMIN ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')', 'personas') +
                 cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')', 'billetera') : '') +
-              (r.gastos_pendientes && r.gastos_pendientes.numero ? cuadroHoy('Gastos por aprobar', r.gastos_pendientes.numero,
+              (ES_ADMIN && r.gastos_pendientes && r.gastos_pendientes.numero ? cuadroHoy('Gastos por aprobar', r.gastos_pendientes.numero,
                 cs(r.gastos_pendientes.total) + ' · tócalo para revisar', 'naranja', 'abrirConta(\'gastos\')', 'calculadora') : '') +
-              (r.productos_por_revisar ? cuadroHoy('Productos por revisar', r.productos_por_revisar,
+              (ES_ADMIN && r.productos_por_revisar ? cuadroHoy('Productos por revisar', r.productos_por_revisar,
                 'Nuevos, creados por otra persona · tócalo para revisar', 'naranja', 'abrirRevisarProductos()', 'pastilla') : '');
             PUEDE_REVISAR = r.productos_por_revisar !== undefined;
             if (r.semana) pintarInSemana(r.semana);
@@ -3449,8 +3453,7 @@
 
         function abrirConta(tab) {
           ver('conta');
-          el('g_forma_pago').innerHTML = '<option value="Efectivo">Efectivo del cajón</option>' +
-            (ES_ADMIN ? '<option value="Transferencia">Banco o transferencia</option>' : '');
+          cargarCajasGasto();
           if (!el('g_fecha').value) {
             el('g_fecha').value = el('am_fecha').value = el('c_hasta').value = hoyTexto();
             el('c_desde').value = primeroDelMes();
@@ -3478,6 +3481,16 @@
         // Gastos
         const CHIP_ESTADO = { APROBADO: '<span class="chip verde">Aprobado</span>', PENDIENTE: '<span class="chip ambar">Por aprobar</span>',
           RECHAZADO: '<span class="chip gris">Rechazado</span>' };
+        /** Cajas abiertas para «Sale del cajón de» (la propia primero). Solo Admin anota gastos. */
+        function cargarCajasGasto() {
+          mostrarCajaGasto();
+          llamar('cajasAbiertas', [], lista => {
+            lista.sort((x, y) => (y.mia ? 1 : 0) - (x.mia ? 1 : 0));
+            opciones('g_caja', lista, k => k.id, k => (k.mia ? 'Mi caja' : k.vendedor) + ' · Caja ' + k.id + ' · hay ' + cs(k.esperado),
+              lista.length ? null : 'No hay cajas abiertas');
+          }, { aviso: 'avisoConta' });
+        }
+        function mostrarCajaGasto() { mostrar('g_cajaCaja', el('g_forma_pago').value === 'Efectivo'); }
         function cargarGastos() {
           llamar('listarGastos', [primeroDelMes(), hoyTexto()], lista => {
             el('g_cuerpo').innerHTML = lista.map(g => '<tr' + (g.estado === 'RECHAZADO' ? ' class="inactivo"' : '') + '>' + [td(fechaCorta(g.fecha)),
@@ -3490,7 +3503,11 @@
           cargarPorAprobar();
         }
         function guardarGasto() {
-          llamar('registrarGasto', [leer('g_', ['fecha', 'cuenta', 'descripcion', 'monto', 'forma_pago'])], r => {
+          const g = leer('g_', ['fecha', 'cuenta', 'descripcion', 'monto', 'forma_pago']);
+          g.id_caja = g.forma_pago === 'Efectivo' ? el('g_caja').value : '';
+          if (g.forma_pago === 'Efectivo' && !g.id_caja) return aviso('avisoConta', 'No hay ninguna caja abierta: el efectivo tiene que salir de un cajón abierto.', true);
+          llamar('registrarGasto', [g], r => {
+            cargarCajasGasto();
             limpiar(['g_descripcion', 'g_monto']);
             cargarGastos();
             aviso('avisoConta', 'Gasto ' + r.id + ' guardado.' + (r.estado === 'PENDIENTE' ? ' Queda por aprobar: el administrador revisará la cuenta.' : ''));
