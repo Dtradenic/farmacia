@@ -294,7 +294,7 @@
     .grillaTitulo { font-weight: 700; margin: 10px 0 0; color: var(--verde-osc); }
     /* Vista Farmacia: sin misceláneos ni recargas (están en Misceláneos); vista Laboratorio: solo las pruebas */
     .vistaFarmacia #btnMisc, .vistaLab #btnMisc, .vistaFarmacia #lateral button[data-tab="venta:recargas"],
-    .vistaLab #lateral button[data-tab="venta:recargas"] { display: none !important; }
+    .vistaLab #lateral button[data-tab="venta:recargas"], .vistaMisc #v_recetas, .vistaLab #v_recetas { display: none !important; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
     .kpi { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 12px 14px; box-shadow: var(--sombra); }
     .kpi small { display: block; font-size: 13px; font-weight: 500; color: var(--g500); }
@@ -2153,6 +2153,15 @@
           VISTA = v;
           document.body.classList.toggle('vistaFarmacia', v === 'farmacia');
           document.body.classList.toggle('vistaLab', v === 'lab');
+          document.body.classList.toggle('vistaMisc', v === 'misc');
+          el('v_buscar').placeholder = { misc: 'Buscar misceláneo (nombre o código)', lab: 'Buscar prueba de laboratorio' }[v] ||
+            'Buscar producto (nombre, principio activo o código)';
+          el('v_buscar').value = ''; el('v_resultados').innerHTML = '';
+          // Lo que quedó en el carrito de otro modo se quita (si no, se cobraría desde aquí)
+          if (dv && carrito.some(l => !enVista(prodVenta(l.codigo) || {}))) {
+            carrito = carrito.filter(l => enVista(prodVenta(l.codigo) || {}));
+            pintarCarrito();
+          }
           mostrar('btnLab', v === 'lab' || (v === 'todo' && ES_ADMIN_REAL));
           mostrarMisc(v === 'misc');
           mostrarLab(v === 'lab');
@@ -3073,9 +3082,16 @@
         }
 
         // Buscar y carrito
+        /** ¿Se puede vender en la vista actual? Misceláneos: solo misceláneos; Laboratorio: solo pruebas; Farmacia: lo demás; todo: todo. */
+        function enVista(p) {
+          if (VISTA === 'misc') return p.miscelaneo;
+          if (VISTA === 'lab') return p.laboratorio;
+          if (VISTA === 'farmacia') return !p.miscelaneo && !p.laboratorio;
+          return true;
+        }
         function buscarVenta() {
           const texto = buscado('v_buscar');
-          el('v_resultados').innerHTML = !texto || !dv ? '' : dv.productos.filter(p => p.codigo !== 'CONSULTA' && contiene(texto, p.codigo, p.nombre, p.principio_activo)).slice(0, 8)
+          el('v_resultados').innerHTML = !texto || !dv ? '' : dv.productos.filter(p => p.codigo !== 'CONSULTA' && enVista(p) && contiene(texto, p.codigo, p.nombre, p.principio_activo)).slice(0, 8)
             .map(p => '<button' + ((p.servicio && !p.laboratorio) || p.disponible > 0 ? '' : ' disabled') + ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')">' +
               esc(p.nombre) + ' — ' + cs(p.precio_unidad) + (vendePorCaja(p) ? ' · caja ' + cs(p.precio_caja) : '') +
               '<br><small>' + esc(p.codigo) + (p.servicio ? ' · servicio' : ' · hay ' + p.disponible) +
