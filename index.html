@@ -289,7 +289,12 @@
     .miscBoton span { color: var(--verde-osc); font-weight: 700; }
     .miscBoton small { color: var(--g500); font-weight: 400; }
     .miscBoton:disabled { background: var(--g50); opacity: .6; }
-    #btnMisc.activo { background: var(--verde); color: #fff; }
+    #btnMisc.activo, #btnLab.activo { background: var(--verde); color: #fff; }
+    .miscBoton.recarga { background: #fff; border-color: var(--verde); }
+    .grillaTitulo { font-weight: 700; margin: 10px 0 0; color: var(--verde-osc); }
+    /* Vista Farmacia: sin misceláneos ni recargas (están en Misceláneos); vista Laboratorio: solo las pruebas */
+    .vistaFarmacia #btnMisc, .vistaLab #btnMisc, .vistaFarmacia #lateral button[data-tab="venta:recargas"],
+    .vistaLab #lateral button[data-tab="venta:recargas"] { display: none !important; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
     .kpi { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 12px 14px; box-shadow: var(--sombra); }
     .kpi small { display: block; font-size: 13px; font-weight: 500; color: var(--g500); }
@@ -822,7 +827,7 @@
       <details class="cuenta noImprimir conSesion" id="menuCuenta">
         <summary class="quien"><span class="avatar" id="quienIniciales"></span><span><b id="quienNombre"></b><span id="quienRol"></span></span><svg class="ico flechita" data-ico="abajo"></svg></summary>
         <div class="menuCuenta">
-          <button class="sec oculto" id="btnCambiarModo" onclick="pedirModo()">Cambiar modo (vender, consulta, todo)</button>
+          <button class="sec oculto" id="btnCambiarModo" onclick="pedirModo()">Cambiar modo</button>
           <button class="sec soloAdmin soloModoTodo" onclick="vistaVendedor(true)">Ver como vendedor</button>
           <button class="sec" onclick="pedirCambioClave(false)">Cambiar mi clave</button>
           <button class="peligro" onclick="salir()">Cerrar sesión</button>
@@ -958,10 +963,11 @@
           <h2 id="modo_saludo">¿Qué vas a hacer?</h2>
           <div class="ayuda">Se muestra solo lo que necesitas. Puedes cambiar de modo cuando quieras.</div>
           <div class="modulos">
-            <button class="modulo" onclick="elegirModoPantalla('vender')"><i><svg class="ico" data-ico="carrito"></svg></i><span><b>Vender en la farmacia</b><small>Cobrar, caja, clientes y existencias</small></span></button>
-            <button class="modulo" onclick="elegirModoPantalla('miscelaneos')"><i><svg class="ico" data-ico="paquete"></svg></i><span><b>Misceláneos</b><small>Toallitas, pañales, Gatorade…</small></span></button>
-            <button class="modulo" onclick="elegirModoPantalla('consulta')"><i><svg class="ico" data-ico="personas"></svg></i><span><b>Dar consulta</b><small>Pacientes, recetas y cobro de la consulta</small></span></button>
-            <button class="modulo" onclick="elegirModoPantalla('todo')"><i><svg class="ico" data-ico="candado"></svg></i><span><b>Ver todo</b><small>Reportes, gastos y administración (pide tu clave)</small></span></button>
+            <button class="modulo" onclick="elegirModoPantalla('vender')"><i><svg class="ico" data-ico="pastilla"></svg></i><span><b>Farmacia</b><small>Medicamentos: cobrar, caja, clientes y existencias</small></span></button>
+            <button class="modulo" onclick="elegirModoPantalla('miscelaneos')"><i><svg class="ico" data-ico="paquete"></svg></i><span><b>Misceláneos</b><small>Toallitas, pañales, Gatorade… y recargas Claro y Tigo</small></span></button>
+            <button class="modulo soloAdmin" onclick="elegirModoPantalla('laboratorio')"><i><svg class="ico" data-ico="tubo"></svg></i><span><b>Laboratorio</b><small>Pruebas de laboratorio: cobrar y descontar insumos</small></span></button>
+            <button class="modulo soloAdmin" onclick="elegirModoPantalla('consulta')"><i><svg class="ico" data-ico="personas"></svg></i><span><b>Dar consulta</b><small>Pacientes, recetas y cobro de la consulta</small></span></button>
+            <button class="modulo soloAdmin" onclick="elegirModoPantalla('todo')"><i><svg class="ico" data-ico="candado"></svg></i><span><b>Administración general</b><small>Reportes, gastos y administración (pide tu clave)</small></span></button>
           </div>
           <div id="modo_claveCaja" class="oculto">
             <label for="modo_clave">Escribe tu clave para ver todo</label>
@@ -1215,8 +1221,10 @@
               <div id="v_recetas" class="oculto"></div>
               <div class="fila"><input id="v_buscar" class="crece" type="search" placeholder="Buscar producto (nombre, principio activo o código)" oninput="buscarVenta()"
                 onkeydown="if (event.key === 'Enter') agregarPrimero()">
-                <button class="sec" id="btnMisc" onclick="mostrarMisc(el('v_misc').classList.contains('oculto'))">Misceláneos</button></div>
+                <button class="sec" id="btnMisc" onclick="mostrarMisc(el('v_misc').classList.contains('oculto'))">Misceláneos</button>
+                <button class="sec oculto" id="btnLab" onclick="mostrarLab(el('v_lab').classList.contains('oculto'))">Pruebas de laboratorio</button></div>
               <div id="v_misc" class="oculto"></div>
+              <div id="v_lab" class="oculto"></div>
               <div class="resultados" id="v_resultados"></div>
               <div class="tabla"><table>
                 <thead><tr><th>Producto</th><th>Por</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Desc. C$</th><th class="num">Total</th><th></th></tr></thead>
@@ -1712,6 +1720,7 @@
         const el = id => document.getElementById(id);
         // Iconos de línea (trazos de Lucide, licencia ISC). En el HTML: <svg class="ico" data-ico="nombre"></svg>.
         const ICONOS = {
+          tubo: '<path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/>',
           carrito: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
           billetera: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
           pastilla: '<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>',
@@ -2079,7 +2088,8 @@
           el('quienRol').textContent = usuario.rol === 'Admin' ? 'Administrador' : usuario.rol;
           el('quienIniciales').textContent = String(usuario.nombre || '?').trim().split(/\s+/).slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('');
           // A quien debe elegir su modo (Héctor) no se le muestra nada del negocio hasta que elija
-          aplicarModo(ES_ADMIN_REAL && usuario.pregunta_modo ? 'elegir' : 'todo');
+          ponerVista('todo');
+          aplicarModo(usuario.pregunta_modo ? 'elegir' : 'todo');
           // Inicio no se abre en los modos limitados; sin esto «Cerrar sesión» no sabría si hay una entrada sin salida
           if (MODO === 'elegir') consultarAsistencia();
           if (cambiarClave) pedirCambioClave(true); else ver(MODO === 'elegir' ? 'modo' : 'inicio');
@@ -2115,6 +2125,7 @@
           cerrarExpediente();   // el expediente vuelve a pedir el PIN del médico
           mostrar('capaRecibo', false);
           mostrar('capaDialogo', false);
+          ponerVista('todo');
           aplicarModo('elegir');
           ver('modo');
         }
@@ -2124,16 +2135,33 @@
             el('modo_clave').focus();
             return;
           }
-          // Misceláneos: es el modo vender, abierto con los botones de misceláneos a la vista.
+          // Farmacia, Misceláneos y Laboratorio abren Vender con sus botones a la vista. Al Vendedor no se le recorta nada más
+          // (sigue con su Inicio, caja y créditos); a Héctor se le pone el modo vender, que oculta lo de administración.
           llamar('elegirModo', [m, ''], () => {
-            if (m === 'miscelaneos') { aplicarModo('vender'); mostrarMisc(true); abrirVenta('vender'); }   // los botones se llenan al cargar la venta
-            else { aplicarModo(m); modoInicio(); }
+            const vista = { vender: 'farmacia', miscelaneos: 'misc', laboratorio: 'lab' }[m];
+            ponerVista(vista || 'todo');
+            if (!vista) { aplicarModo(m); modoInicio(); return; }
+            aplicarModo(ES_ADMIN_REAL ? 'vender' : 'todo');
+            if (vista === 'lab') el('modoEtiqueta').textContent = 'Modo laboratorio: pruebas de laboratorio y cobro.';
+            if (vista === 'misc') el('modoEtiqueta').textContent = 'Modo misceláneos: misceláneos y recargas.';
+            abrirVenta('vender');   // los botones se llenan al cargar la venta
           }, { aviso: 'avisoModo', espera: 'Abriendo…' });
+        }
+        // Qué botones de venta se ven: farmacia (ninguno), misc, lab o todo (Admin: los dos; Vendedor: solo misceláneos).
+        let VISTA = 'todo';
+        function ponerVista(v) {
+          VISTA = v;
+          document.body.classList.toggle('vistaFarmacia', v === 'farmacia');
+          document.body.classList.toggle('vistaLab', v === 'lab');
+          mostrar('btnLab', v === 'lab' || (v === 'todo' && ES_ADMIN_REAL));
+          mostrarMisc(v === 'misc');
+          mostrarLab(v === 'lab');
         }
         function confirmarModoTodo() {
           if (!el('modo_clave').value) return aviso('avisoModo', 'Escribe tu clave.', true);
           llamar('elegirModo', ['todo', el('modo_clave').value], () => {
             el('modo_clave').value = '';
+            ponerVista('todo');
             aplicarModo('todo');
             ver('inicio');
           }, { aviso: 'avisoModo', espera: 'Revisando…', boton: 'btnModoTodo' });
@@ -2862,6 +2890,7 @@
           mostrar('v_zonaVenta', abierta);
           mostrar('cj_cerrar', abierta);
           if (!el('v_misc').classList.contains('oculto')) mostrarMisc(true);   // existencias al día después de vender
+          if (!el('v_lab').classList.contains('oculto')) mostrarLab(true);
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
           pintarConteo();
           sumarConteo();
@@ -3047,7 +3076,7 @@
         function buscarVenta() {
           const texto = buscado('v_buscar');
           el('v_resultados').innerHTML = !texto || !dv ? '' : dv.productos.filter(p => p.codigo !== 'CONSULTA' && contiene(texto, p.codigo, p.nombre, p.principio_activo)).slice(0, 8)
-            .map(p => '<button' + (p.servicio || p.disponible > 0 ? '' : ' disabled') + ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')">' +
+            .map(p => '<button' + ((p.servicio && !p.laboratorio) || p.disponible > 0 ? '' : ' disabled') + ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')">' +
               esc(p.nombre) + ' — ' + cs(p.precio_unidad) + (vendePorCaja(p) ? ' · caja ' + cs(p.precio_caja) : '') +
               '<br><small>' + esc(p.codigo) + (p.servicio ? ' · servicio' : ' · hay ' + p.disponible) +
               (p.controlado ? ' · CONTROLADO, pide receta' : '') + '</small></button>').join('');
@@ -3063,11 +3092,25 @@
           el('btnMisc').classList.toggle('activo', si);
           if (!si || !dv) return;
           const lista = dv.productos.filter(p => p.miscelaneo).sort((a, b) => a.nombre.localeCompare(b.nombre));
-          el('v_misc').innerHTML = !lista.length ?
-            '<div class="vacio">No hay productos en la categoría «Misceláneos». Créalos en Productos con esa categoría.</div>' :
+          // Las recargas Claro y Tigo viven en Misceláneos: primer botón de la grilla
+          el('v_misc').innerHTML = '<div class="miscGrilla"><button class="miscBoton recarga" onclick="pestana(\'venta\', \'recargas\')">' +
+              '<b>Recargas</b><span>Claro y Tigo</span><small>saldo y paquetes</small></button>' +
+            lista.map(p => '<button class="miscBoton"' + (p.disponible > 0 ? '' : ' disabled') +
+              ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')"><b>' + esc(p.nombre) + '</b><span>' + cs(p.precio_unidad) + '</span>' +
+              '<small>' + (p.disponible > 0 ? 'hay ' + p.disponible : 'agotado') + '</small></button>').join('') + '</div>' +
+            (lista.length ? '' : '<div class="vacio">No hay productos en la categoría «Misceláneos». Créalos en Productos con esa categoría.</div>');
+        }
+        /** Botones de pruebas de laboratorio (servicios con insumos en la pestaña RecetaInsumos). Un toque = una prueba. */
+        function mostrarLab(si) {
+          mostrar('v_lab', si);
+          el('btnLab').classList.toggle('activo', si);
+          if (!si || !dv) return;
+          const lista = dv.productos.filter(p => p.laboratorio).sort((a, b) => a.nombre.localeCompare(b.nombre));
+          el('v_lab').innerHTML = '<div class="grillaTitulo">Pruebas de laboratorio</div>' + (!lista.length ?
+            '<div class="vacio">No hay pruebas de laboratorio. Crea la prueba como servicio y anota sus insumos en la pestaña RecetaInsumos.</div>' :
             '<div class="miscGrilla">' + lista.map(p => '<button class="miscBoton"' + (p.disponible > 0 ? '' : ' disabled') +
               ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')"><b>' + esc(p.nombre) + '</b><span>' + cs(p.precio_unidad) + '</span>' +
-              '<small>' + (p.disponible > 0 ? 'hay ' + p.disponible : 'agotado') + '</small></button>').join('') + '</div>';
+              '<small>' + (p.disponible > 0 ? 'alcanza para ' + p.disponible : 'sin insumos') + '</small></button>').join('') + '</div>');
         }
         function agregarAlCarrito(cod) {
           const ya = carrito.filter(l => l.codigo === cod && l.modo === 'UNIDAD')[0];
@@ -3075,7 +3118,7 @@
           el('v_buscar').value = '';
           el('v_resultados').innerHTML = '';
           pintarCarrito();
-          if (el('v_misc').classList.contains('oculto')) el('v_buscar').focus();   // con los botones de misceláneos no se abre el teclado del celular
+          if (el('v_misc').classList.contains('oculto') && el('v_lab').classList.contains('oculto')) el('v_buscar').focus();   // con los botones no se abre el teclado del celular
         }
         const precioLinea = l => l.precio_receta !== undefined ? l.precio_receta : prodVenta(l.codigo)[l.modo === 'CAJA' ? 'precio_caja' : 'precio_unidad'];
         const totalLinea = l => r2(l.cantidad * precioLinea(l) - (Number(l.descuento) || 0));
