@@ -285,12 +285,14 @@
     .miscGrilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 8px 0 12px; }
     .miscBoton { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; text-align: left; min-height: 84px; padding: 10px 12px;
       background: var(--verde-claro); color: var(--g900); border: 1px solid var(--g200); border-radius: 12px; font-weight: 500; line-height: 1.3; }
-    .miscBoton:hover:not(:disabled) { border-color: var(--verde); }
+    .miscBoton:hover:not(:disabled), .miscBoton:active:not(:disabled), .miscBoton:focus:not(:disabled) {
+      background: var(--verde-claro); color: var(--g900); border-color: var(--verde); }
     .miscBoton span { color: var(--verde-osc); font-weight: 700; }
     .miscBoton small { color: var(--g500); font-weight: 400; }
     .miscBoton:disabled { background: var(--g50); opacity: .6; }
     #btnMisc.activo, #btnLab.activo { background: var(--verde); color: #fff; }
     .miscBoton.recarga { background: #fff; border-color: var(--verde); }
+    .miscBoton.recarga:hover, .miscBoton.recarga:focus { background: var(--verde-claro); }
     .grillaTitulo { font-weight: 700; margin: 10px 0 0; color: var(--verde-osc); }
     /* Vista Farmacia: sin misceláneos ni recargas (están en Misceláneos); vista Laboratorio: solo las pruebas */
     .vistaFarmacia #btnMisc, .vistaLab #btnMisc, .vistaFarmacia #lateral button[data-tab="venta:recargas"],
