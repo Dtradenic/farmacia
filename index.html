@@ -80,6 +80,15 @@
     .resumenDia { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px;
       padding: 10px 14px; background: var(--g50); border: 1px solid var(--g200); border-radius: 12px; font-size: 14px; color: var(--g500); }
     .resumenDia:empty { display: none; }
+    /* «Ventas del día»: cuánto vendió cada quien; tocar un nombre filtra la lista */
+    .porVend:empty { display: none; }
+    .porVend { margin-top: 10px; display: grid; gap: 6px; }
+    .porVend h4 { margin: 4px 0 0; font-size: 13px; color: var(--g500); font-weight: 600; }
+    .porVend .pvFila { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left;
+      padding: 9px 14px; background: #fff; color: var(--g900); border: 1px solid var(--g200); border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: none; }
+    .porVend .pvFila small { color: var(--g500); margin-left: 6px; font-weight: 400; }
+    .porVend .pvFila b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .porVend .pvFila.activa { border-color: var(--verde); background: var(--verde-claro); box-shadow: inset 3px 0 0 var(--verde); }
     .resumenDia b { color: var(--g900); font-size: 18px; font-weight: 700; white-space: nowrap; margin-left: 6px; font-variant-numeric: tabular-nums; }
     .resumenDia b small { font-size: 12px; font-weight: 600; color: var(--g500); margin-right: 3px; }
     body:not(.sinSesion) main { max-width: 1100px; }
@@ -1315,12 +1324,14 @@
           <div data-panel="venta:historial" class="oculto">
             <div class="fila">
               <input id="h_dia" type="date" style="max-width:200px" onchange="cargarHistorial()">
+              <select id="h_vend" class="oculto" style="max-width:240px" onchange="pintarHistorial()" aria-label="Vendedor"></select>
               <button class="sec" onclick="cargarHistorial()">Actualizar</button>
             </div>
             <div class="tabla"><table>
-              <thead><tr><th>#</th><th>Hora</th><th>Cliente</th><th>Pago</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
+              <thead><tr><th>#</th><th>Hora</th><th>Vendedor</th><th>Cliente</th><th>Pago</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
               <tbody id="h_cuerpo"></tbody></table></div>
             <div class="resumenDia" id="h_total"></div>
+            <div class="porVend" id="h_porvend"></div>
           </div>
 
           <div data-panel="venta:creditos" class="oculto">
@@ -1423,7 +1434,7 @@
             </div>
             <h3>Gastos del mes</h3>
             <div class="tabla"><table>
-              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Descripción</th><th>Pago</th><th>Estado</th><th class="num">Monto</th></tr></thead>
+              <thead><tr><th>Fecha</th><th>Cuenta</th><th>Descripción</th><th>Registró</th><th>Pago</th><th>Estado</th><th class="num">Monto</th></tr></thead>
               <tbody id="g_cuerpo"></tbody></table></div>
             <div class="total" id="g_total"></div>
           </div>
@@ -2219,7 +2230,8 @@
             el('hoy').innerHTML =
               cuadroHoy('Mi caja', r.caja ? 'Abierta' : 'Cerrada', r.caja ? 'Desde ' + esc(r.caja.desde) : 'Ábrela para vender', r.caja ? 'fuerte' : 'alerta', 'abrirVenta(\'caja\')',
                 r.caja ? 'billetera' : 'candado') +
-              cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)', '', 'abrirVenta(\'historial\')', 'carrito') +
+              cuadroHoy(r.ventas.propias ? 'Mis ventas de hoy' : 'Ventas de hoy', cs(r.ventas.total), r.ventas.numero + ' venta(s)' +
+                ((r.ventas.por_vendedor || []).length > 1 ? '<br>' + r.ventas.por_vendedor.map(x => esc(x.nombre.split(' ')[0]) + ' ' + cs(x.total)).join(' · ') : ''), '', 'abrirVenta(\'historial\')', 'carrito') +
               (verAl ? cuadroHoy('Alertas de inventario', urgentes, detalle || 'Todo en orden', a.vencidos ? 'malo' : urgentes ? 'naranja' : '', 'abrirInventario(\'alertas\')', 'paquete') : '') +
               (r.por_cobrar && ES_ADMIN ? cuadroHoy('Clientes nos deben', cs(r.por_cobrar.total), r.por_cobrar.clientes + ' cliente(s)', '', 'abrirVenta(\'creditos\')', 'personas') +
                 cuadroHoy('Cajas abiertas', r.cajas_abiertas, 'De todos los usuarios', '', 'abrirReportes(\'cajas\')', 'billetera') : '') +
@@ -3302,16 +3314,33 @@
         }
 
         // Ventas del día
+        let ventasDia = [];
         function cargarHistorial() {
           el('h_cuerpo').innerHTML = '';
           el('h_total').textContent = '';
+          el('h_porvend').innerHTML = '';
           llamar('ventasDelDia', [el('h_dia').value], lista => {
+            ventasDia = lista;
+            // Filtro por vendedor: solo si ese día vendió más de una persona
+            const nombres = [...new Set(lista.map(v => v.vendedor))].sort();
+            const antes = el('h_vend').value;
+            el('h_vend').innerHTML = '<option value="">Todos los vendedores</option>' + nombres.map(n => '<option>' + esc(n) + '</option>').join('');
+            el('h_vend').value = nombres.indexOf(antes) !== -1 ? antes : '';
+            mostrar('h_vend', nombres.length > 1);
+            pintarHistorial();
+          }, { aviso: 'avisoVenta', espera: 'Cargando…' });
+        }
+        function filtrarVendedor(n) { el('h_vend').value = el('h_vend').value === n ? '' : n; pintarHistorial(); }
+        function pintarHistorial() {
+          const quien = el('h_vend').value;
+          const lista = ventasDia.filter(v => !quien || v.vendedor === quien);
+          {
             let total = 0;
             el('h_cuerpo').innerHTML = lista.map(v => {
               const anulada = v.estado === 'ANULADA';
               if (!anulada) total += v.total;
               return tr([
-                td(v.id), td(esc(v.hora)), td(esc(v.cliente)), td(esc(v.forma_pago)), num(dinero(v.total)),
+                td(v.id), td(esc(v.hora)), td(esc(v.vendedor)), td(esc(v.cliente)), td(esc(v.forma_pago)), num(dinero(v.total)),
                 td(chip(v.estado.toLowerCase(), anulada ? 'rojo' : v.estado === 'CREDITO' ? 'ambar' : 'verde')),
                 td('<button class="mini sec" onclick="verRecibo(' + v.id + ')">Recibo</button>' +
                   (ES_ADMIN && MODO === 'todo' && !anulada ? ' <button class="mini peligro" onclick="anular(' + v.id + ')">Anular</button>' : ''), 'num')
@@ -3319,8 +3348,19 @@
             }).join('');
             const anuladas = lista.filter(v => v.estado === 'ANULADA').length;
             el('h_total').innerHTML = '<span>' + lista.length + (lista.length === 1 ? ' venta' : ' ventas') + (anuladas ? ' (' + anuladas + ' anulada' + (anuladas === 1 ? '' : 's') + ')' : '') + '</span>' +
-              '<span>' + (anuladas ? 'Total sin anuladas' : 'Total') + ' <b><small>C$</small>' + dinero(total) + '</b></span>';
-          }, { aviso: 'avisoVenta', espera: 'Cargando…' });
+              '<span>' + (anuladas ? 'Total sin anuladas' : 'Total') + (quien ? ' de ' + esc(quien) : '') + ' <b><small>C$</small>' + dinero(total) + '</b></span>';
+          }
+          // Cuánto vendió cada quien (sin anuladas); tocar un nombre filtra la lista
+          const por = {};
+          ventasDia.forEach(v => {
+            if (v.estado === 'ANULADA') return;
+            const x = por[v.vendedor] = por[v.vendedor] || { nombre: v.vendedor, ventas: 0, total: 0 };
+            x.ventas++; x.total += v.total;
+          });
+          const filas = Object.values(por).sort((a, b) => b.total - a.total);
+          el('h_porvend').innerHTML = filas.length < 2 ? '' : '<h4>Por vendedor</h4>' + filas.map(x =>
+            '<button class="pvFila' + (quien === x.nombre ? ' activa' : '') + '" onclick="filtrarVendedor(' + esc(JSON.stringify(x.nombre)) + ')">' +
+            '<span>' + esc(x.nombre) + ' <small>' + x.ventas + (x.ventas === 1 ? ' venta' : ' ventas') + '</small></span><b>' + cs(x.total) + '</b></button>').join('');
         }
         function verRecibo(id) { llamar('reciboVenta', [id], mostrarRecibo, { aviso: 'avisoVenta' }); }
         function anular(id) {
@@ -3393,16 +3433,16 @@
             '<div id="cr_recibos"></div></div>';
           llamar('creditosCliente', [c.id], lista => {
             el('cr_ventas').innerHTML = !lista.length ? 'No tiene créditos pendientes.'
-              : '<div class="tabla"><table><thead><tr><th>Venta</th><th>Fecha</th><th class="num">Total</th><th class="num">Abonado</th><th class="num">Saldo</th></tr></thead><tbody>' +
-                lista.map(p => tr([td(p.id_venta), td(esc(p.fecha)), num(dinero(p.total)), num(dinero(p.abonado)), num(dinero(p.saldo))])).join('') +
+              : '<div class="tabla"><table><thead><tr><th>Venta</th><th>Fecha</th><th>Vendió</th><th class="num">Total</th><th class="num">Abonado</th><th class="num">Saldo</th></tr></thead><tbody>' +
+                lista.map(p => tr([td(p.id_venta), td(esc(p.fecha)), td(esc(p.vendedor)), num(dinero(p.total)), num(dinero(p.abonado)), num(dinero(p.saldo))])).join('') +
                 '</tbody></table></div>';
           }, { aviso: 'avisoCreditos' });
           // Abonos ya recibidos: para volver a imprimir o mandar el recibo
           llamar('abonosCliente', [c.id], lista => {
             if (!el('cr_recibos')) return;
             el('cr_recibos').innerHTML = !lista.length ? '' : '<h3 style="margin-top:14px">Abonos recibidos</h3>' +
-              '<div class="tabla"><table><thead><tr><th>Recibo</th><th>Fecha</th><th>Forma</th><th class="num">Monto</th><th></th></tr></thead><tbody>' +
-              lista.map(a => tr([td(esc(a.numero)), td(esc(a.fecha)), td(esc(a.forma_pago)), num(dinero(a.monto)),
+              '<div class="tabla"><table><thead><tr><th>Recibo</th><th>Fecha</th><th>Recibió</th><th>Forma</th><th class="num">Monto</th><th></th></tr></thead><tbody>' +
+              lista.map(a => tr([td(esc(a.numero)), td(esc(a.fecha)), td(esc(a.recibio)), td(esc(a.forma_pago)), num(dinero(a.monto)),
                 td(a.mio ? '<button class="mini sec" onclick="verReciboAbono(' + a.recibo + ')">Recibo</button>' : '')])).join('') +
               '</tbody></table></div>';
           }, { aviso: 'avisoCreditos' });
@@ -3494,7 +3534,7 @@
         function cargarGastos() {
           llamar('listarGastos', [primeroDelMes(), hoyTexto()], lista => {
             el('g_cuerpo').innerHTML = lista.map(g => '<tr' + (g.estado === 'RECHAZADO' ? ' class="inactivo"' : '') + '>' + [td(fechaCorta(g.fecha)),
-              td(esc(g.cuenta + ' ' + g.nombre_cuenta)), td(esc(g.descripcion)), td(esc(g.forma_pago)), td(CHIP_ESTADO[g.estado] || ''),
+              td(esc(g.cuenta + ' ' + g.nombre_cuenta)), td(esc(g.descripcion)), td(esc(g.usuario)), td(esc(g.forma_pago)), td(CHIP_ESTADO[g.estado] || ''),
               num(dinero(g.monto))].join('') + '</tr>').join('');
             const aprobados = lista.filter(g => g.estado === 'APROBADO'), pend = lista.filter(g => g.estado === 'PENDIENTE');
             el('g_total').textContent = 'Total aprobado del mes: ' + cs(aprobados.reduce((s, g) => s + g.monto, 0)) +
@@ -4258,7 +4298,7 @@
               rpK('Venta promedio', cs(v.promedio), '', '', 'billetera') +
               rpK('Descuentos dados', cs(v.descuentos), '', '', 'etiqueta') +
             '</div>' + rpVentasSerie(v) +
-            '<div class="cuadro"><h3>Por vendedor</h3>' + gBarras(v.por_vendedor) + '</div>' +
+            '<div class="cuadro"><h3>Por vendedor</h3>' + gBarras(v.por_vendedor, { extra: x => '<small> · ' + x.ventas + (x.ventas === 1 ? ' venta' : ' ventas') + '</small>' }) + '</div>' +
             rpGanancia(r) +
             '<div class="dosCol"><div class="cuadro"><h3>Gastos de operación</h3>' + gBarras(r.gastos.cuentas, { tono: 'gris' }) + '</div>' +
             '<div class="cuadro"><h3>Otras salidas de dinero</h3>' + gBarras(r.otras_salidas.cuentas, { tono: 'gris' }) +
