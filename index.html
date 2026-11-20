@@ -2865,7 +2865,7 @@
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
           pintarConteo();
           sumarConteo();
-          el('cj_resumen').innerHTML = '<div class="cuadro"><b>Caja ' + c.id + '</b> · abierta ' + esc(c.apertura) + ' · ' + c.num_ventas + ' ventas' +
+          el('cj_resumen').innerHTML = '<div class="cuadro"><b>' + (c.compartida ? 'Ventanilla de la farmacia ' : 'Caja ') + c.id + '</b> · abierta ' + esc(c.apertura) + (c.abrio ? ' por ' + esc(c.abrio) : '') + ' · ' + c.num_ventas + ' ventas' +
             '<div class="kpis"><div class="kpi fuerte"><small>Debe haber en el cajón</small><b>' + cs(c.esperado) + '</b></div>' +
             '<div class="kpi"><small>Total vendido</small><b>' + cs(c.total_ventas) + '</b></div>' +
             '<div class="kpi"><small>Gastos del cajón</small><b>' + cs(c.gastos) + '</b></div></div>' + cuadreCaja(c) + '</div>';
