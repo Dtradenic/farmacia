@@ -281,6 +281,15 @@
       background: #fff; color: var(--g900); border-color: var(--g200); border-radius: 10px; }
     .resultados button:hover { border-color: var(--verde); background: #fff; }
     .resultados small { color: var(--g500); font-weight: 400; }
+    /* Misceláneos: botones grandes, un toque = una unidad al carrito */
+    .miscGrilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+    .miscBoton { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; text-align: left; min-height: 84px; padding: 10px 12px;
+      background: var(--verde-claro); color: var(--g900); border: 1px solid var(--g200); border-radius: 12px; font-weight: 500; line-height: 1.3; }
+    .miscBoton:hover:not(:disabled) { border-color: var(--verde); }
+    .miscBoton span { color: var(--verde-osc); font-weight: 700; }
+    .miscBoton small { color: var(--g500); font-weight: 400; }
+    .miscBoton:disabled { background: var(--g50); opacity: .6; }
+    #btnMisc.activo { background: var(--verde); color: #fff; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
     .kpi { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 12px 14px; box-shadow: var(--sombra); }
     .kpi small { display: block; font-size: 13px; font-weight: 500; color: var(--g500); }
@@ -950,6 +959,7 @@
           <div class="ayuda">Se muestra solo lo que necesitas. Puedes cambiar de modo cuando quieras.</div>
           <div class="modulos">
             <button class="modulo" onclick="elegirModoPantalla('vender')"><i><svg class="ico" data-ico="carrito"></svg></i><span><b>Vender en la farmacia</b><small>Cobrar, caja, clientes y existencias</small></span></button>
+            <button class="modulo" onclick="elegirModoPantalla('miscelaneos')"><i><svg class="ico" data-ico="paquete"></svg></i><span><b>Misceláneos</b><small>Toallitas, pañales, Gatorade…</small></span></button>
             <button class="modulo" onclick="elegirModoPantalla('consulta')"><i><svg class="ico" data-ico="personas"></svg></i><span><b>Dar consulta</b><small>Pacientes, recetas y cobro de la consulta</small></span></button>
             <button class="modulo" onclick="elegirModoPantalla('todo')"><i><svg class="ico" data-ico="candado"></svg></i><span><b>Ver todo</b><small>Reportes, gastos y administración (pide tu clave)</small></span></button>
           </div>
@@ -1108,12 +1118,12 @@
               <div><label>N° de factura</label><input id="c_factura"></div>
               <div><label>Forma de pago</label><select id="c_pago">
                 <option value="Dueño">Pagado por el dueño (de su bolsillo)</option>
-                <option value="Contado">Efectivo de caja general</option>
+                <option value="Contado">Efectivo de la Caja guardada</option>
                 <option value="Banco">Banco o transferencia</option>
                 <option value="Crédito">Crédito del proveedor</option>
               </select></div>
             </div>
-            <div class="ayuda">Si pagas con dinero del cajón de ventas, registra la compra al crédito y luego el pago en Gastos, cuenta 2101 Proveedores, para que la caja cuadre.</div>
+            <div class="ayuda">«Efectivo de la Caja guardada» sale del dinero de los cierres de ventanilla. Si pagas con dinero del cajón de la ventanilla (o la Caja no alcanza), registra la compra al crédito y luego el pago en Gastos, cuenta 2101 Proveedores, con «Caja y ventanilla».</div>
             <div class="cuadro">
               <h3>Agregar producto</h3>
               <div class="formulario">
@@ -1204,7 +1214,9 @@
             <div id="v_zonaVenta">
               <div id="v_recetas" class="oculto"></div>
               <div class="fila"><input id="v_buscar" class="crece" type="search" placeholder="Buscar producto (nombre, principio activo o código)" oninput="buscarVenta()"
-                onkeydown="if (event.key === 'Enter') agregarPrimero()"></div>
+                onkeydown="if (event.key === 'Enter') agregarPrimero()">
+                <button class="sec" id="btnMisc" onclick="mostrarMisc(el('v_misc').classList.contains('oculto'))">Misceláneos</button></div>
+              <div id="v_misc" class="oculto"></div>
               <div class="resultados" id="v_resultados"></div>
               <div class="tabla"><table>
                 <thead><tr><th>Producto</th><th>Por</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Desc. C$</th><th class="num">Total</th><th></th></tr></thead>
@@ -1400,6 +1412,25 @@
               <div id="cj_todas"><div class="ayuda">Consultando…</div></div>
               <div class="ayuda">Los números son de este momento. Para ver cierres de otros días: Reportes → Cierres de caja.</div>
             </div>
+            <div class="cuadro soloAdmin soloTodo oculto" id="cg_cuadro">
+              <div class="barra" style="margin-bottom:0"><h3 style="flex:1;margin:0">Caja guardada</h3>
+                <button class="mini sec conIcono" id="btnCajaGuardada" onclick="cargarCajaGuardada()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button></div>
+              <div class="ayuda">Lo recaudado al cerrar cada ventanilla. Los gastos y compras pagados con la Caja lo restan.</div>
+              <div id="cg_resumen"><div class="ayuda">Consultando…</div></div>
+              <div class="fila"><button class="sec" id="btnMostrarContarCaja" onclick="mostrarContarCaja(true)">Contar la Caja</button></div>
+              <div id="cg_contar" class="oculto">
+                <h4>Cuenta el dinero guardado</h4>
+                <div class="conteo" id="cg_conteo"></div>
+                <div class="conteoTotal">
+                  <div><small>Total contado</small><b id="cg_totalTexto">C$ 0.00</b></div>
+                  <div id="cg_cuadre" class="cuadreEstado"></div>
+                </div>
+                <div class="formulario"><div><label>Nota</label><input id="cg_nota" placeholder="Ej.: conteo del viernes"></div></div>
+                <div class="fila"><button id="btnContarCaja" onclick="contarMiCajaGuardada()">Guardar conteo</button>
+                  <button class="sec" onclick="mostrarContarCaja(false)">Cancelar</button></div>
+              </div>
+              <div class="aviso" id="avisoCajaGuardada"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1426,10 +1457,15 @@
                 <div><label>Cuenta</label><select id="g_cuenta"></select></div>
                 <div><label>Descripción</label><input id="g_descripcion" placeholder="Ej.: recibo de luz de octubre"></div>
                 <div><label>Monto (C$)</label><input id="g_monto" type="number" min="0" step="0.01"></div>
-                <div><label>Pagado con</label><select id="g_forma_pago" onchange="mostrarCajaGasto()"><option value="Efectivo">Efectivo del cajón</option><option value="Transferencia">Banco o transferencia</option></select></div>
-                <div id="g_cajaCaja"><label for="g_caja">Sale del cajón de</label><select id="g_caja"></select></div>
+                <div><label>Pagado con</label><select id="g_forma_pago" onchange="mostrarCajaGasto()">
+                  <option value="Ambas" class="conGuardada">Efectivo: Caja y ventanilla (primero la Caja)</option>
+                  <option value="Caja" class="conGuardada">Efectivo de la Caja guardada</option>
+                  <option value="Efectivo">Efectivo del cajón de la ventanilla</option>
+                  <option value="Transferencia">Banco o transferencia</option></select></div>
+                <div id="g_cajaCaja"><label for="g_caja">Cajón de la ventanilla</label><select id="g_caja"></select></div>
               </div>
-              <div class="ayuda">Efectivo del cajón: elige de qué caja abierta salió el dinero (la tuya o la de un vendedor que pagó y te avisó); se resta en el cierre de esa caja. Pagos a proveedores: cuenta 2101. Salarios y adelantos: 2108. Lo que el dueño saca para sí: 3104.</div>
+              <div class="ayuda" id="g_saldoGuardada"></div>
+              <div class="ayuda">Caja guardada: el dinero de los cierres de ventanilla. «Caja y ventanilla» saca primero de la Caja y lo que falte del cajón que elijas. Cajón de la ventanilla: elige de qué ventanilla abierta salió (la tuya o la de un vendedor que pagó y te avisó); se resta en su cierre. Pagos a proveedores: cuenta 2101. Salarios y adelantos: 2108. Lo que el dueño saca para sí: 3104. Depósito al banco: 1103.</div>
               <div class="fila"><button id="btnGasto" onclick="guardarGasto()">Guardar gasto</button></div>
             </div>
             <h3>Gastos del mes</h3>
@@ -2088,7 +2124,11 @@
             el('modo_clave').focus();
             return;
           }
-          llamar('elegirModo', [m, ''], () => { aplicarModo(m); modoInicio(); }, { aviso: 'avisoModo', espera: 'Abriendo…' });
+          // Misceláneos: es el modo vender, abierto con los botones de misceláneos a la vista.
+          llamar('elegirModo', [m, ''], () => {
+            if (m === 'miscelaneos') { aplicarModo('vender'); mostrarMisc(true); abrirVenta('vender'); }   // los botones se llenan al cargar la venta
+            else { aplicarModo(m); modoInicio(); }
+          }, { aviso: 'avisoModo', espera: 'Abriendo…' });
         }
         function confirmarModoTodo() {
           if (!el('modo_clave').value) return aviso('avisoModo', 'Escribe tu clave.', true);
@@ -2601,7 +2641,7 @@
           }, { aviso: 'avisoVenta', espera: 'Cargando…' });
         }
         const TITULOS_VENTA = { vender: ['Vender', 'Cobrar y dar recibo'], historial: ['Ventas del día', 'Recibos y anulaciones'],
-          creditos: ['Clientes y créditos', 'Quién nos debe, cuánto y desde cuándo'], caja: ['Caja', 'Abrir, contar y cerrar el cajón'],
+          creditos: ['Clientes y créditos', 'Quién nos debe, cuánto y desde cuándo'], caja: ['Caja', 'Ventanilla del día y Caja guardada'],
           recargas: ['Recargas', 'Claro y Tigo: vender, comprar saldo y cuadrar'] };
         AL_ABRIR.venta = nombre => {
           aviso('avisoVenta', '');
@@ -2610,7 +2650,7 @@
           if (nombre === 'historial') cargarHistorial();
           if (nombre === 'vender') cargarRecetas();
           if (nombre === 'creditos') volverListaClientes();
-          if (nombre === 'caja') cargarCajasTodas();
+          if (nombre === 'caja') { cargarCajasTodas(); cargarCajaGuardada(); }
           if (nombre === 'recargas') cargarRecargas();
           pintarCaja();
         };
@@ -2821,6 +2861,7 @@
           if (actual.venta === 'recargas' && dr) pintarRecargas();
           mostrar('v_zonaVenta', abierta);
           mostrar('cj_cerrar', abierta);
+          if (!el('v_misc').classList.contains('oculto')) mostrarMisc(true);   // existencias al día después de vender
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
           pintarConteo();
           sumarConteo();
@@ -2856,6 +2897,84 @@
                 '<div class="kpi fuerte"><small>Debe haber en el cajón</small><b>' + cs(k.esperado) + '</b></div>' +
                 '<div class="ayuda">' + k.num_ventas + ' venta(s) · total vendido ' + cs(k.total_ventas) + '</div>' + cuadreCaja(k) + '</div>').join('') + '</div>';
           }, { aviso: 'avisoCaja', boton: 'btnCajasTodas' });
+        }
+        // Caja guardada (solo Admin): lo recaudado al cerrar cada ventanilla, sus movimientos y su conteo por billetes.
+        let cg = null;
+        const TIPO_MOV_CAJA = { CIERRE: 'Cierre', APERTURA: 'Apertura', GASTO: 'Gasto', COMPRA: 'Compra', CONTEO: 'Conteo' };
+        function cargarCajaGuardada() {
+          if (!ES_ADMIN) return;
+          llamar('estadoCajaGuardada', [], r => { cg = r; pintarCajaGuardada(); }, { aviso: 'avisoCajaGuardada', boton: 'btnCajaGuardada' });
+        }
+        function pintarCajaGuardada() {
+          mostrar('cg_cuadro', !!(cg && cg.activa));
+          if (!cg || !cg.activa) return;
+          const u = cg.ultimo_conteo;
+          el('cg_resumen').innerHTML = '<div class="kpis"><div class="kpi fuerte"><small>Debe haber en la Caja</small><b>' + cs(cg.saldo) + '</b></div>' +
+            '<div class="kpi"><small>Último conteo</small><b>' + (u ? cs(u.contado) : '—') + '</b>' +
+            (u ? '<small>' + esc(u.fecha) + (u.diferencia ? ' · ' + (u.diferencia > 0 ? 'sobró ' : 'faltó ') + cs(Math.abs(u.diferencia)) : ' · cuadró') + '</small>' : '') + '</div></div>' +
+            (cg.movimientos.length ? '<div class="tabla"><table><thead><tr><th>Fecha</th><th>Qué</th><th>Detalle</th><th class="num">Monto</th><th class="num">Queda</th></tr></thead><tbody>' +
+              cg.movimientos.map(m => tr([td(esc(m.fecha)), td(esc(TIPO_MOV_CAJA[m.tipo] || m.tipo)), td(esc(m.detalle)),
+                num((m.monto > 0 ? '+' : '') + dinero(m.monto)), num(dinero(m.saldo))])).join('') + '</tbody></table></div>' :
+              '<div class="vacio">Todavía no hay movimientos. Al cerrar una ventanilla, lo contado pasa aquí.</div>');
+          if (!el('cg_contar').classList.contains('oculto')) sumarConteoGuardada();
+        }
+        function mostrarContarCaja(si) {
+          mostrar('cg_contar', si);
+          mostrar('btnMostrarContarCaja', !si);
+          if (!si) return;
+          if (!el('cg_conteo').dataset.listo) {
+            const fila = d => '<label class="denom"><span>' + textoDenom(d) + '</span>' +
+              '<input type="number" min="0" step="1" inputmode="numeric" data-denom="' + d + '" oninput="sumarConteoGuardada()" placeholder="0">' +
+              '<em id="cg_sub_' + String(d).replace('.', '_') + '">—</em></label>';
+            el('cg_conteo').innerHTML = '<div><h4>Billetes</h4>' + BILLETES.map(fila).join('') + '</div>' +
+              '<div><h4>Monedas</h4>' + MONEDAS.map(fila).join('') +
+              '<h4>Dólares</h4><label class="denom"><span>US$</span>' +
+              '<input type="number" min="0" step="1" inputmode="numeric" id="cg_usd" oninput="sumarConteoGuardada()" placeholder="0"><em id="cg_sub_usd">—</em></label></div>';
+            el('cg_conteo').dataset.listo = '1';
+          }
+          sumarConteoGuardada();
+        }
+        function leerConteoGuardada() {
+          const c = {};
+          document.querySelectorAll('#cg_conteo input[data-denom]').forEach(i => { if (i.value !== '') c[i.dataset.denom] = Number(i.value); });
+          if (el('cg_usd').value !== '') c.usd = Number(el('cg_usd').value);
+          return c;
+        }
+        function sumarConteoGuardada() {
+          if (!cg || !el('cg_conteo').dataset.listo) return 0;
+          const tc = Number(dv && dv.tipo_cambio) || 0;
+          let total = 0;
+          document.querySelectorAll('#cg_conteo input[data-denom]').forEach(i => {
+            const n = Number(i.value) || 0, sub = n * Number(i.dataset.denom);
+            total += sub;
+            el('cg_sub_' + i.dataset.denom.replace('.', '_')).textContent = n ? cs(sub) : '—';
+          });
+          const usd = Number(el('cg_usd').value) || 0;
+          total = r2(total + usd * tc);
+          el('cg_sub_usd').textContent = usd ? cs(usd * tc) : '—';
+          el('cg_totalTexto').textContent = cs(total);
+          const d = r2(total - cg.saldo);
+          el('cg_cuadre').className = 'cuadreEstado ' + (d === 0 ? 'bien' : d > 0 ? 'sobra' : 'falta');
+          el('cg_cuadre').innerHTML = '<small>Debe haber ' + cs(cg.saldo) + '</small><b>' +
+            (d === 0 ? 'Cuadra exacto' : d > 0 ? 'Sobran ' + cs(d) : 'Faltan ' + cs(-d)) + '</b>';
+          return total;
+        }
+        function contarMiCajaGuardada() {
+          const conteo = leerConteoGuardada();
+          if (!Object.keys(conteo).length) return aviso('avisoCajaGuardada', 'Escribe cuántos billetes y monedas contaste.', true);
+          const contado = sumarConteoGuardada(), d = r2(contado - cg.saldo);
+          preguntar({ titulo: '¿Guardar el conteo de la Caja?', si: 'Guardar conteo',
+            texto: 'Contaste ' + cs(contado) + '. ' + (d === 0 ? 'Cuadra exacto.' : (d > 0 ? 'Sobran ' : 'Faltan ') + cs(Math.abs(d)) +
+              ': quedará anotado como ' + (d > 0 ? 'sobrante' : 'faltante') + ' y la Caja pasará a ' + cs(contado) + '.')
+          }, () => llamar('contarCajaGuardada', [contado, el('cg_nota').value, conteo], r => {
+            cg = r;
+            document.querySelectorAll('#cg_conteo input').forEach(i => { i.value = ''; });
+            el('cg_nota').value = '';
+            mostrarContarCaja(false);
+            pintarCajaGuardada();
+            const h = r.conteo_hecho;
+            aviso('avisoCajaGuardada', 'Conteo guardado: ' + cs(h.contado) + (h.diferencia ? (h.diferencia > 0 ? ' (sobraron ' : ' (faltaron ') + cs(Math.abs(h.diferencia)) + ')' : ', cuadra exacto') + '.', h.diferencia < 0);
+          }, { aviso: 'avisoCajaGuardada', espera: 'Guardando…', boton: 'btnContarCaja' }));
         }
         function abrirMiCaja() {
           llamar('abrirCaja', [el('v_montoInicial').value || 0], () => cargarVenta(() => aviso('avisoVenta', 'Caja abierta.')),
@@ -2918,7 +3037,9 @@
             limpiar(['cj_contado', 'cj_nota']);
             limpiarConteo();
             cargarVenta(() => aviso('avisoCaja', 'Caja ' + r.id + ' cerrada. Debía haber ' + cs(r.esperado) + ', contaste ' + cs(r.contado) +
-              (d === 0 ? '. Cuadra exacto.' : d > 0 ? '. Sobran ' + cs(d) + '.' : '. Faltan ' + cs(-d) + '.'), d < 0));
+              (d === 0 ? '. Cuadra exacto.' : d > 0 ? '. Sobran ' + cs(d) + '.' : '. Faltan ' + cs(-d) + '.') +
+              (r.a_caja_guardada ? ' Los ' + cs(r.a_caja_guardada) + ' pasan a la Caja guardada.' : ''), d < 0));
+            if (actual.venta === 'caja') cargarCajaGuardada();
           }, { aviso: 'avisoCaja', espera: 'Cerrando caja…', boton: 'btnCerrarCaja' }));
         }
 
@@ -2936,13 +3057,25 @@
           const b = el('v_resultados').querySelector('button:not([disabled])');
           if (b) b.click();
         }
+        /** Botones de misceláneos (categoría Misceláneos): un toque agrega una unidad al carrito. */
+        function mostrarMisc(si) {
+          mostrar('v_misc', si);
+          el('btnMisc').classList.toggle('activo', si);
+          if (!si || !dv) return;
+          const lista = dv.productos.filter(p => p.miscelaneo).sort((a, b) => a.nombre.localeCompare(b.nombre));
+          el('v_misc').innerHTML = !lista.length ?
+            '<div class="vacio">No hay productos en la categoría «Misceláneos». Créalos en Productos con esa categoría.</div>' :
+            '<div class="miscGrilla">' + lista.map(p => '<button class="miscBoton"' + (p.disponible > 0 ? '' : ' disabled') +
+              ' onclick="agregarAlCarrito(\'' + esc(p.codigo) + '\')"><b>' + esc(p.nombre) + '</b><span>' + cs(p.precio_unidad) + '</span>' +
+              '<small>' + (p.disponible > 0 ? 'hay ' + p.disponible : 'agotado') + '</small></button>').join('') + '</div>';
+        }
         function agregarAlCarrito(cod) {
           const ya = carrito.filter(l => l.codigo === cod && l.modo === 'UNIDAD')[0];
           if (ya) ya.cantidad++; else carrito.push({ codigo: cod, modo: 'UNIDAD', cantidad: 1, descuento: 0 });
           el('v_buscar').value = '';
           el('v_resultados').innerHTML = '';
           pintarCarrito();
-          el('v_buscar').focus();
+          if (el('v_misc').classList.contains('oculto')) el('v_buscar').focus();   // con los botones de misceláneos no se abre el teclado del celular
         }
         const precioLinea = l => l.precio_receta !== undefined ? l.precio_receta : prodVenta(l.codigo)[l.modo === 'CAJA' ? 'precio_caja' : 'precio_unidad'];
         const totalLinea = l => r2(l.cantidad * precioLinea(l) - (Number(l.descuento) || 0));
@@ -3504,6 +3637,9 @@
             cat = r;
             if (vistaActual === 'conta') cargarPorAprobar();
             opciones('g_cuenta', r.cuentas_gasto, c => c.codigo, cuentaTexto);
+            document.querySelectorAll('#g_forma_pago .conGuardada').forEach(o => { o.hidden = o.disabled = !r.caja_guardada; });
+            if (!r.caja_guardada && ['Caja', 'Ambas'].indexOf(el('g_forma_pago').value) !== -1) el('g_forma_pago').value = 'Efectivo';
+            mostrarCajaGasto();
             opciones('c_cuenta', r.cuentas, c => c.codigo, cuentaTexto);
             el('as_cerrado').textContent = r.cerrado_hasta ? ' Meses cerrados: hasta ' + r.cerrado_hasta + '.' : '';
             if (!lineasManual.length) lineasManual = [lineaVacia(), lineaVacia()];
@@ -3529,12 +3665,22 @@
             opciones('g_caja', lista, k => k.id, k => (k.mia ? 'Mi caja' : k.vendedor) + ' · Caja ' + k.id + ' · hay ' + cs(k.esperado),
               lista.length ? null : 'No hay cajas abiertas');
           }, { aviso: 'avisoConta' });
+          llamar('estadoCajaGuardada', [], r => {
+            el('g_saldoGuardada').innerHTML = r.activa ? 'En la Caja guardada debe haber <b>' + cs(r.saldo) + '</b>.' : '';
+          }, { falla: () => {} });
         }
-        function mostrarCajaGasto() { mostrar('g_cajaCaja', el('g_forma_pago').value === 'Efectivo'); }
+        function mostrarCajaGasto() { mostrar('g_cajaCaja', ['Efectivo', 'Ambas'].indexOf(el('g_forma_pago').value) !== -1); }
+        /** Texto de la columna «Pago» de un gasto: de dónde salió el dinero. */
+        function pagoGasto(g) {
+          if (g.forma_pago !== 'Efectivo') return 'Banco';
+          if (!g.monto_caja) return 'Ventanilla' + (g.id_caja ? ' ' + g.id_caja : '');
+          if (g.monto_caja >= g.monto) return 'Caja guardada';
+          return 'Caja ' + cs(g.monto_caja) + ' + ventanilla ' + (g.id_caja ? g.id_caja + ' ' : '') + cs(r2(g.monto - g.monto_caja));
+        }
         function cargarGastos() {
           llamar('listarGastos', [primeroDelMes(), hoyTexto()], lista => {
             el('g_cuerpo').innerHTML = lista.map(g => '<tr' + (g.estado === 'RECHAZADO' ? ' class="inactivo"' : '') + '>' + [td(fechaCorta(g.fecha)),
-              td(esc(g.cuenta + ' ' + g.nombre_cuenta)), td(esc(g.descripcion)), td(esc(g.usuario)), td(esc(g.forma_pago)), td(CHIP_ESTADO[g.estado] || ''),
+              td(esc(g.cuenta + ' ' + g.nombre_cuenta)), td(esc(g.descripcion)), td(esc(g.usuario)), td(esc(pagoGasto(g))), td(CHIP_ESTADO[g.estado] || ''),
               num(dinero(g.monto))].join('') + '</tr>').join('');
             const aprobados = lista.filter(g => g.estado === 'APROBADO'), pend = lista.filter(g => g.estado === 'PENDIENTE');
             el('g_total').textContent = 'Total aprobado del mes: ' + cs(aprobados.reduce((s, g) => s + g.monto, 0)) +
@@ -3544,13 +3690,18 @@
         }
         function guardarGasto() {
           const g = leer('g_', ['fecha', 'cuenta', 'descripcion', 'monto', 'forma_pago']);
-          g.id_caja = g.forma_pago === 'Efectivo' ? el('g_caja').value : '';
-          if (g.forma_pago === 'Efectivo' && !g.id_caja) return aviso('avisoConta', 'No hay ninguna caja abierta: el efectivo tiene que salir de un cajón abierto.', true);
+          const pago = g.forma_pago;   // Ambas | Caja | Efectivo (ventanilla) | Transferencia
+          g.forma_pago = pago === 'Transferencia' ? 'Transferencia' : 'Efectivo';
+          g.origen = pago === 'Caja' || pago === 'Ambas' ? pago : (pago === 'Efectivo' ? 'Ventanilla' : '');
+          g.id_caja = pago === 'Efectivo' || pago === 'Ambas' ? el('g_caja').value : '';
+          if (pago === 'Efectivo' && !g.id_caja) return aviso('avisoConta', 'No hay ninguna ventanilla abierta: el efectivo tiene que salir de un cajón abierto.', true);
           llamar('registrarGasto', [g], r => {
             cargarCajasGasto();
             limpiar(['g_descripcion', 'g_monto']);
             cargarGastos();
-            aviso('avisoConta', 'Gasto ' + r.id + ' guardado.' + (r.estado === 'PENDIENTE' ? ' Queda por aprobar: el administrador revisará la cuenta.' : ''));
+            const de = r.de_caja && r.de_ventanilla ? ' Salió ' + cs(r.de_caja) + ' de la Caja guardada y ' + cs(r.de_ventanilla) + ' de la ventanilla.' :
+              r.de_caja ? ' Salió de la Caja guardada.' : '';
+            aviso('avisoConta', 'Gasto ' + r.id + ' guardado.' + de + (r.estado === 'PENDIENTE' ? ' Queda por aprobar: el administrador revisará la cuenta.' : ''));
           }, { aviso: 'avisoConta', espera: 'Guardando…', boton: 'btnGasto' });
         }
         // Gastos por aprobar (solo quien aprueba): corregir cuenta y descripción, aprobar o rechazar.
