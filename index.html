@@ -1267,6 +1267,7 @@
             <i class="icoTitulo"><svg class="ico" data-ico="carrito"></svg></i>
             <div class="titulos"><h2 id="ventaTitulo">Ventas</h2><small id="ventaSub">Cobrar, caja y créditos</small></div>          </div>
           <div class="aviso" id="avisoVenta"></div>
+          <div class="aviso error" id="v_cajaVieja"></div>
 
           <!-- Abrir caja (aparece en Vender y en Caja si no hay caja abierta) -->
           <div id="v_abrirCaja" class="cuadro oculto">
@@ -1312,6 +1313,7 @@
                       <option>Efectivo</option><option>Dólares</option><option>Transferencia</option><option>Crédito</option>
                     </select></div>
                   <div><label>Cliente (obligatorio al crédito)</label><select id="v_cliente" onchange="calcularVuelto()"></select></div>
+                  <div id="v_nombreCaja"><label for="v_nombreCliente">Nombre del cliente (opcional)</label><input id="v_nombreCliente" maxlength="60" placeholder="Ej.: Juanita" autocomplete="off"></div>
                   <div id="v_pagadoCaja"><label id="v_pagadoEtiqueta">Recibido (C$)</label><input id="v_pagado" type="number" min="0" step="0.01" oninput="calcularVuelto()"></div>
                 </div>
                 <div class="soloAdmin"><label for="v_nota">Nota para el recibo (opcional)</label><input id="v_nota" maxlength="200" placeholder="Ej.: indicaciones, abono pendiente, dato del paciente"></div>
@@ -1445,10 +1447,10 @@
             <div id="cr_form" class="cuadro oculto">
               <h3 id="cr_formTitulo">Nuevo cliente</h3>
               <div class="formulario">
-                <div><label>Nombre</label><input id="cl_nombre"></div>
-                <div><label>Cédula</label><input id="cl_cedula"></div>
-                <div><label>Teléfono</label><input id="cl_telefono"></div>
-                <div><label>Dirección</label><input id="cl_direccion"></div>
+                <div><label for="cl_nombre">Nombre *</label><input id="cl_nombre" autocomplete="off" onkeydown="if (event.key === 'Enter') guardarMiCliente()"></div>
+                <div><label for="cl_telefono">Celular *</label><input id="cl_telefono" type="tel" inputmode="numeric" maxlength="15" placeholder="Ej.: 8888 8888" onkeydown="if (event.key === 'Enter') guardarMiCliente()"></div>
+                <div><label for="cl_cedula">Cédula (opcional)</label><input id="cl_cedula" onkeydown="if (event.key === 'Enter') guardarMiCliente()"></div>
+                <div><label for="cl_direccion">Dirección (opcional)</label><input id="cl_direccion" onkeydown="if (event.key === 'Enter') guardarMiCliente()"></div>
                 <div class="soloAdmin soloTodo"><label>Límite de crédito (C$)</label><input id="cl_limite_credito" type="number" min="0" step="0.01"></div>
                 <div class="soloAdmin soloTodo"><label>Activo</label><select id="cl_activo"><option>SI</option><option>NO</option></select></div>
               </div>
@@ -1475,6 +1477,28 @@
               <div class="fila"><button id="btnCerrarCaja" class="peligro" onclick="cerrarMiCaja()">Cerrar caja</button></div>
             </div>
             <div class="aviso" id="avisoCaja"></div>
+            <!-- Ingresos extra (propinas, regalías, delivery): solo Admin; no salen en el recibo -->
+            <div class="cuadro soloAdmin" id="ie_cuadro">
+              <div class="barra" style="margin-bottom:0"><h3 style="flex:1;margin:0">Ingresos extra (propinas, delivery)</h3>
+                <button class="mini sec conIcono" id="btnIngresosExtra" onclick="cargarIngresosExtra()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button></div>
+              <div class="ayuda">Lo que le dan al personal aparte de la venta: propinas, regalías, lo del delivery. Solo lo ven los administradores y no sale en el recibo. El efectivo entra a la ventanilla.</div>
+              <div class="fila"><button id="btnMostrarIngresoExtra" onclick="formIngresoExtra('')">Registrar ingreso extra</button></div>
+              <div id="ie_form" class="oculto">
+                <div class="formulario">
+                  <div><label for="ie_tipo">Tipo</label><select id="ie_tipo"><option>Propina / regalía</option><option>Delivery</option><option>Otro</option></select></div>
+                  <div><label for="ie_monto">Monto (C$)</label><input id="ie_monto" type="number" min="0" step="0.01" inputmode="decimal"></div>
+                  <div><label for="ie_forma">Cómo lo dieron</label><select id="ie_forma"><option>Efectivo</option><option>Transferencia</option></select></div>
+                  <div><label for="ie_recibio">Lo recibió</label><select id="ie_recibio"></select></div>
+                  <div><label for="ie_venta">Venta (opcional)</label><select id="ie_venta" onchange="ventaIngresoExtra()"></select></div>
+                  <div><label for="ie_cliente">Cliente (opcional)</label><input id="ie_cliente" maxlength="60" autocomplete="off"></div>
+                </div>
+                <div><label for="ie_nota">Nota (opcional; obligatoria si es «Otro»)</label><input id="ie_nota" maxlength="200" placeholder="Ej.: llevó el pedido al barrio San José"></div>
+                <div class="fila"><button id="btnIngresoExtra" onclick="guardarIngresoExtra()">Guardar ingreso</button>
+                  <button class="sec" onclick="mostrarFormIngresoExtra(false)">Cancelar</button></div>
+              </div>
+              <div class="aviso" id="avisoIngresosExtra"></div>
+              <div id="ie_lista"><div class="ayuda">Consultando…</div></div>
+            </div>
             <div class="cuadro soloAdmin soloTodo" id="cj_todasCaja">
               <div class="barra" style="margin-bottom:0"><h3 style="flex:1;margin:0">Cajas abiertas de todos</h3>
                 <button class="mini sec conIcono" id="btnCajasTodas" onclick="cargarCajasTodas()"><svg class="ico" data-ico="recargar"></svg>Actualizar</button></div>
@@ -1747,6 +1771,7 @@
             <a id="btnReciboDescargar" class="boton sec oculto" download>Descargar imagen</a>
             <button onclick="window.print()" class="sec">Imprimir</button>
             <button class="sec" id="btnReciboWA" onclick="reciboWhatsApp()">Texto por WhatsApp</button>
+            <button class="sec soloAdmin oculto" id="btnReciboExtra" onclick="ingresoExtraDeRecibo()" title="Solo para el control interno: no sale en el recibo">Propina / delivery</button>
             <button class="sec" onclick="mostrar('capaRecibo', false)">Cerrar</button>
           </div>
         </div>
@@ -2818,7 +2843,7 @@
           if (nombre === 'historial') cargarHistorial();
           if (nombre === 'vender') cargarRecetas();
           if (nombre === 'creditos') volverListaClientes();
-          if (nombre === 'caja') { cargarCajasTodas(); cargarCajaGuardada(); }
+          if (nombre === 'caja') { cargarCajasTodas(); cargarCajaGuardada(); cargarIngresosExtra(); }
           if (nombre === 'recargas') cargarRecargas();
           pintarCaja();
         };
@@ -3031,6 +3056,10 @@
           mostrar('cj_cerrar', abierta);
           if (!el('v_misc').classList.contains('oculto')) mostrarMisc(true);   // existencias al día después de vender
           if (!el('v_lab').classList.contains('oculto')) mostrarLab(true);
+          // Ventanilla de un día anterior: la apertura automática de las 5 a. m. no abre otra hasta que se cierre esta.
+          const vieja = abierta && String(c.apertura).slice(0, 10) !== fechaCorta(hoyTexto());
+          el('v_cajaVieja').textContent = vieja ? 'Esta ventanilla se abrió el ' + String(c.apertura).slice(0, 10) +
+            ' y no se ha cerrado. Ciérrala y cuenta el cajón: mañana a las 5 a. m. se abrirá sola una nueva en C$ 0.' : '';
           if (!abierta) { el('cj_resumen').innerHTML = ''; return; }
           pintarConteo();
           sumarConteo();
@@ -3048,7 +3077,9 @@
             f('Menos gastos pagados del cajón', -c.gastos || 0) +
             (c.num_recargas || c.compras_saldo ? f('Recargas cobradas en efectivo (' + (c.num_recargas || 0) + ')', c.recargas_efectivo) +
               f('Menos saldo de recargas comprado con efectivo', -c.compras_saldo || 0) : '') +
+            (c.extras_efectivo ? f(ES_ADMIN ? 'Ingresos extra en efectivo (propinas, delivery)' : 'Otros ingresos en efectivo', c.extras_efectivo) : '') +
             f('Debe haber en el cajón', c.esperado, 'totalR') +
+            (ES_ADMIN && c.extras_transferencia ? f('Ingresos extra por transferencia (no entran al cajón)', c.extras_transferencia, 'aparte') : '') +
             f('Ventas por transferencia (no entran al cajón)', c.ventas['Transferencia'], 'aparte') +
             f('Ventas al crédito (no entran al cajón)', c.ventas['Crédito'], 'aparte') +
             (c.recargas_transferencia ? f('Recargas por transferencia (no entran al cajón)', c.recargas_transferencia, 'aparte') : '') +
@@ -3144,6 +3175,85 @@
             const h = r.conteo_hecho;
             aviso('avisoCajaGuardada', 'Conteo guardado: ' + cs(h.contado) + (h.diferencia ? (h.diferencia > 0 ? ' (sobraron ' : ' (faltaron ') + cs(Math.abs(h.diferencia)) + ')' : ', cuadra exacto') + '.', h.diferencia < 0);
           }, { aviso: 'avisoCajaGuardada', espera: 'Guardando…', boton: 'btnContarCaja' }));
+        }
+        // Ingresos extra (solo Admin): propinas, regalías y delivery. Se ligan a una venta solo para el control interno.
+        let ie = null, ieVentaPendiente = '', ieVentas = [];
+        function cargarIngresosExtra() {
+          if (!ES_ADMIN) return;
+          llamar('listarIngresosExtra', ['', ''], r => {
+            ie = r;
+            pintarIngresosExtra();
+            if (ieVentaPendiente) { const v = ieVentaPendiente; ieVentaPendiente = ''; formIngresoExtra(v); }
+          }, { aviso: 'avisoIngresosExtra', boton: 'btnIngresosExtra' });
+        }
+        function pintarIngresosExtra() {
+          if (!ie) return;
+          const lista = ie.lista, resumen = o => Object.keys(o).map(k => esc(k) + ': <b>' + cs(o[k]) + '</b>').join(' · ');
+          el('ie_lista').innerHTML = '<div class="kpis"><div class="kpi fuerte"><small>Total del mes</small><b>' + cs(ie.total) + '</b></div></div>' +
+            (ie.total ? '<div class="ayuda">Por tipo: ' + resumen(ie.por_tipo) + '<br>Por persona: ' + resumen(ie.por_persona) + '</div>' : '') +
+            (!lista.length ? '<div class="vacio">Todavía no hay ingresos extra este mes.</div>' :
+              '<div class="tabla"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Recibió</th><th>Venta</th><th>Cliente</th><th>Nota</th><th>Forma</th><th class="num">Monto</th><th></th></tr></thead><tbody>' +
+              lista.map(x => tr([td(esc(x.fecha)), td(esc(x.tipo) + (x.estado === 'ANULADO' ? ' ' + chip('anulado', 'rojo') : '')), td(esc(x.recibio)),
+                td(x.id_venta ? 'N.º ' + esc(x.id_venta) : ''), td(esc(x.cliente)),
+                td(esc(x.nota) + (x.motivo_anulacion ? '<br><small>Anulado: ' + esc(x.motivo_anulacion) + '</small>' : '')), td(esc(x.forma_pago)),
+                num(x.estado === 'ANULADO' ? '<s>' + dinero(x.monto) + '</s>' : dinero(x.monto)),
+                td(x.se_puede_anular ? '<button class="mini sec" onclick="anularMiIngresoExtra(' + x.id + ')">Anular</button>' : '')])).join('') +
+              '</tbody></table></div>');
+        }
+        function mostrarFormIngresoExtra(si) {
+          mostrar('ie_form', si);
+          mostrar('btnMostrarIngresoExtra', !si);
+        }
+        /** Abre el formulario; idVenta (opcional) la deja elegida, p. ej. desde el recibo. */
+        function formIngresoExtra(idVenta) {
+          if (!ie) { ieVentaPendiente = String(idVenta || ''); return cargarIngresosExtra(); }
+          limpiar(['ie_monto', 'ie_cliente', 'ie_nota']);
+          el('ie_tipo').value = 'Propina / regalía';
+          el('ie_forma').value = 'Efectivo';
+          opciones('ie_recibio', ie.personas, p => p.correo, p => p.nombre);
+          if (USUARIO && USUARIO.correo) el('ie_recibio').value = USUARIO.correo;
+          mostrarFormIngresoExtra(true);
+          llamar('ventasDelDia', [''], lista => {
+            ieVentas = lista.filter(v => v.estado !== 'ANULADA');
+            if (idVenta && !ieVentas.some(v => String(v.id) === String(idVenta))) ieVentas.unshift({ id: idVenta, hora: '', cliente: '', total: null });
+            opciones('ie_venta', ieVentas, v => v.id, v => 'N.º ' + v.id + (v.hora ? ' · ' + v.hora : '') + (v.cliente ? ' · ' + v.cliente : '') +
+              (v.total != null ? ' · ' + cs(v.total) : ''), '— Sin venta —');
+            el('ie_venta').value = idVenta ? String(idVenta) : '';
+            ventaIngresoExtra();
+            el('ie_monto').focus();
+          }, { aviso: 'avisoIngresosExtra' });
+        }
+        function ventaIngresoExtra() {
+          const v = ieVentas.filter(x => String(x.id) === el('ie_venta').value)[0];
+          if (v && v.cliente && !el('ie_cliente').value.trim()) el('ie_cliente').value = v.cliente;
+        }
+        function guardarIngresoExtra() {
+          const x = { tipo: el('ie_tipo').value, monto: el('ie_monto').value, forma_pago: el('ie_forma').value, recibio: el('ie_recibio').value,
+            id_venta: el('ie_venta').value, cliente: el('ie_cliente').value.trim(), nota: el('ie_nota').value.trim() };
+          if (!(Number(x.monto) > 0)) { el('ie_monto').focus(); return aviso('avisoIngresosExtra', 'Escribe el monto.', true); }
+          if (x.tipo === 'Otro' && !x.nota) { el('ie_nota').focus(); return aviso('avisoIngresosExtra', 'Escribe en la nota de qué fue el ingreso.', true); }
+          llamar('registrarIngresoExtra', [x], () => {
+            mostrarFormIngresoExtra(false);
+            aviso('avisoIngresosExtra', 'Guardado: ' + x.tipo + ' ' + cs(Number(x.monto)) + (x.forma_pago === 'Efectivo' ? '. Ponlo en el cajón.' : '.'));
+            cargarIngresosExtra();
+            cargarVenta();   // el cuadre de la ventanilla cambia
+            cargarCajasTodas();
+          }, { aviso: 'avisoIngresosExtra', espera: 'Guardando…', boton: 'btnIngresoExtra' });
+        }
+        function anularMiIngresoExtra(id) {
+          preguntar({ titulo: '¿Anular el ingreso extra?', texto: 'Se quitará del cuadre de la ventanilla y de la contabilidad. Quedará anotado como anulado.',
+            campo: 'Motivo', si: 'Anular', peligro: true },
+            motivo => llamar('anularIngresoExtra', [id, motivo], () => { aviso('avisoIngresosExtra', 'Ingreso extra anulado.'); cargarIngresosExtra(); cargarVenta(); cargarCajasTodas(); },
+              { aviso: 'avisoIngresosExtra' }));
+        }
+        /** Desde el recibo de una venta: registrar la propina o el delivery de esa venta. */
+        function ingresoExtraDeRecibo() {
+          const r = reciboActual;
+          if (!r || !ES_ADMIN) return;
+          mostrar('capaRecibo', false);
+          ieVentaPendiente = String(r.id);
+          ie = null;
+          abrirVenta('caja');   // al abrir Caja se cargan los ingresos y se abre el formulario con esta venta
         }
         function abrirMiCaja() {
           llamar('abrirCaja', [el('v_montoInicial').value || 0], () => cargarVenta(() => aviso('avisoVenta', 'Caja abierta.')),
@@ -3285,7 +3395,8 @@
         function vaciarCarrito() {
           carrito = [];
           recetaEnCarrito = null;
-          limpiar(CAMPOS_RECETA.map(c => 'r_' + c).concat(['v_pagado', 'v_cliente', 'v_nota']));
+          limpiar(CAMPOS_RECETA.map(c => 'r_' + c).concat(['v_pagado', 'v_cliente', 'v_nota', 'v_nombreCliente']));
+          mostrar('v_nombreCaja', true);
           el('v_forma').value = 'Efectivo';
           cambioForma();
           pintarCarrito();
@@ -3368,6 +3479,7 @@
         }
         function calcularVuelto() {
           if (!dv) return;
+          mostrar('v_nombreCaja', !el('v_cliente').value);   // con cliente registrado, el recibo lleva su nombre
           const f = el('v_forma').value, total = totalCarrito(), v = Number(el('v_pagado').value);
           const vuelto = recibido => recibido >= total ? 'Vuelto: ' + cs(recibido - total) : 'Faltan ' + cs(total - recibido);
           let txt = '';
@@ -3391,6 +3503,7 @@
           if (!carrito.length) return aviso('avisoVenta', 'Agrega productos a la venta.', true);
           const v = {
             forma_pago: el('v_forma').value, id_cliente: el('v_cliente').value, pagado: el('v_pagado').value,
+            nombre_cliente: el('v_cliente').value ? '' : el('v_nombreCliente').value.trim(),
             lineas: carrito.map(l => ({ codigo: l.codigo, modo: l.modo, cantidad: l.cantidad, descuento: l.descuento, indicacion: l.indicacion || '' })),
             receta: leer('r_', CAMPOS_RECETA), nota: ES_ADMIN ? el('v_nota').value.trim() : ''
           };
@@ -3599,6 +3712,7 @@
           mostrar('reciboImg', false);
           mostrar('recibo', true);
           const n = r.negocio, f = (t, v) => tr([td(t), num(v)]), ab = r.tipo === 'ABONO';
+          mostrar('btnReciboExtra', ES_ADMIN && !ab && !r.numero && r.estado !== 'ANULADA');   // propina/delivery de esta venta (interno)
           const total = (etiqueta, monto) => '<div class="rTotal"><span>' + etiqueta + ' C$</span><span>' + dinero(monto) + '</span></div>';
           // Lo que cambia entre abono y venta; encabezado, datos, sello y pie son comunes.
           const cuerpoAbono = () => '<hr><b>Abono aplicado a:</b>' +
@@ -3782,13 +3896,15 @@
           clienteEnEdicion = c ? c.id : '';
           el('cr_formTitulo').textContent = c ? 'Editar ' + c.nombre : 'Nuevo cliente';
           llenar('cl_', CAMPOS_CL, c || { limite_credito: 0, activo: 'SI' });
-          el('cl_ayuda').textContent = ES_ADMIN ? '' : 'El límite de crédito lo pone un Admin.';
+          el('cl_ayuda').textContent = 'Solo el nombre y el celular son obligatorios.' + (ES_ADMIN ? '' : ' El límite de crédito lo pone un Admin.');
           mostrar('cr_form', true);
           el('cl_nombre').focus();
         }
         function guardarMiCliente() {
           const c = leer('cl_', CAMPOS_CL);
           c.id = clienteEnEdicion;
+          if (!c.nombre) { el('cl_nombre').focus(); return aviso('avisoCreditos', 'Escribe el nombre del cliente.', true); }
+          if (!c.id && c.telefono.replace(/\D/g, '').length < 8) { el('cl_telefono').focus(); return aviso('avisoCreditos', 'Escribe el número de celular (8 dígitos).', true); }
           llamar('guardarCliente', [c], r => {
             mostrar('cr_form', false);
             cargarVenta(() => { el('cr_cliente').value = String(r.id); verCliente(); aviso('avisoCreditos', 'Cliente guardado: ' + r.nombre + '.'); });
@@ -4128,6 +4244,7 @@
           const f = (t, n) => tr([td(t), num(dinero(n))]);
           const ordinario = r2(l.salario_mensual * l.dias_trabajados / 30);
           reciboActual = null;
+          mostrar('btnReciboExtra', false);
           mostrar('btnReciboWA', false);
           mostrar('btnReciboImg', false);
           mostrar('btnReciboDescargar', false);
