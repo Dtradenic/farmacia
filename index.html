@@ -523,6 +523,8 @@
     #recibo .rTipo { text-align: center; font-weight: 700; margin: 8px 0; padding: 4px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; }
     #recibo .rTipo small { font-weight: 400; }
     #recibo .rLineas td:first-child, #recibo .rLineas th:first-child { width: 34px; }
+    #recibo .rLineas td:nth-child(3), #recibo .rLineas th:nth-child(3) { white-space: nowrap; padding-left: 6px; }
+    #recibo .rLineas td:nth-child(4), #recibo .rLineas th:nth-child(4) { white-space: nowrap; padding-left: 6px; }
     #recibo .rTotal { display: flex; justify-content: space-between; font: 700 20px/1.2 system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
       margin: 6px 0; padding: 6px 0; border-top: 2px solid #000; border-bottom: 2px solid #000; }
     a.boton { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; font-size: 13.333px; font-weight: 400; line-height: 1; font-family: inherit;
@@ -3518,6 +3520,8 @@
 
         // Recibo
         let reciboActual = null;   // venta que se ve en el recibo (null si es una colilla de pago)
+        // Precio de una unidad antes del descuento (el total de la línea ya trae el descuento restado).
+        function precioUnitario(l) { return l.unidades ? (l.total + (l.descuento || 0)) / l.unidades : 0; }
         function reciboWhatsApp() {
           const r = reciboActual;
           if (!r) return;
@@ -3530,7 +3534,7 @@
               '\nDebía antes: C$ ' + dinero(r.deuda_antes) + '\n*Saldo pendiente: C$ ' + dinero(r.deuda_despues) + '*' +
               (r.cancelado ? '\n\n✅ *CRÉDITO CANCELADO.* No queda deuda pendiente.' : '')
             : 'Comprobante ' + (r.numero ? 'de recarga N° ' + r.numero : 'de venta N° ' + r.id) + (r.estado === 'ANULADA' ? ' (ANULADA)' : '') + '\n' + r.fecha + '\n\n' +
-              r.lineas.map(l => l.unidades + ' × ' + l.nombre + ': C$ ' + dinero(l.total) + (l.indicacion ? '\n   _Indicación: ' + l.indicacion + '_' : '')).join('\n') +
+              r.lineas.map(l => l.unidades + ' × ' + l.nombre + (l.unidades > 1 ? ' (C$ ' + dinero(precioUnitario(l)) + ' c/u)' : '') + ': C$ ' + dinero(l.total) + (l.indicacion ? '\n   _Indicación: ' + l.indicacion + '_' : '')).join('\n') +
               (r.descuento ? '\nDescuento: -C$ ' + dinero(r.descuento) : '') + '\n*Total: C$ ' + dinero(r.total) + '*\nPago: ' + r.forma_pago;
           abrirWhatsApp('*' + r.negocio.nombre + '*\n' + cuerpo + '\n\nComprobante interno, no es factura fiscal.\n¡Gracias por su ' + (ab ? 'pago' : 'compra') + '!', r.telefono);
         }
@@ -3641,17 +3645,20 @@
                 // Productos
                 y += 18; raya(2, NEGRO); y += 4;
                 fuente(19, 700); y += 24;
-                texto('CANT', M, 'left', GRIS); texto('DESCRIPCIÓN', M + 80, 'left', GRIS); texto('IMPORTE', W - M, 'right', GRIS);
+                const COL_PU = W - M - 140;   // borde derecho de la columna P. Unit.
+                texto('CANT', M, 'left', GRIS); texto('DESCRIPCIÓN', M + 70, 'left', GRIS);
+                texto('P. UNIT.', COL_PU, 'right', GRIS); texto('TOTAL', W - M, 'right', GRIS);
                 y += 12; raya(1);
                 r.lineas.forEach(l => {
                   fuente(23, 600);
-                  const nombre = partir(l.nombre, ANCHO - 80 - 150);
+                  const nombre = partir(l.nombre, COL_PU - 120 - (M + 70));
                   y += 34;
-                  texto(String(l.unidades), M, 'left'); texto(nombre[0], M + 80, 'left'); texto(dinero(l.total), W - M, 'right');
-                  nombre.slice(1).forEach(t => { y += 30; texto(t, M + 80, 'left'); });
-                  fuente(19); y += 26;
-                  texto(dinero(l.unidades ? (l.total + l.descuento) / l.unidades : 0) + ' c/u' + (l.descuento ? ' · desc. ' + dinero(l.descuento) : ''), M + 80, 'left', GRIS);
-                  if (l.indicacion) { fuente(19, 600); partir('Indicación: ' + l.indicacion, ANCHO - 80).forEach(t => { y += 26; texto(t, M + 80, 'left', VERDE); }); }
+                  texto(String(l.unidades), M, 'left'); texto(nombre[0], M + 70, 'left');
+                  fuente(22); texto(dinero(precioUnitario(l)), COL_PU, 'right', GRIS);
+                  fuente(23, 600); texto(dinero(l.total), W - M, 'right');
+                  nombre.slice(1).forEach(t => { y += 30; texto(t, M + 70, 'left'); });
+                  if (l.descuento) { fuente(19); y += 26; texto('Descuento: -' + dinero(l.descuento), M + 70, 'left', GRIS); }
+                  if (l.indicacion) { fuente(19, 600); partir('Indicación: ' + l.indicacion, ANCHO - 70).forEach(t => { y += 26; texto(t, M + 70, 'left', VERDE); }); }
                   y += 12; raya(1, '#e5e7eb', true);
                 });
                 // Totales
@@ -3724,10 +3731,11 @@
           const cuerpoVenta = () => {
             const articulos = r.lineas.reduce((s, l) => s + l.unidades, 0);
             const efectivo = r.forma_pago === 'Efectivo' || r.forma_pago === 'Dólares';
-            return '<hr><table class="rLineas"><tr><th>Cant</th><th>Descripción</th><th class="num">Importe</th></tr>' +
-              r.lineas.map(l => tr([td(l.unidades), td(esc(l.nombre) + '<br><small>' + dinero(l.unidades ? (l.total + l.descuento) / l.unidades : 0) + ' c/u' +
-                (l.descuento ? ' · desc. ' + dinero(l.descuento) : '') + '</small>' +
-                (l.indicacion ? '<div class="rIndica">Indicación: ' + esc(l.indicacion) + '</div>' : '')), num(dinero(l.total))])).join('') + '</table><hr>' +
+            return '<hr><table class="rLineas"><tr><th>Cant</th><th>Descripción</th><th class="num">P. Unit.</th><th class="num">Total</th></tr>' +
+              r.lineas.map(l => tr([td(l.unidades), td(esc(l.nombre) +
+                (l.descuento ? '<br><small>Descuento: -' + dinero(l.descuento) + '</small>' : '') +
+                (l.indicacion ? '<div class="rIndica">Indicación: ' + esc(l.indicacion) + '</div>' : '')),
+                num(dinero(precioUnitario(l))), num(dinero(l.total))])).join('') + '</table><hr>' +
               '<table>' + f(articulos + (articulos === 1 ? ' artículo' : ' artículos'), '') +
                 (r.descuento ? f('Subtotal', dinero(r.subtotal)) + f('Descuento', '-' + dinero(r.descuento)) : '') +
                 (r.iva ? f('IVA incluido', dinero(r.iva)) : '') + '</table>' +
