@@ -3872,7 +3872,7 @@
             (c.telefono ? ' · Tel. ' + esc(c.telefono) : '') +
             '<div class="kpis"><div class="kpi' + (c.saldo > 0 ? ' fuerte' : '') + '"><small>Debe</small><b>' + cs(c.saldo) + '</b></div>' +
             '<div class="kpi"><small>Límite de crédito</small><b>' + cs(c.limite_credito) + '</b></div></div>' +
-            '<div class="fila"><button class="sec mini soloAdmin soloTodo" onclick="formCliente(' + c.id + ')">Editar cliente</button>' +
+            '<div class="fila"><button class="sec mini soloAdmin" onclick="formCliente(' + c.id + ')">Editar cliente</button>' +
             (c.saldo > 0 ? '<button class="sec mini" onclick="recordarSaldo()">Recordar saldo por WhatsApp</button>' : '') + '</div>' +
             '<div id="cr_ventas" class="ayuda">Cargando créditos…</div>' +
             '<div id="cr_recibos"></div></div>';
