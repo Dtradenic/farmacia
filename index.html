@@ -1314,9 +1314,24 @@
                     <select id="v_forma" onchange="cambioForma()">
                       <option>Efectivo</option><option>Dólares</option><option>Transferencia</option><option>Crédito</option>
                     </select></div>
-                  <div><label>Cliente (obligatorio al crédito)</label><select id="v_cliente" onchange="calcularVuelto()"></select></div>
+                  <div><label id="v_clienteEtiqueta">Cliente (obligatorio al crédito)</label><select id="v_cliente" onchange="calcularVuelto()"></select>
+                    <button id="v_clNuevoBoton" class="mini sec oculto" type="button" style="margin-top:6px" onclick="abrirClienteRapido()">+ Cliente nuevo</button></div>
                   <div id="v_nombreCaja"><label for="v_nombreCliente">Nombre del cliente (opcional)</label><input id="v_nombreCliente" maxlength="60" placeholder="Ej.: Juanita" autocomplete="off"></div>
                   <div id="v_pagadoCaja"><label id="v_pagadoEtiqueta">Recibido (C$)</label><input id="v_pagado" type="number" min="0" step="0.01" oninput="calcularVuelto()"></div>
+                </div>
+                <!-- Cliente nuevo sin salir de la venta (pedido de Juan, 22/11/2026) -->
+                <div id="v_clNuevo" class="oculto" style="margin:10px 0;padding:12px;border:1px solid var(--g200);border-radius:10px;background:var(--g50)">
+                  <b>Cliente nuevo al crédito</b>
+                  <div class="formulario">
+                    <div><label for="vc_nombre">Nombre</label><input id="vc_nombre" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')guardarClienteRapido()"></div>
+                    <div><label for="vc_telefono">Celular</label><input id="vc_telefono" inputmode="numeric" maxlength="9" placeholder="8 números" autocomplete="off" onkeydown="if(event.key==='Enter')guardarClienteRapido()"></div>
+                    <div class="soloAdmin"><label for="vc_limite">Límite de crédito (C$)</label><input id="vc_limite" type="number" min="0" step="1" onkeydown="if(event.key==='Enter')guardarClienteRapido()"></div>
+                  </div>
+                  <div class="ayuda" id="vc_ayuda"></div>
+                  <div class="fila" style="margin-top:8px">
+                    <button id="btnClRapido" onclick="guardarClienteRapido()">Guardar y usar</button>
+                    <button class="sec" onclick="mostrar('v_clNuevo', false)">Cancelar</button>
+                  </div>
                 </div>
                 <div class="soloAdmin"><label for="v_nota">Nota para el recibo (opcional)</label><input id="v_nota" maxlength="200" placeholder="Ej.: indicaciones, abono pendiente, dato del paciente"></div>
                 <div class="filtros" id="v_billetes"></div>
@@ -1962,7 +1977,7 @@
         /** Ventana de confirmación. o = {titulo, texto, si, peligro, campo (dato obligatorio), otro (tercer botón → alOtro)}. */
         function preguntar(o, alAceptar, alOtro) {
           el('dg_titulo').textContent = o.titulo;
-          el('dg_texto').textContent = o.texto || '';
+          if (o.html != null) el('dg_texto').innerHTML = o.html; else el('dg_texto').textContent = o.texto || '';
           mostrar('dg_campoCaja', !!o.campo);
           el('dg_etiqueta').textContent = o.campo || '';
           el('dg_campo').value = '';
@@ -3476,12 +3491,16 @@
         function cambioForma() {
           const f = el('v_forma').value;
           mostrar('v_pagadoCaja', f === 'Efectivo' || f === 'Dólares');
+          mostrar('v_clNuevoBoton', f === 'Crédito');
+          if (f !== 'Crédito') mostrar('v_clNuevo', false);
+          el('v_clienteEtiqueta').textContent = f === 'Crédito' ? 'Cliente (obligatorio)' : 'Cliente (obligatorio al crédito)';
           el('v_pagadoEtiqueta').textContent = f === 'Dólares' ? 'Dólares recibidos (US$)' : 'Recibido (C$)';
           calcularVuelto();
         }
         function calcularVuelto() {
           if (!dv) return;
-          mostrar('v_nombreCaja', !el('v_cliente').value);   // con cliente registrado, el recibo lleva su nombre
+          // con cliente registrado (o al crédito) el recibo lleva el nombre del cliente
+          mostrar('v_nombreCaja', !el('v_cliente').value && el('v_forma').value !== 'Crédito');
           const f = el('v_forma').value, total = totalCarrito(), v = Number(el('v_pagado').value);
           const vuelto = recibido => recibido >= total ? 'Vuelto: ' + cs(recibido - total) : 'Faltan ' + cs(total - recibido);
           let txt = '';
@@ -3501,8 +3520,60 @@
           }
           el('v_vuelto').textContent = txt;
         }
+        // Cliente nuevo desde Vender: nombre, celular y límite (el límite solo lo pone un Admin).
+        function abrirClienteRapido() {
+          limpiar(['vc_nombre', 'vc_telefono', 'vc_limite']);
+          const t = totalCarrito();
+          if (ES_ADMIN && t > 0) el('vc_limite').value = Math.ceil(t / 100) * 100;
+          el('vc_ayuda').textContent = ES_ADMIN ? (t > 0 ? 'Esta venta es de ' + cs(t) + '; el límite debe alcanzar para ella.' : '')
+            : 'El límite de crédito lo pone un Admin. Sin límite no se le puede vender al crédito.';
+          mostrar('v_clNuevo', true);
+          el('vc_nombre').focus();
+        }
+        function guardarClienteRapido() {
+          const c = { nombre: el('vc_nombre').value.trim(), telefono: el('vc_telefono').value.trim(), limite_credito: ES_ADMIN ? el('vc_limite').value : 0, activo: 'SI' };
+          const tel = c.telefono.replace(/\D/g, ''), lim = Number(c.limite_credito) || 0, t = totalCarrito();
+          if (!c.nombre) { el('vc_nombre').focus(); return aviso('avisoVenta', 'Escribe el nombre del cliente.', true); }
+          if (tel.length < 8) { el('vc_telefono').focus(); return aviso('avisoVenta', 'Escribe el celular (8 dígitos).', true); }
+          const ya = dv.clientes.filter(x => String(x.telefono).replace(/\D/g, '') === tel)[0];
+          if (ya) {
+            el('v_cliente').value = String(ya.id);
+            mostrar('v_clNuevo', false);
+            calcularVuelto();
+            return aviso('avisoVenta', 'Ese celular ya es de ' + ya.nombre + ': lo dejé elegido.');
+          }
+          if (ES_ADMIN && !(lim > 0)) { el('vc_limite').focus(); return aviso('avisoVenta', 'Pon el límite de crédito.', true); }
+          if (ES_ADMIN && lim < t) { el('vc_limite').focus(); return aviso('avisoVenta', 'El límite (' + cs(lim) + ') no alcanza para esta venta (' + cs(t) + ').', true); }
+          llamar('guardarCliente', [c], r => {
+            mostrar('v_clNuevo', false);
+            cargarVenta(() => { el('v_cliente').value = String(r.id); calcularVuelto(); aviso('avisoVenta', 'Cliente guardado: ' + r.nombre + '. Ya puedes cobrar.'); });
+          }, { aviso: 'avisoVenta', espera: 'Guardando cliente…', boton: 'btnClRapido' });
+        }
+        // Doble verificación: antes de guardar la venta se muestra un resumen y hay que confirmar.
         function cobrar() {
           if (!carrito.length) return aviso('avisoVenta', 'Agrega productos a la venta.', true);
+          const f = el('v_forma').value, total = totalCarrito(), pag = el('v_pagado').value, v = Number(pag);
+          const cli = dv.clientes.filter(x => String(x.id) === el('v_cliente').value)[0];
+          const fila = (a, b, fuerte) => '<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0' + (fuerte ? ';font-weight:700' : '') + '"><span>' + a + '</span><span>' + b + '</span></div>';
+          let det = '';
+          if (f === 'Crédito') {
+            if (!cli) { el('v_cliente').focus(); return aviso('avisoVenta', 'Elige el cliente del crédito o crea uno con «+ Cliente nuevo».', true); }
+            det = fila('Cliente', esc(cli.nombre)) + fila('Debía', cs(cli.saldo)) + fila('Quedará debiendo', cs(cli.saldo + total), true);
+          } else if (f === 'Efectivo') {
+            if (pag !== '' && v < total) { el('v_pagado').focus(); return aviso('avisoVenta', 'Faltan ' + cs(total - v) + '.', true); }
+            det = pag === '' ? fila('Recibido', 'exacto') : fila('Recibido', cs(v)) + fila('Vuelto', cs(v - total), true);
+          } else if (f === 'Dólares') {
+            if (pag !== '' && v * dv.tipo_cambio < total) { el('v_pagado').focus(); return aviso('avisoVenta', 'Los dólares recibidos no alcanzan.', true); }
+            det = pag === '' ? fila('Recibido', 'exacto') : fila('Recibido', 'US$ ' + dinero(v)) + fila('Vuelto', cs(v * dv.tipo_cambio - total), true);
+          }
+          const nombre = cli ? cli.nombre : el('v_nombreCliente').value.trim();
+          const prods = carrito.slice(0, 6).map(l => l.cantidad + ' × ' + esc(prodVenta(l.codigo).nombre)).join('<br>') + (carrito.length > 6 ? '<br>… y ' + (carrito.length - 6) + ' más' : '');
+          preguntar({ titulo: '¿Confirmas el cobro?', si: 'Sí, cobrar', html:
+            '<div style="font-size:26px;font-weight:700;color:var(--g900);margin:4px 0 8px">' + cs(total) + '</div>' +
+            fila('Pago', esc(f)) + (f !== 'Crédito' && nombre ? fila('Cliente', esc(nombre)) : '') + det +
+            '<div class="ayuda" style="margin-top:8px">' + prods + '</div>' }, enviarVenta);
+        }
+        function enviarVenta() {
           const v = {
             forma_pago: el('v_forma').value, id_cliente: el('v_cliente').value, pagado: el('v_pagado').value,
             nombre_cliente: el('v_cliente').value ? '' : el('v_nombreCliente').value.trim(),
