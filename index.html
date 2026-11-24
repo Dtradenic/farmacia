@@ -328,6 +328,10 @@
     .ppDatos { margin-top: 10px; font-size: 14px; color: var(--g700); line-height: 1.5; }
     .ppSolo { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; margin: 0; white-space: nowrap; }
     .ppSolo input { width: 20px; height: 20px; padding: 0; }
+    .ppSolo select { width: auto; min-height: 40px; padding: 4px 8px; }
+    .ppPaginas { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; font-size: 14px; }
+    .ppPaginas:empty { display: none; }
+    .ppPaginas button[disabled] { opacity: .4; cursor: default; }
     .ppLista { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
     .ppFila { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px 12px; padding: 8px 10px;
       background: #fff; border: 1px solid var(--g200); border-radius: 10px; }
@@ -1217,10 +1221,14 @@
             <div class="ppDatos" id="pp_datos"></div>
             <div id="pp_pedido">
               <div class="fila">
-                <input id="pp_buscar" class="crece" type="search" placeholder="Buscar producto" oninput="ppPintar()">
-                <label class="ppSolo"><input type="checkbox" id="pp_solo" onchange="ppPintar()"> Solo lo que voy a pedir</label>
+                <input id="pp_buscar" class="crece" type="search" placeholder="Buscar producto" oninput="ppIrA(1)">
+                <label class="ppSolo"><input type="checkbox" id="pp_solo" onchange="ppIrA(1)"> Solo lo que voy a pedir</label>
+                <label class="ppSolo">Ver <select id="pp_porPag" onchange="ppCambioPorPag()" aria-label="Productos por página">
+                  <option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="0">Todos</option></select> por página</label>
               </div>
+              <div class="ppPaginas" id="pp_pagArriba"></div>
               <div class="ppLista" id="pp_lista"></div>
+              <div class="ppPaginas" id="pp_pagAbajo"></div>
               <div class="ayuda" id="pp_cuenta"></div>
             </div>
             <div class="fila"><button class="sec" onclick="ppAbrirLista()">Actualizar lista de precios</button></div>
@@ -2770,7 +2778,26 @@
         let pp = null;            // respuesta de listarPreciosProveedor()
         let ppProv = '';          // id del proveedor elegido
         let ppCant = {};          // id del precio → cantidad pedida (del proveedor elegido)
-        const PP_MAX = 80;        // filas que se pintan a la vez (son cientos de productos)
+        let ppPag = 1;            // página de la lista que se ve
+        /** Productos por página (25, 50, 100 o 0 = todos). Se recuerda en este aparato; empieza en 50. */
+        function ppPorPag() {
+          let n = 50;
+          try { const g = localStorage.getItem('farmaciaPedidoPorPagina'); if (g !== null && [0, 25, 50, 100].indexOf(Number(g)) !== -1) n = Number(g); } catch (e) { /* sin almacenamiento */ }
+          return n;
+        }
+        function ppCambioPorPag() {
+          try { localStorage.setItem('farmaciaPedidoPorPagina', el('pp_porPag').value); } catch (e) { /* sin almacenamiento */ }
+          ppIrA(1);
+        }
+        function ppIrA(n) { ppPag = n; ppPintar(); }
+        /** Botones Anterior / Siguiente: cambia de página y sube al comienzo de la lista. */
+        function ppVerPagina(n) { ppIrA(n); const a = el('pp_pagArriba'); if (a && a.scrollIntoView) a.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+        function ppBotonesPagina(pag, total) {
+          if (total <= 1) return '';
+          return '<button class="sec" onclick="ppVerPagina(' + (pag - 1) + ')"' + (pag <= 1 ? ' disabled' : '') + '>‹ Anterior</button>' +
+            '<span>Página ' + pag + ' de ' + total + '</span>' +
+            '<button class="sec" onclick="ppVerPagina(' + (pag + 1) + ')"' + (pag >= total ? ' disabled' : '') + '>Siguiente ›</button>';
+        }
         const ppClave = () => 'farmaciaPedidoProveedor_' + ppProv;
         const ppDe = () => pp && pp.proveedores.filter(p => String(p.id) === ppProv)[0] || null;
         const ppPrecios = () => pp ? pp.precios.filter(p => String(p.id_proveedor) === ppProv) : [];
@@ -2798,6 +2825,7 @@
           ppLeerCant();
           el('pp_buscar').value = '';
           el('pp_solo').checked = false;
+          ppPag = 1;
           ppPintarProveedores();
           ppPintar();
         }
@@ -2818,7 +2846,13 @@
           const solo = el('pp_solo').checked;
           const entera = ppPrecios();
           const coinciden = entera.filter(x => (!solo || ppCant[x.id] > 0) && palabras.every(w => contiene(w, sinTildes(x.producto))));
-          const visibles = solo ? coinciden : coinciden.slice(0, PP_MAX);
+          const porPag = ppPorPag();
+          el('pp_porPag').value = String(porPag);
+          const paginas = porPag ? Math.max(1, Math.ceil(coinciden.length / porPag)) : 1;
+          ppPag = Math.min(Math.max(1, ppPag || 1), paginas);
+          const desde = porPag ? (ppPag - 1) * porPag : 0;
+          const visibles = porPag ? coinciden.slice(desde, desde + porPag) : coinciden;
+          el('pp_pagArriba').innerHTML = el('pp_pagAbajo').innerHTML = ppBotonesPagina(ppPag, paginas);
           el('pp_lista').innerHTML = visibles.map(x => {
             const c = ppCant[x.id] || 0;
             return '<div class="ppFila' + (c ? ' on' : '') + '"><div class="ppNom">' + esc(x.producto) + '</div>' +
@@ -2828,9 +2862,8 @@
               '<button class="sec" onclick="ppCambiar(\'' + esc(x.id) + '\', 1)" aria-label="Más">+</button></div>' +
               '<div class="ppSub">' + (c ? 'C$ ' + dinero(r2(c * x.precio)) : '') + '</div></div>';
           }).join('') || '<div class="vacio">' + (solo ? 'Todavía no has marcado nada.' : 'Ningún producto coincide.') + '</div>';
-          el('pp_cuenta').textContent = solo ? coinciden.length + ' productos en el pedido.'
-            : coinciden.length > PP_MAX ? 'Se muestran ' + PP_MAX + ' de ' + coinciden.length + '. Escribe para buscar entre ' + entera.length + ' productos.'
-            : coinciden.length + ' de ' + entera.length + ' productos.';
+          el('pp_cuenta').textContent = (coinciden.length > visibles.length ? 'Del ' + (desde + 1) + ' al ' + (desde + visibles.length) + ' de ' : '') +
+            coinciden.length + (solo ? ' productos en el pedido.' : coinciden.length === entera.length ? ' productos.' : ' que coinciden, de ' + entera.length + ' productos.');
           ppTotales();
         }
         /** Líneas del pedido: [{id, producto, precio, cantidad, subtotal}] y el total. */
