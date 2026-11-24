@@ -317,6 +317,43 @@
     .filtros button.activa { background: var(--verde); color: #fff; border-color: var(--verde); }
     .centrado { max-width: 620px; margin-left: auto; margin-right: auto; }
 
+    /* Pedido a proveedor */
+    .ppProvs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .ppProvs button { flex: 1 1 200px; min-height: 56px; font-size: 16px; flex-direction: column; display: flex; align-items: center; justify-content: center; gap: 2px;
+      background: #fff; color: var(--g700); border-color: var(--g300); line-height: 1.2; }
+    .ppProvs button small { font-weight: 400; font-size: 12px; color: var(--g500); }
+    .ppProvs button:hover { background: var(--g50); }
+    .ppProvs button.activa { background: var(--verde); color: #fff; border-color: var(--verde); }
+    .ppProvs button.activa small { color: #d1fae5; }
+    .ppDatos { margin-top: 10px; font-size: 14px; color: var(--g700); line-height: 1.5; }
+    .ppSolo { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; margin: 0; white-space: nowrap; }
+    .ppSolo input { width: 20px; height: 20px; padding: 0; }
+    .ppLista { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .ppFila { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px 12px; padding: 8px 10px;
+      background: #fff; border: 1px solid var(--g200); border-radius: 10px; }
+    .ppFila.on { border-color: var(--verde); background: var(--verde-claro); box-shadow: inset 3px 0 0 var(--verde); }
+    .ppNom { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+    .ppPre { display: flex; align-items: center; gap: 4px; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .ppPre button { min-height: 30px; width: 30px; padding: 0; font-size: 14px; }
+    .ppCant { display: flex; align-items: center; gap: 4px; }
+    .ppCant button { min-height: 36px; width: 36px; padding: 0; font-size: 18px; }
+    .ppCant input { width: 52px; min-height: 36px; padding: 4px; text-align: center; font-variant-numeric: tabular-nums; }
+    .ppSub { min-width: 84px; text-align: right; font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; color: var(--verde-osc); }
+    @media (max-width: 640px) {
+      .ppFila { grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px 8px; }
+      .ppNom { grid-column: 1 / -1; }
+      .ppSub { min-width: 0; }
+    }
+    .ppBarra { position: sticky; bottom: 0; z-index: 15; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px -4px 0; padding: 10px 12px;
+      background: #fff; border: 1px solid var(--g300); border-radius: 12px; box-shadow: 0 -4px 14px rgba(15, 23, 42, .12); }
+    .ppTotal { flex: 1 1 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+    .ppTotal b { font-size: 18px; color: var(--verde-osc); }
+    .ppBarra button { flex: 1 1 120px; }
+    #pp_texto { width: 100%; min-height: 150px; font: 13px/1.4 inherit; font-family: inherit; padding: 9px 12px; border: 1px solid var(--g300); border-radius: 8px; resize: vertical; }
+    .ppRes { margin-top: 12px; font-size: 14px; }
+    .ppRes ul { margin: 4px 0 10px; padding-left: 20px; }
+    .ppRes li { overflow-wrap: anywhere; }
+
     /* Tablero */
     .kpi .sub { display: block; font-size: 12px; color: var(--g500); margin-top: 2px; }
     .kpi.alerta { background: #fffbeb; border-color: #fde68a; }
@@ -558,7 +595,7 @@
     .modoLimitado .soloTodo, .modoLimitado #menuCuenta .soloModoTodo { display: none !important; }
     .modoVender #lateral .grupo[data-ir="inicio"], .modoVender #lateral .grupo[data-ir="productos"], .modoVender #lateral .grupo[data-ir="conta"],
     .modoVender #lateral .grupo[data-ir="pacientes"], .modoVender #lateral .grupo[data-ir="nomina"], .modoVender #lateral .grupo[data-ir="reportes"],
-    .modoVender #lateral button[data-tab="inv:pedido"], .modoVender #lateral button[data-tab="inv:compra"], .modoVender #lateral button[data-tab="inv:ajuste"],
+    .modoVender #lateral button[data-tab="inv:pedido"], .modoVender #lateral button[data-tab="inv:proveedor"], .modoVender #lateral button[data-tab="inv:compra"], .modoVender #lateral button[data-tab="inv:ajuste"],
     .modoConsulta #lateral .grupo[data-ir="inicio"], .modoConsulta #lateral .grupo[data-ir="productos"], .modoConsulta #lateral .grupo[data-ir="inventario"],
     .modoConsulta #lateral .grupo[data-ir="conta"], .modoConsulta #lateral .grupo[data-ir="nomina"], .modoConsulta #lateral .grupo[data-ir="reportes"],
     .modoConsulta #lateral button[data-tab="venta:recargas"], .modoConsulta #lateral button[data-tab="venta:creditos"], .modoConsulta #lateral button[data-tab="venta:caja"] { display: none !important; }
@@ -916,6 +953,7 @@
           <button data-tab="inv:existencias">Existencias</button>
           <button data-tab="inv:alertas">Alertas</button>
           <button data-tab="inv:pedido" class="soloAdmin">Qué comprar</button>
+          <button data-tab="inv:proveedor" class="soloAdmin">Pedido a proveedor</button>
           <button data-tab="inv:compra" class="soloAdmin">Registrar compra</button>
           <button data-tab="inv:ajuste" class="soloAdmin">Conteo y ajustes</button>
         </div>
@@ -1171,6 +1209,44 @@
               <button class="sec" onclick="pedidoWhatsApp()">Enviar por WhatsApp</button>
             </div>
             <div id="areaPedido"></div>
+          </div>
+
+          <div data-panel="inv:proveedor" class="oculto">
+            <div class="ayuda" style="margin-top:0">Escoge un proveedor, marca cuánto quieres de cada producto y mándale el pedido por WhatsApp. Esto no cambia el inventario. Cuando llegue la mercadería, regístrala en Registrar compra.</div>
+            <div class="ppProvs" id="pp_provs"></div>
+            <div class="ppDatos" id="pp_datos"></div>
+            <div id="pp_pedido">
+              <div class="fila">
+                <input id="pp_buscar" class="crece" type="search" placeholder="Buscar producto" oninput="ppPintar()">
+                <label class="ppSolo"><input type="checkbox" id="pp_solo" onchange="ppPintar()"> Solo lo que voy a pedir</label>
+              </div>
+              <div class="ppLista" id="pp_lista"></div>
+              <div class="ayuda" id="pp_cuenta"></div>
+            </div>
+            <div class="fila"><button class="sec" onclick="ppAbrirLista()">Actualizar lista de precios</button></div>
+            <div class="cuadro oculto" id="pp_actualizar">
+              <h3>Actualizar lista de precios</h3>
+              <div class="ayuda" style="margin-top:0">Pega la lista del proveedor (una línea por producto: «1. NOMBRE ........ 570», o el nombre y el precio separados por un tab, como sale de Excel). Primero la revisas y luego la guardas. Los productos que ya no vienen se quitan de la lista, no se borran.</div>
+              <div class="formulario">
+                <div><label for="pp_prov">Proveedor</label><select id="pp_prov" onchange="ppCambioProv()"></select></div>
+                <div id="pp_nombreCaja" class="oculto"><label for="pp_nombre">Nombre del proveedor nuevo</label><input id="pp_nombre" oninput="ppOcultarRes()"></div>
+                <div><label for="pp_tel">Teléfono(s) (si son dos, sepáralos con «/»)</label><input id="pp_tel" inputmode="tel" oninput="ppOcultarRes()"></div>
+                <div><label for="pp_dir">Dirección</label><input id="pp_dir" oninput="ppOcultarRes()"></div>
+              </div>
+              <label for="pp_texto" style="margin-top:12px">Lista de precios</label>
+              <textarea id="pp_texto" placeholder="1. ACETONA GRANDE DOC........ 320" oninput="ppOcultarRes()"></textarea>
+              <div class="fila">
+                <button onclick="ppRevisar()" id="pp_btnRevisar">Revisar</button>
+                <button class="sec oculto" id="pp_btnGuardar" onclick="ppGuardarLista()">Sí, guardar</button>
+                <button class="sec" onclick="mostrar('pp_actualizar', false)">Cerrar</button>
+              </div>
+              <div class="ppRes" id="pp_res"></div>
+            </div>
+            <div class="ppBarra oculto" id="pp_barra">
+              <div class="ppTotal"><span id="pp_resumen"></span> · Total <b id="pp_total"></b></div>
+              <button class="sec" id="pp_vaciar" onclick="ppVaciar()">Vaciar</button>
+              <button id="pp_enviar" onclick="ppEnviar()">Enviar por WhatsApp</button>
+            </div>
           </div>
 
           <div data-panel="inv:alertas" class="oculto">
@@ -2621,6 +2697,7 @@
         AL_ABRIR.inv = nombre => {
           aviso('avisoInv', '');
           if (nombre === 'pedido') cargarPedido();
+          if (nombre === 'proveedor') ppCargar();
           if (nombre === 'compra') prepararCompra();
           if (nombre === 'ajuste') cambioTipoAjuste();
         };
@@ -2688,6 +2765,189 @@
           if (!pedido || !pedido.filas.length) return aviso('avisoInv', 'No hay nada en la lista.', true);
           abrirWhatsApp('Pedido de Farmacia Dr. Alduvin (' + fechaCorta(pedido.hoy) + ')\n' +
             pedido.filas.map(f => '• ' + f.sugerido + ' u. ' + f.nombre + (f.presentacion ? ' (' + f.presentacion + ')' : '')).join('\n'));
+        }
+        // Pedido a proveedor: lista de precios de cada proveedor, cantidades y envío por WhatsApp (no toca inventario ni contabilidad).
+        let pp = null;            // respuesta de listarPreciosProveedor()
+        let ppProv = '';          // id del proveedor elegido
+        let ppCant = {};          // id del precio → cantidad pedida (del proveedor elegido)
+        const PP_MAX = 80;        // filas que se pintan a la vez (son cientos de productos)
+        const ppClave = () => 'farmaciaPedidoProveedor_' + ppProv;
+        const ppDe = () => pp && pp.proveedores.filter(p => String(p.id) === ppProv)[0] || null;
+        const ppPrecios = () => pp ? pp.precios.filter(p => String(p.id_proveedor) === ppProv) : [];
+        const ppTelefono = t => t.length === 8 ? t.slice(0, 4) + ' ' + t.slice(4) : t;
+        function ppGuardarCant() { try { localStorage.setItem(ppClave(), JSON.stringify(ppCant)); } catch (e) { /* sin almacenamiento */ } }
+        function ppLeerCant() {
+          let g = {};
+          try { g = JSON.parse(localStorage.getItem(ppClave()) || '{}') || {}; } catch (e) { g = {}; }
+          const ids = {};
+          ppPrecios().forEach(p => { ids[String(p.id)] = true; });
+          ppCant = {};
+          Object.keys(g).forEach(k => { if (ids[k] && Number(g[k]) > 0) ppCant[k] = Math.floor(Number(g[k])); });
+        }
+        function ppCargar() {
+          llamar('listarPreciosProveedor', [], r => {
+            pp = r;
+            if (!ppDe()) ppProv = r.proveedores.length ? String(r.proveedores[0].id) : '';
+            ppLeerCant();
+            ppPintarProveedores();
+            ppPintar();
+          }, { aviso: 'avisoInv', espera: 'Cargando listas de precios…' });
+        }
+        function ppElegir(id) {
+          ppProv = String(id);
+          ppLeerCant();
+          el('pp_buscar').value = '';
+          el('pp_solo').checked = false;
+          ppPintarProveedores();
+          ppPintar();
+        }
+        function ppPintarProveedores() {
+          el('pp_provs').innerHTML = pp.proveedores.map(p => '<button class="' + (String(p.id) === ppProv ? 'activa' : '') + '" onclick="ppElegir(\'' + esc(p.id) + '\')">' +
+            esc(p.nombre) + '<small>' + p.productos + ' productos</small></button>').join('');
+          const p = ppDe();
+          el('pp_datos').innerHTML = p ? [p.direccion ? esc(p.direccion) : '', p.telefonos.length ? 'Tel. ' + p.telefonos.map(ppTelefono).join(' · ') : '',
+            p.actualizado ? 'Precios al ' + fechaCorta(p.actualizado) : ''].filter(x => x).join(' · ')
+            : '<div class="vacio">Todavía no hay listas de precios. Toca «Actualizar lista de precios» para cargar la primera.</div>';
+          mostrar('pp_pedido', !!p);
+          mostrar('pp_barra', !!p);
+        }
+        function ppPintar() {
+          const p = ppDe();
+          if (!p) return;
+          const palabras = sinTildes(buscado('pp_buscar')).split(/\s+/).filter(x => x);
+          const solo = el('pp_solo').checked;
+          const entera = ppPrecios();
+          const coinciden = entera.filter(x => (!solo || ppCant[x.id] > 0) && palabras.every(w => contiene(w, sinTildes(x.producto))));
+          const visibles = solo ? coinciden : coinciden.slice(0, PP_MAX);
+          el('pp_lista').innerHTML = visibles.map(x => {
+            const c = ppCant[x.id] || 0;
+            return '<div class="ppFila' + (c ? ' on' : '') + '"><div class="ppNom">' + esc(x.producto) + '</div>' +
+              '<div class="ppPre">C$ ' + dinero(x.precio) + ' <button class="sec" title="Cambiar el precio" onclick="ppEditarPrecio(\'' + esc(x.id) + '\')">✎</button></div>' +
+              '<div class="ppCant"><button class="sec" onclick="ppCambiar(\'' + esc(x.id) + '\', -1)" aria-label="Menos">–</button>' +
+              '<input type="number" min="0" step="1" inputmode="numeric" value="' + (c || '') + '" placeholder="0" aria-label="Cantidad" onchange="ppPoner(\'' + esc(x.id) + '\', this.value)">' +
+              '<button class="sec" onclick="ppCambiar(\'' + esc(x.id) + '\', 1)" aria-label="Más">+</button></div>' +
+              '<div class="ppSub">' + (c ? 'C$ ' + dinero(r2(c * x.precio)) : '') + '</div></div>';
+          }).join('') || '<div class="vacio">' + (solo ? 'Todavía no has marcado nada.' : 'Ningún producto coincide.') + '</div>';
+          el('pp_cuenta').textContent = solo ? coinciden.length + ' productos en el pedido.'
+            : coinciden.length > PP_MAX ? 'Se muestran ' + PP_MAX + ' de ' + coinciden.length + '. Escribe para buscar entre ' + entera.length + ' productos.'
+            : coinciden.length + ' de ' + entera.length + ' productos.';
+          ppTotales();
+        }
+        /** Líneas del pedido: [{id, producto, precio, cantidad, subtotal}] y el total. */
+        function ppLineas() {
+          const l = ppPrecios().filter(x => ppCant[x.id] > 0).map(x => ({ id: x.id, producto: x.producto, precio: x.precio, cantidad: ppCant[x.id], subtotal: r2(ppCant[x.id] * x.precio) }));
+          return { lineas: l, total: r2(l.reduce((s, x) => s + x.subtotal, 0)) };
+        }
+        function ppTotales() {
+          const r = ppLineas();
+          el('pp_resumen').textContent = r.lineas.length + (r.lineas.length === 1 ? ' producto' : ' productos');
+          el('pp_total').textContent = cs(r.total);
+          el('pp_vaciar').disabled = el('pp_enviar').disabled = !r.lineas.length;
+        }
+        function ppCambiar(id, delta) { ppPoner(id, (ppCant[id] || 0) + delta); }
+        function ppPoner(id, valor) {
+          const n = Math.min(99999, Math.max(0, Math.floor(Number(valor) || 0)));
+          if (n) ppCant[id] = n; else delete ppCant[id];
+          ppGuardarCant();
+          ppPintar();
+        }
+        function ppVaciar() {
+          preguntar({ titulo: 'Vaciar el pedido', texto: 'Se quitan todas las cantidades de este proveedor. ¿Seguro?', si: 'Sí, vaciar', peligro: true }, () => {
+            ppCant = {};
+            ppGuardarCant();
+            ppPintar();
+          });
+        }
+        function ppEditarPrecio(id) {
+          const x = ppPrecios().filter(p => String(p.id) === String(id))[0];
+          if (!x) return;
+          preguntar({ titulo: 'Precio de ' + x.producto, texto: 'Precio actual: ' + cs(x.precio) + '. Escribe el precio nuevo.', campo: 'Precio nuevo', si: 'Guardar' }, valor =>
+            llamar('guardarPrecioProveedor', [x.id, valor], r => {
+              x.precio = r.precio;
+              x.actualizado = r.actualizado;
+              const p = ppDe();
+              if (p) p.actualizado = r.actualizado;
+              ppPintarProveedores();
+              ppPintar();
+              tostada('Precio guardado: ' + x.producto + ' ' + cs(r.precio) + '.');
+            }, { aviso: 'avisoInv' }));
+        }
+        function ppTextoPedido(p, r) {
+          return 'Pedido de Farmacia Dr. Alduvin (' + fechaCorta(pp.hoy) + ')\nPara: ' + p.nombre + '\n' +
+            r.lineas.map(x => '• ' + x.cantidad + ' × ' + x.producto + ' — ' + cs(x.precio) + ' = ' + cs(x.subtotal)).join('\n') + '\nTotal: ' + cs(r.total);
+        }
+        /** Anota el pedido en la Bitácora (sin esperar) y abre WhatsApp enseguida, para que el celular no bloquee la ventana. */
+        function ppEnviarA(telefono) {
+          const p = ppDe(), r = ppLineas();
+          if (!p || !r.lineas.length) return;
+          llamar('registrarPedidoProveedor', [p.id, r.lineas.map(x => ({ id: x.id, cantidad: x.cantidad }))], s => {
+            if (s.total !== r.total) tostada('Ojo: el servidor calcula ' + cs(s.total) + ' (los precios cambiaron). Actualiza la pantalla.', true);
+          }, { falla: e => tostada('No se pudo anotar el pedido en el sistema (' + String(e && e.message || e) + '), pero ya puedes enviarlo.', true) });
+          abrirWhatsApp(ppTextoPedido(p, r), telefono);
+        }
+        function ppEnviar() {
+          const p = ppDe(), r = ppLineas();
+          if (!p) return;
+          if (!r.lineas.length) return aviso('avisoInv', 'Marca la cantidad de al menos un producto.', true);
+          if (p.telefonos.length < 2) return ppEnviarA(p.telefonos[0] || '');
+          preguntar({ titulo: '¿A cuál número se lo mandas?', texto: p.nombre + ' tiene dos números de WhatsApp.', si: ppTelefono(p.telefonos[0]), otro: ppTelefono(p.telefonos[1]) },
+            () => ppEnviarA(p.telefonos[0]), () => ppEnviarA(p.telefonos[1]));
+        }
+
+        // Actualizar la lista de precios de un proveedor (pegando la lista)
+        function ppAbrirLista() {
+          opciones('pp_prov', pp ? pp.proveedores : [], x => x.id, x => x.nombre);
+          el('pp_prov').insertAdjacentHTML('beforeend', '<option value="NUEVO">+ Proveedor nuevo…</option>');
+          el('pp_prov').value = ppProv && ppDe() ? ppProv : 'NUEVO';
+          el('pp_texto').value = '';
+          ppCambioProv();
+          mostrar('pp_actualizar', true);
+          el('pp_actualizar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function ppCambioProv() {
+          const nuevo = el('pp_prov').value === 'NUEVO';
+          const p = nuevo ? null : pp.proveedores.filter(x => String(x.id) === el('pp_prov').value)[0];
+          mostrar('pp_nombreCaja', nuevo);
+          el('pp_nombre').value = '';
+          el('pp_tel').value = p ? p.telefonos.join(' / ') : '';
+          el('pp_dir').value = p ? p.direccion : '';
+          ppOcultarRes();
+        }
+        function ppOcultarRes() { el('pp_res').innerHTML = ''; mostrar('pp_btnGuardar', false); }
+        function ppDatosLista() {
+          const nuevo = el('pp_prov').value === 'NUEVO';
+          return { id_proveedor: nuevo ? '' : el('pp_prov').value, nombre_nuevo: nuevo ? el('pp_nombre').value.trim() : '', telefono: el('pp_tel').value.trim(),
+            direccion: el('pp_dir').value.trim(), texto: el('pp_texto').value };
+        }
+        function ppResumen(r) {
+          const lista = (titulo, o, fila) => o.n ? '<b>' + titulo + ': ' + o.n + '</b><ul>' + o.lista.map(x => '<li>' + fila(x) + '</li>').join('') +
+            (o.n > o.lista.length ? '<li>… y ' + (o.n - o.lista.length) + ' más</li>' : '') + '</ul>' : '';
+          return '<b>' + esc(r.proveedor.nombre) + (r.proveedor.nuevo ? ' (proveedor nuevo)' : '') + '</b><br>' +
+            lista('Productos nuevos', r.nuevos, esc) +
+            lista('Cambian de precio', r.cambiados, x => esc(x.producto) + ': ' + cs(x.antes) + ' → <b>' + cs(x.ahora) + '</b>') +
+            lista('Vuelven a la lista', r.reactivados, esc) +
+            lista('Ya no vienen (se quitan de la lista)', r.quitados, esc) +
+            lista('No se entendieron (no se guardan)', r.no_leidas, esc) +
+            '<div>Sin cambio: ' + r.sin_cambio + ' productos.</div>';
+        }
+        function ppRevisar() {
+          const d = ppDatosLista();
+          if (!d.texto.trim()) return aviso('avisoInv', 'Pega primero la lista de precios.', true);
+          ppOcultarRes();
+          llamar('revisarListaProveedor', [d], r => {
+            el('pp_res').innerHTML = ppResumen(r);
+            mostrar('pp_btnGuardar', true);
+          }, { aviso: 'avisoInv', espera: 'Revisando la lista…', boton: 'pp_btnRevisar' });
+        }
+        function ppGuardarLista() {
+          const d = ppDatosLista();
+          llamar('importarListaProveedor', [d], r => {
+            ppProv = String(r.proveedor.id);
+            mostrar('pp_actualizar', false);
+            ppOcultarRes();
+            ppCargar();
+            tostada('Lista guardada: ' + r.nuevos.n + ' nuevos, ' + r.cambiados.n + ' con precio distinto, ' + r.quitados.n + ' quitados.');
+          }, { aviso: 'avisoInv', espera: 'Guardando la lista…', boton: 'pp_btnGuardar' });
         }
         function listaHtml(items) {
           return items.length ? '<ul>' + items.map(t => '<li>' + t + '</li>').join('') + '</ul>' : '<div class="ayuda">Nada por ahora.</div>';
@@ -4867,7 +5127,7 @@
         };
         /** Totales de la lista: los mismos que daba la antigua línea «Total: …». */
         const totalProductos = lista => lista.reduce((s, p) => ({ u: s.u + p.unidades, i: s.i + p.importe, c: s.c + p.costo }), { u: 0, i: 0, c: 0 });
-        const rpSinTildes = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+        const rpSinTildes = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         const rpUtilidad = n => n < 0 ? '<span class="rpNeg">' + dinero(n) + '</span>' : dinero(n);
         /** Tabla de productos. conTotal: agrega la fila de totales y deja las filas listas para «Buscar producto». */
         function tablaProductos(lista, conTotal) {
